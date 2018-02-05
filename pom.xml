@@ -15,6 +15,7 @@
         <module>cheetah-srpc</module>
         <module>cheetah-support</module>
         <module>cheetah-common</module>
+        <module>cheetah-demo</module>
     </modules>
 
     <dependencies>
