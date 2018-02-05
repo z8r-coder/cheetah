@@ -10,10 +10,10 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
-        <module>cheetah-rpc</module>
         <module>cheetah-raft</module>
         <module>cheetah-kv</module>
-        <module>cheetah-rpc</module>
+        <module>cheetah-srpc</module>
+        <module>cheetah-support</module>
     </modules>
 
 
