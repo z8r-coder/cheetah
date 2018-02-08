@@ -1,13 +1,17 @@
 package raft.protocol;
 
 import org.apache.log4j.Logger;
+import raft.core.RaftListener;
+import raft.core.Server.RaftServer;
+
+import java.util.concurrent.Executor;
 
 /**
  * @author ruanxin
  * @create 2018-02-06
  * @desc
  */
-public class RaftNode {
+public class RaftNode implements RaftListener{
 
     private static final Logger log = Logger.getLogger(RaftNode.class);
 
@@ -22,5 +26,12 @@ public class RaftNode {
     private long nextIndex;
     //对于每一个服务器，已经复制给他的日志的最高索引值
     private long matchIndex;
+    private RaftServer raftServer;
 
+    private Executor heartBeatThread;
+
+
+    public void onListen() {
+
+    }
 }
