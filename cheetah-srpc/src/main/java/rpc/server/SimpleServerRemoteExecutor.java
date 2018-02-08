@@ -50,6 +50,11 @@ public class SimpleServerRemoteExecutor implements RemoteExecutor, RpcServicesHo
         return RpcUtils.invokeMethod(this.findService(call), call.getMethod(), call.getArgs(), exceptionHandler);
     }
 
+    public void oneWayBroadcast(RemoteCall remoteCall) {
+
+    }
+
+
     /**
      * 注册remote服务
      * @param clazz

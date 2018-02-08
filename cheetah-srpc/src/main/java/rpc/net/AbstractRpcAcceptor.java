@@ -1,8 +1,8 @@
 package rpc.net;
 
 
+import constants.ErrorCodeEnum;
 import rpc.RpcService;
-import rpc.constants.ErrorCodeEnum;
 import rpc.exception.RpcException;
 
 /**

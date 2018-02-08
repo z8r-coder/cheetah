@@ -7,6 +7,9 @@ import rpc.demo.rpc.provider.HelloRpcService;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Author:Roy
  * @Date: Created in 17:03 2017/12/3 0003
@@ -18,16 +21,28 @@ public class RpcNioClient {
         String host = "127.0.0.1";
         int port = 4332;
 
+        String host1 = "127.0.0.1";
+        int port1 = 4332;
+
         AbstractRpcConnector connector = new RpcNioConnector(null);
+
+        AbstractRpcConnector connector1 = new RpcNioConnector(null);
         connector.setHost(host);
         connector.setPort(port);
 
-        SimpleClientRemoteExecutor executor = new SimpleClientRemoteExecutor(connector);
+        connector1.setHost(host1);
+        connector1.setPort(port1);
+
+        List<AbstractRpcConnector> connectors = new ArrayList<AbstractRpcConnector>();
+
+        connectors.add(connector);connectors.add(connector1);
+        SimpleClientRemoteExecutor executor = new SimpleClientRemoteExecutor(connectors);
 
         SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy();
         proxy.setRemoteExecutor(executor);
 
         proxy.startService();
+
 
 //        HelloRpcService htest = new HelloRpcServiceImpl();
 //        htest.sayHello("this is test",564);

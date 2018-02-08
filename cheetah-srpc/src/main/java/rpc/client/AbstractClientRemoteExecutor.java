@@ -11,6 +11,8 @@ import rpc.sync.RpcCallSync;
 import rpc.sync.RpcSync;
 import rpc.sync.SimpleFutureRpcSync;
 
+import java.rmi.Remote;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,15 +36,25 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Rp
         serializer = new JdkSerializer();
     }
     public void oneWay(RemoteCall remoteCall) {
-        AbstractRpcConnector connector = getRpcConnector(remoteCall);
+        AbstractRpcConnector connector = getRpcConnector();
         byte[] buffer = serializer.serialize(remoteCall);
         int length = buffer.length;
         RpcObject rpc = new RpcObject(ONEWAY, this.getIndex(), length, buffer);
         connector.sendRpcObject(rpc, timeout);
     }
 
+    public void oneWayBroadcast(RemoteCall remoteCall) {
+        List<AbstractRpcConnector> connectors = getRpcConnectors();
+        byte[] buffer = serializer.serialize(remoteCall);
+        int length = buffer.length;
+        RpcObject rpc = new RpcObject(ONEWAY, this.getIndex(), length, buffer);
+        for (AbstractRpcConnector connector : connectors) {
+            connector.sendRpcObject(rpc, timeout);
+        }
+    }
+
     public Object invoke(RemoteCall call) {
-        AbstractRpcConnector connector = getRpcConnector(call);
+        AbstractRpcConnector connector = getRpcConnector();
         byte[] buffer = serializer.serialize(call);
         int length = buffer.length;
         RpcObject request = new RpcObject(INVOKE, this.getIndex(), length, buffer);
@@ -62,6 +74,7 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Rp
         return null;
     }
 
+
     public void onRpcMessage(RpcObject rpc, RpcSender sender) {
         RpcCallSync sync = rpcCache.get(this.makeRpcCallCacheKey(rpc.getThreadId(), rpc.getIndex()));
         if (sync != null && sync.getRequest().getThreadId() == rpc.getThreadId()) {
@@ -77,7 +90,9 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Rp
         return index.getAndIncrement();
     }
 
-    public abstract AbstractRpcConnector getRpcConnector(RemoteCall call);
+    public abstract AbstractRpcConnector getRpcConnector();
+
+    public abstract List<AbstractRpcConnector> getRpcConnectors();
 
     public RpcSerializer getSerializer() {
         return serializer;

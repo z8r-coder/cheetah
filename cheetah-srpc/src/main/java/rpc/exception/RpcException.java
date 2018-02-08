@@ -1,6 +1,6 @@
 package rpc.exception;
 
-import rpc.constants.ErrorCodeEnum;
+import constants.ErrorCodeEnum;
 
 /**
  * @Author:Roy

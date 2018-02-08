@@ -1,5 +1,6 @@
 package rpc.net;
 
+import rpc.RpcRegisterCenter;
 import rpc.RpcService;
 
 /**

@@ -204,11 +204,6 @@ public class RpcUtils {
 
 	/**
 	 * 调用对象的方法执行
-	 * @param obj
-	 * @param methodName
-	 * @param args
-	 * @param exceptionHandler
-	 * @return
 	 */
 	public static Object invokeMethod(Object obj, String methodName,Object[] args,RpcExceptionHandler exceptionHandler) {
 		Class<? extends Object> clazz = obj.getClass();

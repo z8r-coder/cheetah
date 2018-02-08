@@ -1,4 +1,4 @@
-package rpc.constants;
+package constants;
 
 /**
  * @Author:Roy

@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SimpleClientRemoteProxy implements InvocationHandler, RpcService {
 
-    private RemoteExecutor remoteExecutor;
+    private AbstractClientRemoteExecutor remoteExecutor;
 
     private Map<Class, String> versionCache = new ConcurrentHashMap<Class, String>();
 
@@ -35,7 +35,7 @@ public class SimpleClientRemoteProxy implements InvocationHandler, RpcService {
     }
 
     public void stopService() {
-        remoteExecutor.startService();
+        remoteExecutor.stopService();
     }
 
     public void setApplication(String application) {
@@ -71,6 +71,14 @@ public class SimpleClientRemoteProxy implements InvocationHandler, RpcService {
 
         call.getAttachment().put("Application", application);
 
+        //广播
+        if (remoteExecutor.getRpcConnector() == null &&
+                remoteExecutor.getRpcConnectors() != null &&
+                remoteExecutor.getRpcConnectors().size() > 0) {
+            remoteExecutor.oneWayBroadcast(call);
+            return null;
+        }
+
         if (method.getReturnType() == void.class) {
             remoteExecutor.oneWay(call);
             return null;
@@ -82,7 +90,7 @@ public class SimpleClientRemoteProxy implements InvocationHandler, RpcService {
         return remoteExecutor;
     }
 
-    public void setRemoteExecutor(RemoteExecutor remoteExecutor) {
+    public void setRemoteExecutor(AbstractClientRemoteExecutor remoteExecutor) {
         this.remoteExecutor = remoteExecutor;
     }
 

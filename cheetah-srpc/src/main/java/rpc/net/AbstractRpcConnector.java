@@ -1,11 +1,11 @@
 package rpc.net;
 
 
+import constants.ErrorCodeEnum;
 import org.apache.log4j.Logger;
 import rpc.RpcObject;
 import rpc.RpcSender;
 import rpc.RpcService;
-import rpc.constants.ErrorCodeEnum;
 import rpc.exception.RpcException;
 
 import java.util.concurrent.ConcurrentHashMap;
