@@ -17,6 +17,7 @@ public class RaftNode {
     private int votedFor;
     //日志条目
     private RaftLog raftLog;
+
     //对于每一个服务器，需要发送给他的下一个日志条目的索引值（初始化为领导人最后索引值加一）leader
     private long nextIndex;
     //对于每一个服务器，已经复制给他的日志的最高索引值
