@@ -5,7 +5,7 @@ package raft.protocol;
  * @create 2018-02-08
  * @desc 请求投票的RPC
  */
-public class VotedRpc {
+public class VotedRequest {
     //候选人的任期号
     private int term;
     //请求选票的候选人的 Id
@@ -15,7 +15,7 @@ public class VotedRpc {
     //候选人最后日志条目的任期号
     private int lastLogTerm;
 
-    public VotedRpc (int term, int candidateId, int lastLogIndex, int lastLogTerm) {
+    public VotedRequest (int term, int candidateId, int lastLogIndex, int lastLogTerm) {
         this.term = term;
         this.candidateId = candidateId;
         this.lastLogIndex = lastLogIndex;

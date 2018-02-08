@@ -5,7 +5,7 @@ package raft.protocol;
  * @create 2018-02-08
  * @desc 附加日志
  */
-public class AddRpc {
+public class AddRequest {
     //领导人的任期号
     private int term;
     //领导人的 Id，以便于跟随者重定向请求
@@ -19,7 +19,7 @@ public class AddRpc {
     //领导人已经提交的日志的索引值
     private long leaderCommit;
 
-    public AddRpc (int term, int leaderId, long prevLogIndex,
+    public AddRequest (int term, int leaderId, long prevLogIndex,
                    int prevLogTerm, long leaderCommit) {
         this.term = term;
         this.leaderId = leaderId;
