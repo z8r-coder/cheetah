@@ -16,4 +16,24 @@ public class RaftLog {
     //最后被应用到状态机的日志条目索引值
     private long lastApplied = 0;
 
+    public RaftLog(long commitIndex, long lastApplied) {
+        this.commitIndex = commitIndex;
+        this.lastApplied = lastApplied;
+    }
+
+    public long getCommitIndex() {
+        return commitIndex;
+    }
+
+    public void setCommitIndex(long commitIndex) {
+        this.commitIndex = commitIndex;
+    }
+
+    public long getLastApplied() {
+        return lastApplied;
+    }
+
+    public void setLastApplied(long lastApplied) {
+        this.lastApplied = lastApplied;
+    }
 }
