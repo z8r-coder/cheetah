@@ -1,20 +1,22 @@
-package rpc.net;
+package constants;
 
-import rpc.RpcService;
+import java.io.Serializable;
 
 /**
- * @Author:Roy
- * @Date: Created in 0:15 2017/10/15 0015
+ * @author ruanxin
+ * @create 2018-02-09
+ * @desc
  */
-public abstract class AbstractRpcNetworkBase implements RpcService {
-    /**
-     * ip 服务端绑定ip,客户端连接ip
-     */
+public class URL implements Serializable{
+
     private String host;
-    /**
-     * 服务端绑定端口,客户端连接端口
-     */
+
     private int port;
+
+    public URL(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
 
     public String getHost() {
         return host;

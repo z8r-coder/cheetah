@@ -4,6 +4,7 @@ import rpc.RemoteCall;
 import rpc.RemoteExecutor;
 import rpc.RpcContext;
 import rpc.RpcService;
+import rpc.exception.RpcException;
 import rpc.utils.RpcUtils;
 import rpc.utils.XAliasUtils;
 
@@ -71,10 +72,19 @@ public class SimpleClientRemoteProxy implements InvocationHandler, RpcService {
 
         call.getAttachment().put("Application", application);
 
+        // TODO: 2018/2/9  广播暂时不允许有返回值（主要做心跳）
+        if (remoteExecutor.getRpcConnector() == null &&
+                remoteExecutor.getRpcConnectors() != null &&
+                remoteExecutor.getRpcConnectors().size() > 0 &&
+                method.getReturnType() != void.class) {
+            throw new RpcException("broadcast refuse to invoke one method which have return value!");
+        }
+
         //广播
         if (remoteExecutor.getRpcConnector() == null &&
                 remoteExecutor.getRpcConnectors() != null &&
-                remoteExecutor.getRpcConnectors().size() > 0) {
+                remoteExecutor.getRpcConnectors().size() > 0 &&
+                method.getReturnType() == void.class) {
             remoteExecutor.oneWayBroadcast(call);
             return null;
         }

@@ -34,8 +34,8 @@ public class RpcNioClient {
         connector1.setPort(port1);
 
         List<AbstractRpcConnector> connectors = new ArrayList<AbstractRpcConnector>();
-
         connectors.add(connector);connectors.add(connector1);
+
         SimpleClientRemoteExecutor executor = new SimpleClientRemoteExecutor(connectors);
 
         SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy();
@@ -52,14 +52,14 @@ public class RpcNioClient {
         helloRpcService.sayHello("this is HelloRpcService",564);
 
         helloRpcService.sayHello("this is HelloRpcService tttttttt",3333);
+//      -----------------------   test broadcast --------------------------
+//        String hello = helloRpcService.getHello();
 
-        String hello = helloRpcService.getHello();
+//        int ex = helloRpcService.callException(false);
 
-        int ex = helloRpcService.callException(false);
+//        logger.info("hello result:"+hello);
 
-        logger.info("hello result:"+hello);
-
-        logger.info("exResult:"+ex);
+//        logger.info("exResult:"+ex);
 
 //        long start = System.currentTimeMillis();
 //        int total = 10000;
