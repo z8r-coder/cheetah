@@ -48,10 +48,10 @@ public class RpcNioClient {
 //        htest.sayHello("this is test",564);
         HelloRpcService helloRpcService = proxy.registerRemote(HelloRpcService.class);
         logger.info("start client");
-
-        helloRpcService.sayHello("this is HelloRpcService",564);
-
-        helloRpcService.sayHello("this is HelloRpcService tttttttt",3333);
+//
+//        helloRpcService.sayHello("this is HelloRpcService",564);
+//
+//        helloRpcService.sayHello("this is HelloRpcService tttttttt",3333);
 //      -----------------------   test broadcast --------------------------
 //        String hello = helloRpcService.getHello();
 
@@ -68,5 +68,12 @@ public class RpcNioClient {
 //        }
 //        long end = System.currentTimeMillis();
 //        System.out.println("cost:"+(end-start));
+
+        helloRpcService.addMessage("this A");
+        helloRpcService.addMessage("this B");
+
+        helloRpcService.printList();
+
+        helloRpcService.printListSize();
     }
 }

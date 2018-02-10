@@ -4,12 +4,17 @@ import org.apache.log4j.Logger;
 import rpc.RpcContext;
 import rpc.demo.rpc.provider.HelloRpcService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Author:Roy
  * @Date: Created in 17:11 2017/12/3 0003
  */
 public class HelloRpcServiceImpl implements HelloRpcService {
     private Logger logger = Logger.getLogger(HelloRpcServiceImpl.class);
+
+    List<String> list = new ArrayList<String>();
 
     public void sayHello(String message,int tt) {
         Object attachment = RpcContext.getContext().getAttachment("myattachment");
@@ -26,5 +31,19 @@ public class HelloRpcServiceImpl implements HelloRpcService {
             throw new RuntimeException("happen");
         }
         return 1;
+    }
+
+    public synchronized void addMessage(String message) {
+        list.add(message);
+    }
+
+    public void printList() {
+        for (String message : list) {
+            System.out.println("-------" + message + "-----------");
+        }
+    }
+
+    public void printListSize() {
+        System.out.println(list.size());
     }
 }

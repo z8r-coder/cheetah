@@ -17,9 +17,11 @@ public class SimpleRegisterProxy implements RpcService {
 
     private SimpleRegisterServer registerServer;
     private Configuration configuration;
+    private ServerRegisterInfo registerInfo;
 
     public SimpleRegisterProxy () {
-        this.registerServer = new SimpleRegisterServer();
+        this.registerInfo = new ServerRegisterInfo();
+        this.registerServer = new SimpleRegisterServer(registerInfo);
         this.configuration = new Configuration();
     }
     public SimpleRegisterProxy (SimpleRegisterServer registerServer,
@@ -30,6 +32,7 @@ public class SimpleRegisterProxy implements RpcService {
 
     public void startService() {
         configuration.loadPropertiesFromSrc();
+
         String host = configuration.getRegisterHost();
         int port = configuration.getRegisterPort();
         registerServer.setHost(host);
@@ -37,7 +40,6 @@ public class SimpleRegisterProxy implements RpcService {
 
         RpcServiceProvider provider = new RpcServiceProvider();
         SimpleServerRemoteExecutor remoteExecutor = new SimpleServerRemoteExecutor();
-        ServerRegisterInfo registerInfo = new ServerRegisterInfo();
         remoteExecutor.registerRemote(IServerRegisterInfo.class, registerInfo);
 
         provider.setExecutor(remoteExecutor);

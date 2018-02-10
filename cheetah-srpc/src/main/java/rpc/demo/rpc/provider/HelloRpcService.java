@@ -8,7 +8,13 @@ public interface HelloRpcService {
 
     public void sayHello(String message, int tt);
 
+    public void addMessage (String message);
+
     public String getHello();
     
     public int callException(boolean exception);
+
+    public void printList ();
+
+    public void printListSize();
 }

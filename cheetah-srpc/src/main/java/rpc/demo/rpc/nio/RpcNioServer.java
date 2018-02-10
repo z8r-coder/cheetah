@@ -31,9 +31,9 @@ public class RpcNioServer {
 
         proxy.registerRemote(HelloRpcService.class, obj);
 
-        HelloRpcServiceImpl obj2 = new HelloRpcServiceImpl();
-
-        proxy.registerRemote(HelloRpcService.class, obj2);
+//        HelloRpcServiceImpl obj2 = new HelloRpcServiceImpl();
+//
+//        proxy.registerRemote(HelloRpcService.class, obj2);
         
 
         provider.setExecutor(proxy);
