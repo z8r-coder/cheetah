@@ -1,5 +1,7 @@
 package rpc.registry;
 
+import models.CheetahAddress;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,17 +12,17 @@ import java.util.Set;
  */
 public class ServerRegisterInfo implements IServerRegisterInfo {
 
-    Set<String> serverList = new HashSet<String>();
+    Set<CheetahAddress> serverList = new HashSet<CheetahAddress>();
 
-    public Set<String> getServerList() {
+    public Set<CheetahAddress> getServerList() {
         return serverList;
     }
 
-    public synchronized void register(String address) {
+    public synchronized void register(CheetahAddress address) {
         serverList.add(address);
     }
 
-    public synchronized void unRegister(String address) {
+    public synchronized void unRegister(CheetahAddress address) {
         serverList.remove(address);
     }
 }

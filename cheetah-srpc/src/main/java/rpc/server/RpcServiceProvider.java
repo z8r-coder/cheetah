@@ -39,10 +39,11 @@ public class RpcServiceProvider implements RpcCallListener, RpcFilter, RpcServic
 
     private RpcFilterChain filterChain;
 
-    public RpcServiceProvider() {
+    public RpcServiceProvider(RemoteExecutor executor) {
         serializer = new JdkSerializer();
         exceptionHandler = new SimpleRpcExceptionHandler();
         filterChain = new SimpleRpcFilterChain();
+        this.executor = executor;
     }
     public void startService() {
         filterChain.addRpcFilter(this);

@@ -31,6 +31,10 @@ public class SimpleClientRemoteProxy implements InvocationHandler, RpcService {
      */
     private String application;
 
+    public SimpleClientRemoteProxy (AbstractClientRemoteExecutor remoteExecutor) {
+        this.remoteExecutor = remoteExecutor;
+    }
+
     public void startService() {
         remoteExecutor.startService();
     }

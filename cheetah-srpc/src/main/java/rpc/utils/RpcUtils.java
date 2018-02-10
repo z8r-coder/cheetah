@@ -7,6 +7,7 @@ import rpc.constants.RpcType;
 import rpc.exception.RpcException;
 import rpc.exception.RpcExceptionHandler;
 import rpc.exception.RpcNetExceptionHandler;
+import rpc.net.AbstractRpcAcceptor;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.AbstractRpcNioSelector;
 import rpc.nio.RpcNioConnector;
@@ -360,6 +361,16 @@ public class RpcUtils {
 			}
 		}
 		return null;
+	}
+
+	public static void setAddress (String host, int port, AbstractRpcConnector connector) {
+		connector.setPort(port);
+		connector.setHost(host);
+	}
+
+	public static void setAddress (String host, int port, AbstractRpcAcceptor acceptor) {
+		acceptor.setPort(port);
+		acceptor.setHost(host);
 	}
 	
 	public static long getNowMinute(){

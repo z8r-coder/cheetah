@@ -23,9 +23,9 @@ public class RpcNioServer {
         AbstractRpcAcceptor acceptor = new RpcNioAcceptor();
         acceptor.setHost(host);
         acceptor.setPort(port);
-        RpcServiceProvider provider = new RpcServiceProvider();
-
         SimpleServerRemoteExecutor proxy = new SimpleServerRemoteExecutor();
+
+        RpcServiceProvider provider = new RpcServiceProvider(proxy);
 
         HelloRpcServiceImpl obj = new HelloRpcServiceImpl();
 
@@ -34,9 +34,7 @@ public class RpcNioServer {
 //        HelloRpcServiceImpl obj2 = new HelloRpcServiceImpl();
 //
 //        proxy.registerRemote(HelloRpcService.class, obj2);
-        
 
-        provider.setExecutor(proxy);
 
 //		provider.addRpcFilter(new MyTestRpcFilter());
 //

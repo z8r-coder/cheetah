@@ -38,8 +38,7 @@ public class RpcNioClient {
 
         SimpleClientRemoteExecutor executor = new SimpleClientRemoteExecutor(connectors);
 
-        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy();
-        proxy.setRemoteExecutor(executor);
+        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(executor);
 
         proxy.startService();
 

@@ -31,13 +31,8 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
         super.startService();
         heartBeatExecutor.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                Set<String> serverList = registerInfo.getServerList();
-                Set<CheetahAddress> remoteAddress = new HashSet<CheetahAddress>();
-                for (String server : serverList) {
-                    CheetahAddress cheetahAddress = ParseUtils.parseAddress(server);
-                    remoteAddress.add(cheetahAddress);
-                }
-
+                Set<CheetahAddress> serverList = registerInfo.getServerList();
+                // TODO: 2018/2/10 heatBeat
             }
         }, 0, 50, TimeUnit.SECONDS);
     }
