@@ -14,8 +14,8 @@ import java.util.Properties;
 public class Configuration {
     private final static Logger logger = Logger.getLogger(Configuration.class);
 
-    private String registerAddr;
-    private String registerPort;
+    private String registerHost;
+    private int registerPort;
 
     private Properties properties;
 
@@ -23,7 +23,7 @@ public class Configuration {
         InputStream in = null;
 
         try {
-            in = Configuration.class.getClassLoader().getResourceAsStream("EngineConfig.properties");
+            in = Configuration.class.getClassLoader().getResourceAsStream("env.properties");
             if (in != null) {
                 this.properties = new Properties();
                 this.properties.load(in);
@@ -42,6 +42,35 @@ public class Configuration {
         }
     }
     private void loadProperties (Properties properties) {
+        String port = properties.getProperty("register.port");
+        if (!StringUtils.isBlank(port)) {
+            this.registerPort = Integer.parseInt(port.trim());
+        }
+        String host = properties.getProperty("register.host");
+        if (!StringUtils.isBlank(host)) {
+            this.registerHost = host.trim();
+        }
+    }
 
+    public String getRegisterHost() {
+        return registerHost;
+    }
+
+    public void setRegisterHost(String registerHost) {
+        this.registerHost = registerHost;
+    }
+
+    public int getRegisterPort() {
+        return registerPort;
+    }
+
+    public void setRegisterPort(int registerPort) {
+        this.registerPort = registerPort;
+    }
+
+    public static void main(String[] args) {
+        Configuration config = new Configuration();
+        config.loadPropertiesFromSrc();
+        System.out.println(config.getRegisterHost() + " : " + config.getRegisterPort());
     }
 }
