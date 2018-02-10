@@ -203,6 +203,9 @@ public class SimpleRpcNioSelector extends AbstractRpcNioSelector {
         try {
             SocketChannel client = server.accept();
             if (client != null) {
+                if (client.socket() != null) {
+                    logger.warn( "----" + client.socket().getRemoteSocketAddress() + "-----");
+                }
                 client.configureBlocking(false);
                 if (delegageSelector != null) {
                     RpcNioConnector connector = new RpcNioConnector(client, delegageSelector);
