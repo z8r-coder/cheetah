@@ -37,13 +37,14 @@ public class HelloRpcServiceImpl implements HelloRpcService {
         list.add(message);
     }
 
-    public void printList() {
+    // TODO: 2018/2/10 并发 出现读是修改
+    public synchronized void printList() {
         for (String message : list) {
             System.out.println("-------" + message + "-----------");
         }
     }
 
-    public void printListSize() {
+    public synchronized void printListSize() {
         System.out.println(list.size());
     }
 }

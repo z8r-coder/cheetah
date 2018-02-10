@@ -19,6 +19,10 @@ public class Configuration {
 
     private Properties properties;
 
+    public Configuration () {
+        loadPropertiesFromSrc();
+    }
+
     public void loadPropertiesFromSrc() {
         InputStream in = null;
 

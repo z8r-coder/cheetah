@@ -1,11 +1,13 @@
 package models;
 
+import java.io.Serializable;
+
 /**
  * @author ruanxin
  * @create 2018-02-10
  * @desc
  */
-public class CheetahAddress {
+public class CheetahAddress implements Serializable {
 
     private String host;
     private int port;

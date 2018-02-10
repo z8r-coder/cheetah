@@ -31,7 +31,6 @@ public class SimpleRegisterServerProxy implements RpcService {
     }
 
     public void startService() {
-        configuration.loadPropertiesFromSrc();
 
         String host = configuration.getRegisterHost();
         int port = configuration.getRegisterPort();

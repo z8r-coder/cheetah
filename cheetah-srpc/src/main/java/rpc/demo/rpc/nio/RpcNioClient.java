@@ -74,5 +74,7 @@ public class RpcNioClient {
         helloRpcService.printList();
 
         helloRpcService.printListSize();
+
+//        proxy.stopService();
     }
 }
