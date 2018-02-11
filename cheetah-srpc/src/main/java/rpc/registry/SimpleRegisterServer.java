@@ -1,8 +1,16 @@
 package rpc.registry;
 
+import constants.HeartBeatType;
 import models.CheetahAddress;
+import models.HeartBeatRequest;
+import models.HeartBeatResponse;
+import rpc.client.SimpleClientRemoteExecutor;
+import rpc.client.SimpleClientRemoteProxy;
+import rpc.net.AbstractRpcConnector;
 import rpc.nio.AbstractRpcNioSelector;
 import rpc.nio.RpcNioAcceptor;
+import rpc.nio.RpcNioConnector;
+import rpc.utils.RpcUtils;
 import utils.ParseUtils;
 
 import java.util.HashSet;
@@ -35,6 +43,22 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
                 List<CheetahAddress> serverList = registerInfo.getServerList();
                 for (CheetahAddress cheetahAddress : serverList) {
                     System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
+                    AbstractRpcConnector connector = new RpcNioConnector(null);
+                    RpcUtils.setAddress(cheetahAddress.getHost(), cheetahAddress.getPort(), connector);
+
+                    SimpleClientRemoteExecutor remoteExecutor = new SimpleClientRemoteExecutor(connector);
+
+                    SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(remoteExecutor);
+                    proxy.startService();
+
+                    IRegisterHeartBeat registerHeartBeat = proxy.registerRemote(IRegisterHeartBeat.class);
+                    HeartBeatRequest request = new HeartBeatRequest(HeartBeatType.Register);
+
+                    HeartBeatResponse response = registerHeartBeat.registerHeartBeat(request);
+                    if (response != null &&
+                            response.getHeartBeatType() == HeartBeatType.Register) {
+
+                    }
                 }
                 // TODO: 2018/2/10 heatBeat
             }

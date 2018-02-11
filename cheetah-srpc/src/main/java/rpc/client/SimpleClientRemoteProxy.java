@@ -3,7 +3,7 @@ package rpc.client;
 import rpc.RemoteCall;
 import rpc.RemoteExecutor;
 import rpc.RpcContext;
-import rpc.RpcService;
+import rpc.Service;
 import rpc.exception.RpcException;
 import rpc.utils.RpcUtils;
 import rpc.utils.XAliasUtils;
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author:Roy
  * @Date: Created in 14:55 2017/12/3 0003
  */
-public class SimpleClientRemoteProxy implements InvocationHandler, RpcService {
+public class SimpleClientRemoteProxy implements InvocationHandler, Service {
 
     private AbstractClientRemoteExecutor remoteExecutor;
 

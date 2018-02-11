@@ -2,7 +2,7 @@ package rpc.client;
 
 import rpc.RemoteCall;
 import rpc.RemoteExecutor;
-import rpc.RpcService;
+import rpc.Service;
 import rpc.net.AbstractRpcConnector;
 import rpc.net.RpcCallListener;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * @Author:Roy
  * @Date: Created in 14:51 2017/12/3 0003
  */
-public class SimpleClientRemoteExecutor extends AbstractClientRemoteExecutor implements RemoteExecutor, RpcCallListener, RpcService {
+public class SimpleClientRemoteExecutor extends AbstractClientRemoteExecutor implements RemoteExecutor, RpcCallListener, Service {
 
     private AbstractRpcConnector connector;
 
