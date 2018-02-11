@@ -1,7 +1,7 @@
 package rpc.net;
 
 import org.apache.log4j.Logger;
-import rpc.RpcService;
+import rpc.Service;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @Author:Roy
  * @Date: Created in 23:15 2017/10/14 0014
  */
-public abstract class AbstractRpcWriter implements RpcService, RpcOutputNofity {
+public abstract class AbstractRpcWriter implements Service, RpcOutputNofity {
 
     private Logger logger = Logger.getLogger(AbstractRpcWriter.class);
     //every connector need to reg, and get a socket to write by connector

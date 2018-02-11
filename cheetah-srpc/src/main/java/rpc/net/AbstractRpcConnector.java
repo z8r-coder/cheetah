@@ -5,7 +5,7 @@ import constants.ErrorCodeEnum;
 import org.apache.log4j.Logger;
 import rpc.RpcObject;
 import rpc.RpcSender;
-import rpc.RpcService;
+import rpc.Service;
 import rpc.exception.RpcException;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @Author:Roy
  * @Date: Created in 22:55 2017/10/14 0014
  */
-public abstract class AbstractRpcConnector extends RpcNetBase implements RpcService, RpcSender {
+public abstract class AbstractRpcConnector extends RpcNetBase implements Service, RpcSender {
 
     protected boolean stop = false;
     private Logger logger = Logger.getLogger(AbstractRpcConnector.class);

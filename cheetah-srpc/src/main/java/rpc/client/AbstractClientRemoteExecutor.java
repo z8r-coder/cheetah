@@ -15,6 +15,7 @@ import java.rmi.Remote;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -53,6 +54,16 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Se
         }
     }
 
+    // TODO: 2018/2/12 invoke broadcast 
+//    public List<FutureTask> invokeBroadcast(RemoteCall remoteCall) {
+//        List<AbstractRpcConnector> connectors = getRpcConnectors();
+//        byte[] buffer = serializer.serialize(remoteCall);
+//        int length = buffer.length;
+//        RpcObject request = new RpcObject(INVOKE, this.getIndex(), length, buffer);
+//        rpcCache.put(this.makeRpcCallCacheKey(request.getThreadId(), request.getIndex()), sync);
+//        return null;
+//    }
+
     public Object invoke(RemoteCall call) {
         AbstractRpcConnector connector = getRpcConnector();
         byte[] buffer = serializer.serialize(call);
@@ -73,7 +84,6 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Se
         }
         return null;
     }
-
 
     public void onRpcMessage(RpcObject rpc, RpcSender sender) {
         RpcCallSync sync = rpcCache.get(this.makeRpcCallCacheKey(rpc.getThreadId(), rpc.getIndex()));

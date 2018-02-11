@@ -13,6 +13,7 @@ import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
 import utils.ParseUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
 
     private IServerRegisterInfo registerInfo;
     private ScheduledExecutorService heartBeatExecutor = Executors.newScheduledThreadPool(1);
-
+    private SimpleClientRemoteExecutor remoteExecutor;
     public SimpleRegisterServer (IServerRegisterInfo registerInfo) {
         this(null, registerInfo);
     }
@@ -41,24 +42,32 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
         heartBeatExecutor.scheduleAtFixedRate(new Runnable() {
             public void run() {
                 List<CheetahAddress> serverList = registerInfo.getServerList();
+                List<AbstractRpcConnector> connectors = new ArrayList<AbstractRpcConnector>();
+
                 for (CheetahAddress cheetahAddress : serverList) {
-                    System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
+//                    System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
                     AbstractRpcConnector connector = new RpcNioConnector(null);
                     RpcUtils.setAddress(cheetahAddress.getHost(), cheetahAddress.getPort(), connector);
+                    connectors.add(connector);
+                }
+                if (remoteExecutor == null) {
+                    remoteExecutor = new SimpleClientRemoteExecutor(connectors);
+                } else {
+                    //stop last time connectors service
+                    remoteExecutor.stopService();
+                    remoteExecutor = new SimpleClientRemoteExecutor(connectors);
+                }
 
-                    SimpleClientRemoteExecutor remoteExecutor = new SimpleClientRemoteExecutor(connector);
+                SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(remoteExecutor);
+                proxy.startService();
 
-                    SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(remoteExecutor);
-                    proxy.startService();
+                IRegisterHeartBeat registerHeartBeat = proxy.registerRemote(IRegisterHeartBeat.class);
+                HeartBeatRequest request = new HeartBeatRequest(HeartBeatType.Register);
 
-                    IRegisterHeartBeat registerHeartBeat = proxy.registerRemote(IRegisterHeartBeat.class);
-                    HeartBeatRequest request = new HeartBeatRequest(HeartBeatType.Register);
+                HeartBeatResponse response = registerHeartBeat.registerHeartBeat(request);
+                if (response != null &&
+                        response.getHeartBeatType() == HeartBeatType.Register) {
 
-                    HeartBeatResponse response = registerHeartBeat.registerHeartBeat(request);
-                    if (response != null &&
-                            response.getHeartBeatType() == HeartBeatType.Register) {
-
-                    }
                 }
                 // TODO: 2018/2/10 heatBeat
             }

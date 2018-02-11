@@ -1,12 +1,12 @@
 package rpc.net;
 
-import rpc.RpcService;
+import rpc.Service;
 
 /**
  * @Author:Roy
  * @Date: Created in 0:15 2017/10/15 0015
  */
-public abstract class AbstractRpcNetworkBase implements RpcService {
+public abstract class AbstractRpcNetworkBase implements Service {
     /**
      * ip 服务端绑定ip,客户端连接ip
      */

@@ -1,6 +1,6 @@
 package rpc.nio;
 
-import rpc.RpcService;
+import rpc.Service;
 import rpc.exception.RpcNetExceptionHandler;
 import rpc.net.RpcNetBase;
 import rpc.net.RpcNetListener;
@@ -13,7 +13,7 @@ import java.util.List;
  * @Author:Roy
  * @Date: Created in 0:12 2017/10/15 0015
  */
-public abstract class AbstractRpcNioSelector implements RpcService, RpcOutputNofity, RpcNetExceptionHandler {
+public abstract class AbstractRpcNioSelector implements Service, RpcOutputNofity, RpcNetExceptionHandler {
 
     protected List<RpcNetListener> netListeners;
 

@@ -2,14 +2,14 @@ package rpc.net;
 
 
 import constants.ErrorCodeEnum;
-import rpc.RpcService;
+import rpc.Service;
 import rpc.exception.RpcException;
 
 /**
  * @Author:Roy
  * @Date: Created in 0:14 2017/10/15 0015
  */
-public abstract class AbstractRpcAcceptor extends RpcNetBase implements RpcService {
+public abstract class AbstractRpcAcceptor extends RpcNetBase implements Service {
     protected boolean stop = false;
 
     public void startService() {

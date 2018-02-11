@@ -2,7 +2,7 @@ package rpc.net;
 
 import rpc.RpcObject;
 import rpc.RpcSender;
-import rpc.RpcService;
+import rpc.Service;
 import rpc.exception.RpcNetExceptionHandler;
 
 import java.util.LinkedList;
@@ -44,18 +44,18 @@ public abstract class RpcNetBase extends AbstractRpcNetworkBase implements RpcNe
 
     public void startListeners() {
         for (RpcCallListener listener : callListeners) {
-            if (listener instanceof RpcService) {
-                RpcService rpcService = (RpcService) listener;
-                rpcService.startService();
+            if (listener instanceof Service) {
+                Service service = (Service) listener;
+                service.startService();
             }
         }
     }
 
     public void stopListeners() {
         for (RpcCallListener listener : callListeners) {
-            if (listener instanceof RpcService) {
-                RpcService rpcService = (RpcService) listener;
-                rpcService.stopService();
+            if (listener instanceof Service) {
+                Service service = (Service) listener;
+                service.stopService();
             }
         }
     }

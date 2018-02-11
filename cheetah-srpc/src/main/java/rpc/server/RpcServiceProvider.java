@@ -19,7 +19,7 @@ import rpc.utils.RpcUtils;
  * @Author:Roy
  * @Date: Created in 17:18 2017/12/3 0003
  */
-public class RpcServiceProvider implements RpcCallListener, RpcFilter, RpcService {
+public class RpcServiceProvider implements RpcCallListener, RpcFilter, Service {
 
     private Logger logger = Logger.getLogger(RpcServiceProvider.class);
 

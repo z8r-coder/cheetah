@@ -38,13 +38,14 @@ public class ServerProxy extends RpcNioAcceptor{
         this.configuration = configuration;
     }
     public void startService() {
+
+        cheetahAddress = new CheetahAddress(getHost(), getPort());
+
         //heart beat
         heartBeatServiceRegister();
         super.startService();
 
         //register server ip
-        cheetahAddress = new CheetahAddress(getHost(), getPort());
-
         String registerHost = configuration.getRegisterHost();
         int registerPort = configuration.getRegisterPort();
 
@@ -69,8 +70,9 @@ public class ServerProxy extends RpcNioAcceptor{
     private void heartBeatServiceRegister() {
         SimpleServerRemoteExecutor serverRemoteExecutor = new SimpleServerRemoteExecutor();
 
+
         RpcServiceProvider provider = new RpcServiceProvider(serverRemoteExecutor);
-        HeartBeatResponse response = new HeartBeatResponse(HeartBeatType.Register);
+        HeartBeatResponse response = new HeartBeatResponse(HeartBeatType.Register, cheetahAddress);
         RegisterHeartBeat registerHeartBeat = new RegisterHeartBeat(response);
 
         serverRemoteExecutor.registerRemote(IRegisterHeartBeat.class, registerHeartBeat);

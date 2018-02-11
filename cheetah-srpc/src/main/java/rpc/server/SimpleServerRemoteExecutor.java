@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.FutureTask;
 
 /**
  * @Author:Roy
@@ -52,6 +53,10 @@ public class SimpleServerRemoteExecutor implements RemoteExecutor, RpcServicesHo
 
     public void oneWayBroadcast(RemoteCall remoteCall) {
 
+    }
+
+    public List<FutureTask> invokeBroadcast(RemoteCall remoteCall) {
+        return null;
     }
 
 

@@ -1,7 +1,7 @@
 package rpc.registry;
 
 import org.apache.log4j.Logger;
-import rpc.RpcService;
+import rpc.Service;
 import rpc.server.RpcServiceProvider;
 import rpc.server.SimpleServerRemoteExecutor;
 import utils.Configuration;
@@ -11,7 +11,7 @@ import utils.Configuration;
  * @create 2018-02-09
  * @desc register server
  */
-public class SimpleRegisterServerProxy implements RpcService {
+public class SimpleRegisterServerProxy implements Service {
 
     private final static Logger logger = Logger.getLogger(SimpleRegisterServerProxy.class);
 

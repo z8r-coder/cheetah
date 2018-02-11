@@ -5,6 +5,8 @@ import rpc.RpcServiceBean;
 import rpc.server.RpcServicesHolder;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,6 +17,7 @@ import java.util.List;
 public class LocalMonitorService implements RpcMonitorService {
 
     private RpcServicesHolder rpcServicesHolder;
+    private long time = 0;
 
     public LocalMonitorService (RpcServicesHolder rpcServicesHolder) {
         this.rpcServicesHolder = rpcServicesHolder;
@@ -25,15 +28,18 @@ public class LocalMonitorService implements RpcMonitorService {
             List<RpcServiceBean> serviceBeans = rpcServicesHolder.getRpcServices();
             if (serviceBeans != null && serviceBeans.size() > 0) {
                 List<RpcService> list = new ArrayList<RpcService>();
-                for (RpcServiceBean serviceBean : serviceBeans) {
-//                    RpcService rpcService = new RpcSer
+                for (RpcServiceBean service : serviceBeans) {
+                    RpcService rpcService = new RpcService(service.getInterf().getName(),service.getVersion(),service.getBean().getClass().getName());
+                    rpcService.setTime(time);
+                    list.add(rpcService);
                 }
+                return list;
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public String ping() {
-        return null;
+        return "pong " + new Date();
     }
 }
