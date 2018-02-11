@@ -1,6 +1,8 @@
 package rpc.registry;
 
+import constants.HeartBeatType;
 import models.CheetahAddress;
+import models.HeartBeatResponse;
 import org.apache.log4j.Logger;
 import rpc.client.SimpleClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
@@ -8,6 +10,8 @@ import rpc.net.AbstractRpcConnector;
 import rpc.nio.AbstractRpcNioSelector;
 import rpc.nio.RpcNioAcceptor;
 import rpc.nio.RpcNioConnector;
+import rpc.server.RpcServiceProvider;
+import rpc.server.SimpleServerRemoteExecutor;
 import rpc.utils.RpcUtils;
 import utils.Configuration;
 
@@ -34,8 +38,11 @@ public class ServerProxy extends RpcNioAcceptor{
         this.configuration = configuration;
     }
     public void startService() {
+        //heart beat
+        heartBeatServiceRegister();
         super.startService();
 
+        //register server ip
         cheetahAddress = new CheetahAddress(getHost(), getPort());
 
         String registerHost = configuration.getRegisterHost();
@@ -57,5 +64,16 @@ public class ServerProxy extends RpcNioAcceptor{
     public void stopService() {
         super.stopService();
         registerInfo.unRegister(cheetahAddress);
+    }
+
+    private void heartBeatServiceRegister() {
+        SimpleServerRemoteExecutor serverRemoteExecutor = new SimpleServerRemoteExecutor();
+
+        RpcServiceProvider provider = new RpcServiceProvider(serverRemoteExecutor);
+        HeartBeatResponse response = new HeartBeatResponse(HeartBeatType.Register);
+        RegisterHeartBeat registerHeartBeat = new RegisterHeartBeat(response);
+
+        serverRemoteExecutor.registerRemote(IRegisterHeartBeat.class, registerHeartBeat);
+        this.addRpcCallListener(provider);
     }
 }
