@@ -16,20 +16,20 @@ import utils.Configuration;
  * @create 2018-02-10
  * @desc start the service to register
  */
-public class RegisterServerProxy extends RpcNioAcceptor{
+public class ServerProxy extends RpcNioAcceptor{
 
-    private Logger logger = Logger.getLogger(RegisterServerProxy.class);
+    private Logger logger = Logger.getLogger(ServerProxy.class);
 
     private Configuration configuration;
     private IServerRegisterInfo registerInfo;
     //本地地址
     CheetahAddress cheetahAddress;
 
-    public RegisterServerProxy () {
+    public ServerProxy () {
         this(null, new Configuration());
     }
 
-    public RegisterServerProxy (AbstractRpcNioSelector selector, Configuration configuration) {
+    public ServerProxy (AbstractRpcNioSelector selector, Configuration configuration) {
         super(selector);
         this.configuration = configuration;
     }

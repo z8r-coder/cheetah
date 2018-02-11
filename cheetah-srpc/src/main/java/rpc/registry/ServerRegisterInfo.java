@@ -3,7 +3,9 @@ package rpc.registry;
 import models.CheetahAddress;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author ruanxin
@@ -12,9 +14,9 @@ import java.util.Set;
  */
 public class ServerRegisterInfo implements IServerRegisterInfo {
 
-    Set<CheetahAddress> serverList = new HashSet<CheetahAddress>();
+    List<CheetahAddress> serverList = new CopyOnWriteArrayList<CheetahAddress>();
 
-    public Set<CheetahAddress> getServerList() {
+    public List<CheetahAddress> getServerList() {
         return serverList;
     }
 

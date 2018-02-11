@@ -2,6 +2,7 @@ package rpc.registry;
 
 import models.CheetahAddress;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Set;
  */
 public interface IServerRegisterInfo {
 
-    public Set<CheetahAddress> getServerList();
+    public List<CheetahAddress> getServerList();
 
     void register (CheetahAddress address);
 

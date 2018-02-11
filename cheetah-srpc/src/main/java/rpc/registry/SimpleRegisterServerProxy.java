@@ -45,7 +45,7 @@ public class SimpleRegisterServerProxy implements RpcService {
 
         registerServer.startService();
 
-        logger.info("Register Center has registered!");
+        logger.info("Register Center has started!");
     }
 
     public void stopService() {

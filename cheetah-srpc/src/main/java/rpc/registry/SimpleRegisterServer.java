@@ -6,6 +6,7 @@ import rpc.nio.RpcNioAcceptor;
 import utils.ParseUtils;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
 
@@ -31,7 +32,7 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
         super.startService();
         heartBeatExecutor.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                Set<CheetahAddress> serverList = registerInfo.getServerList();
+                List<CheetahAddress> serverList = registerInfo.getServerList();
                 for (CheetahAddress cheetahAddress : serverList) {
                     System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
                 }
