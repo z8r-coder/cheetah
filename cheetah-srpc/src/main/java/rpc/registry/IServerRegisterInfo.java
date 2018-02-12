@@ -17,4 +17,6 @@ public interface IServerRegisterInfo {
     void register (CheetahAddress address);
 
     void unRegister (CheetahAddress address);
+
+    void heartBeat (CheetahAddress address);
 }

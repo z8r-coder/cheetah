@@ -1,5 +1,6 @@
 package rpc.registry;
 
+import constants.Globle;
 import constants.HeartBeatType;
 import models.CheetahAddress;
 import models.HeartBeatResponse;
@@ -15,6 +16,10 @@ import rpc.server.SimpleServerRemoteExecutor;
 import rpc.utils.RpcUtils;
 import utils.Configuration;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author ruanxin
  * @create 2018-02-10
@@ -24,6 +29,8 @@ public class ServerProxy extends RpcNioAcceptor{
 
     private Logger logger = Logger.getLogger(ServerProxy.class);
 
+    //heart beat
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private Configuration configuration;
     private IServerRegisterInfo registerInfo;
     //本地地址
@@ -41,8 +48,6 @@ public class ServerProxy extends RpcNioAcceptor{
 
         cheetahAddress = new CheetahAddress(getHost(), getPort());
 
-        //heart beat
-        heartBeatServiceRegister();
         super.startService();
 
         //register server ip
@@ -58,24 +63,19 @@ public class ServerProxy extends RpcNioAcceptor{
         SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(remoteExecutor);
         proxy.startService();
 
+        //register server ip
         registerInfo = proxy.registerRemote(IServerRegisterInfo.class);
         registerInfo.register(cheetahAddress);
+
+        executorService.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+                registerInfo.heartBeat(cheetahAddress);
+            }
+        }, Globle.REG_HEART_BEAT_INIT, Globle.REG_HEART_BEAT_INTERVAL, TimeUnit.SECONDS);
     }
 
     public void stopService() {
         super.stopService();
         registerInfo.unRegister(cheetahAddress);
-    }
-
-    private void heartBeatServiceRegister() {
-        SimpleServerRemoteExecutor serverRemoteExecutor = new SimpleServerRemoteExecutor();
-
-
-        RpcServiceProvider provider = new RpcServiceProvider(serverRemoteExecutor);
-        HeartBeatResponse response = new HeartBeatResponse(HeartBeatType.Register, cheetahAddress);
-        RegisterHeartBeat registerHeartBeat = new RegisterHeartBeat(response);
-
-        serverRemoteExecutor.registerRemote(IRegisterHeartBeat.class, registerHeartBeat);
-        this.addRpcCallListener(provider);
     }
 }

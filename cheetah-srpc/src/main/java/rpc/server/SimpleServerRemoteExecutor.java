@@ -55,9 +55,6 @@ public class SimpleServerRemoteExecutor implements RemoteExecutor, RpcServicesHo
 
     }
 
-    public List<FutureTask> invokeBroadcast(RemoteCall remoteCall) {
-        return null;
-    }
 
 
     /**

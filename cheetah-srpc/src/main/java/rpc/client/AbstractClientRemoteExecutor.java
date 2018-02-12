@@ -54,15 +54,6 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Se
         }
     }
 
-    // TODO: 2018/2/12 invoke broadcast 
-//    public List<FutureTask> invokeBroadcast(RemoteCall remoteCall) {
-//        List<AbstractRpcConnector> connectors = getRpcConnectors();
-//        byte[] buffer = serializer.serialize(remoteCall);
-//        int length = buffer.length;
-//        RpcObject request = new RpcObject(INVOKE, this.getIndex(), length, buffer);
-//        rpcCache.put(this.makeRpcCallCacheKey(request.getThreadId(), request.getIndex()), sync);
-//        return null;
-//    }
 
     public Object invoke(RemoteCall call) {
         AbstractRpcConnector connector = getRpcConnector();

@@ -19,8 +19,6 @@ public interface RemoteExecutor extends Service {
 
     void oneWayBroadcast(RemoteCall remoteCall);
 
-    List<FutureTask> invokeBroadcast(RemoteCall remoteCall);
-
     int ONEWAY = RpcType.ONEWAY.getType();
 
     int INVOKE = RpcType.INVOKE.getType();

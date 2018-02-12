@@ -16,15 +16,23 @@ public class ServerRegisterInfo implements IServerRegisterInfo {
 
     List<CheetahAddress> serverList = new CopyOnWriteArrayList<CheetahAddress>();
 
+    List<CheetahAddress> heartBeatList = new CopyOnWriteArrayList<CheetahAddress>();
+
     public List<CheetahAddress> getServerList() {
         return serverList;
     }
 
-    public synchronized void register(CheetahAddress address) {
+    public void register(CheetahAddress address) {
         serverList.add(address);
     }
 
-    public synchronized void unRegister(CheetahAddress address) {
+    public void unRegister(CheetahAddress address) {
         serverList.remove(address);
     }
+
+    public void heartBeat(CheetahAddress address) {
+        heartBeatList.add(address);
+    }
+
+
 }
