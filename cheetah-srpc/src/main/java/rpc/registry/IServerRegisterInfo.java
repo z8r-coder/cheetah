@@ -12,7 +12,9 @@ import java.util.Set;
  */
 public interface IServerRegisterInfo {
 
-    public List<CheetahAddress> getServerList();
+    public Set<CheetahAddress> getServerList();
+
+    public void updateList();
 
     void register (CheetahAddress address);
 

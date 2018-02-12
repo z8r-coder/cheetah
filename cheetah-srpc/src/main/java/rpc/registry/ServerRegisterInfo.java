@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * @author ruanxin
@@ -14,12 +15,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ServerRegisterInfo implements IServerRegisterInfo {
 
-    List<CheetahAddress> serverList = new CopyOnWriteArrayList<CheetahAddress>();
+    Set<CheetahAddress> serverList = new CopyOnWriteArraySet<CheetahAddress>();
 
-    List<CheetahAddress> heartBeatList = new CopyOnWriteArrayList<CheetahAddress>();
+    Set<CheetahAddress> heartBeatList = new CopyOnWriteArraySet<CheetahAddress>();
 
-    public List<CheetahAddress> getServerList() {
+    public Set<CheetahAddress> getServerList() {
         return serverList;
+    }
+
+    public void updateList() {
+        serverList = heartBeatList;
+        heartBeatList.clear();
     }
 
     public void register(CheetahAddress address) {
@@ -33,6 +39,4 @@ public class ServerRegisterInfo implements IServerRegisterInfo {
     public void heartBeat(CheetahAddress address) {
         heartBeatList.add(address);
     }
-
-
 }

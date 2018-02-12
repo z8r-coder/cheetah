@@ -28,7 +28,6 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
 
     private IServerRegisterInfo registerInfo;
     private ScheduledExecutorService heartBeatExecutor = Executors.newScheduledThreadPool(1);
-    private SimpleClientRemoteExecutor remoteExecutor;
     public SimpleRegisterServer (IServerRegisterInfo registerInfo) {
         this(null, registerInfo);
     }
@@ -41,37 +40,9 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
         super.startService();
         heartBeatExecutor.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                List<CheetahAddress> serverList = registerInfo.getServerList();
-                List<AbstractRpcConnector> connectors = new ArrayList<AbstractRpcConnector>();
-
-                for (CheetahAddress cheetahAddress : serverList) {
-//                    System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
-                    AbstractRpcConnector connector = new RpcNioConnector(null);
-                    RpcUtils.setAddress(cheetahAddress.getHost(), cheetahAddress.getPort(), connector);
-                    connectors.add(connector);
-                }
-                if (remoteExecutor == null) {
-                    remoteExecutor = new SimpleClientRemoteExecutor(connectors);
-                } else {
-                    //stop last time connectors service
-                    remoteExecutor.stopService();
-                    remoteExecutor = new SimpleClientRemoteExecutor(connectors);
-                }
-
-                SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(remoteExecutor);
-                proxy.startService();
-
-                IRegisterHeartBeat registerHeartBeat = proxy.registerRemote(IRegisterHeartBeat.class);
-                HeartBeatRequest request = new HeartBeatRequest(HeartBeatType.Register);
-
-                HeartBeatResponse response = registerHeartBeat.registerHeartBeat(request);
-                if (response != null &&
-                        response.getHeartBeatType() == HeartBeatType.Register) {
-
-                }
-                // TODO: 2018/2/10 heatBeat
+                registerInfo.updateList();
             }
-        }, 0, 3, TimeUnit.SECONDS);
+        }, 0, 45, TimeUnit.SECONDS);
     }
 
     public void stopService() {

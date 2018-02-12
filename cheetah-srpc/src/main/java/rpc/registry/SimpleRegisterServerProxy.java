@@ -31,7 +31,6 @@ public class SimpleRegisterServerProxy implements Service {
     }
 
     public void startService() {
-
         String host = configuration.getRegisterHost();
         int port = configuration.getRegisterPort();
         registerServer.setHost(host);
