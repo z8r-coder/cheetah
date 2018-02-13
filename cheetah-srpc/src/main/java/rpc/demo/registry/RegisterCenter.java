@@ -5,7 +5,7 @@ import rpc.registry.SimpleRegisterServerProxy;
 /**
  * @author ruanxin
  * @create 2018-02-11
- * @desc
+ * @desc register center
  */
 public class RegisterCenter {
     public static void main(String[] args) {
