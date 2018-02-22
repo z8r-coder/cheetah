@@ -3,6 +3,10 @@ package utils;
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author ruanxin
  * @create 2018-02-10
@@ -23,6 +27,15 @@ public class ParseUtils {
 
         CheetahAddress cheetahAddress = new CheetahAddress(host, port);
         return cheetahAddress;
+    }
+
+    public static List<CheetahAddress> parseListAddress (Set<String> addresses) {
+        List<CheetahAddress> serverList = new ArrayList<CheetahAddress>();
+        for (String address : addresses) {
+            CheetahAddress cheetahAddress = parseAddress(address);
+            serverList.add(cheetahAddress);
+        }
+        return serverList;
     }
 
     public static void main(String[] args) {

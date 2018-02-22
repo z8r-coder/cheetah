@@ -33,9 +33,8 @@ public class ServerProxy extends RpcNioAcceptor{
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private Configuration configuration;
     private IServerRegisterInfo registerInfo;
-    //本地地址
-    CheetahAddress cheetahAddress;
 
+    private String address;
     public ServerProxy () {
         this(null, new Configuration());
     }
@@ -45,8 +44,7 @@ public class ServerProxy extends RpcNioAcceptor{
         this.configuration = configuration;
     }
     public void startService() {
-
-        cheetahAddress = new CheetahAddress(getHost(), getPort());
+        address = getHost() + ":" + getPort();
 
         super.startService();
 
@@ -65,17 +63,17 @@ public class ServerProxy extends RpcNioAcceptor{
 
         //register server ip
         registerInfo = proxy.registerRemote(IServerRegisterInfo.class);
-        registerInfo.register(cheetahAddress);
+        registerInfo.register(address);
 
         executorService.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                registerInfo.heartBeat(cheetahAddress);
+                registerInfo.heartBeat(address);
             }
-        }, Globle.REG_HEART_BEAT_INIT, Globle.REG_HEART_BEAT_INTERVAL, TimeUnit.SECONDS);
+        }, Globle.REG_HEART_BEAT_INIT_TEST, Globle.REG_HEART_BEAT_INTERVAL_TEST, TimeUnit.SECONDS);
     }
 
     public void stopService() {
         super.stopService();
-        registerInfo.unRegister(cheetahAddress);
+        registerInfo.unRegister(address);
     }
 }

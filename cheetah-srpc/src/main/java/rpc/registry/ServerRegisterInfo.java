@@ -15,11 +15,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class ServerRegisterInfo implements IServerRegisterInfo {
 
-    Set<CheetahAddress> serverList = new CopyOnWriteArraySet<CheetahAddress>();
+    Set<String> serverList = new CopyOnWriteArraySet<String>();
 
-    Set<CheetahAddress> heartBeatList = new CopyOnWriteArraySet<CheetahAddress>();
+    Set<String> heartBeatList = new CopyOnWriteArraySet<String>();
 
-    public Set<CheetahAddress> getServerList() {
+    public Set<String> getServerList() {
         return serverList;
     }
 
@@ -28,15 +28,16 @@ public class ServerRegisterInfo implements IServerRegisterInfo {
         heartBeatList.clear();
     }
 
-    public void register(CheetahAddress address) {
+    public void register(String address) {
         serverList.add(address);
+        heartBeatList.add(address);
     }
 
-    public void unRegister(CheetahAddress address) {
+    public void unRegister(String address) {
         serverList.remove(address);
     }
 
-    public void heartBeat(CheetahAddress address) {
+    public void heartBeat(String  address) {
         heartBeatList.add(address);
     }
 }

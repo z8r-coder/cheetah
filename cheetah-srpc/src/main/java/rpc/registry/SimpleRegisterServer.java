@@ -1,5 +1,6 @@
 package rpc.registry;
 
+import constants.Globle;
 import constants.HeartBeatType;
 import models.CheetahAddress;
 import models.HeartBeatRequest;
@@ -11,6 +12,7 @@ import rpc.nio.AbstractRpcNioSelector;
 import rpc.nio.RpcNioAcceptor;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
+import sun.net.www.ParseUtil;
 import utils.ParseUtils;
 
 import java.util.ArrayList;
@@ -41,13 +43,28 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
         heartBeatExecutor.scheduleAtFixedRate(new Runnable() {
             public void run() {
                 registerInfo.updateList();
+
+                // TODO: 2018/2/22 test
+                Set<String> serverList = registerInfo.getServerList();
+                for (String address : serverList) {
+                    System.out.println(address);
+                }
             }
-        }, 0, 45, TimeUnit.SECONDS);
+        }, 0, Globle.REG_UPDATE_SERVER_LIST_TEST, TimeUnit.SECONDS);
     }
 
     public void stopService() {
         super.stopService();
         heartBeatExecutor.shutdown();
+    }
+
+    public List<CheetahAddress> getServerList() {
+        if (registerInfo != null) {
+            Set<String> serverList = registerInfo.getServerList();
+            List<CheetahAddress> cheetahAddressList = ParseUtils.parseListAddress(serverList);
+            return cheetahAddressList;
+        }
+        return new ArrayList<CheetahAddress>();
     }
 
     public static void main(String[] args) {
