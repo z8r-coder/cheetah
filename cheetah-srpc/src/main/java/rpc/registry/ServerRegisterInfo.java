@@ -24,7 +24,8 @@ public class ServerRegisterInfo implements IServerRegisterInfo {
     }
 
     public void updateList() {
-        serverList = heartBeatList;
+        serverList.clear();
+        serverList.addAll(heartBeatList);
         heartBeatList.clear();
     }
 
