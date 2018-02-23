@@ -1,11 +1,13 @@
 package raft.protocol;
 
+import java.io.Serializable;
+
 /**
  * @author ruanxin
  * @create 2018-02-08
  * @desc 返回
  */
-public class RaftResponse {
+public class RaftResponse implements Serializable{
     //当前任期号，以便于候选人去更新自己的任期号
     private int term;
     //候选人赢得了此张选票时为真

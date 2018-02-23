@@ -1,11 +1,15 @@
 package raft.protocol;
 
+import java.io.Serializable;
+
 /**
  * @author ruanxin
  * @create 2018-02-08
  * @desc 请求投票的RPC
  */
-public class VotedRequest {
+public class VotedRequest implements Serializable {
+    //机器id
+    private int serverId;
     //候选人的任期号
     private int term;
     //请求选票的候选人的 Id
@@ -52,5 +56,12 @@ public class VotedRequest {
 
     public void setLastLogTerm(int lastLogTerm) {
         this.lastLogTerm = lastLogTerm;
+    }
+    public int getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(int serverId) {
+        this.serverId = serverId;
     }
 }

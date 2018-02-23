@@ -2,9 +2,11 @@ package raft.protocol;
 
 import org.apache.log4j.Logger;
 import raft.core.RaftListener;
-import raft.core.Server.RaftServer;
+import raft.core.server.RaftServer;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author ruanxin
@@ -17,8 +19,8 @@ public class RaftNode implements RaftListener{
 
     //服务器最后一次知道的任期号
     private int currentTerm = 0;
-    //在当前获得选票的候选人的 Id
-    private int votedFor;
+    //在当前获得选票的候选人的 Id (default 0)
+    private int votedFor = 0;
     //日志条目
     private RaftLog raftLog;
 
@@ -30,8 +32,73 @@ public class RaftNode implements RaftListener{
 
     private Executor heartBeatThread;
 
+    private Lock lock = new ReentrantLock();
 
     public void onListen() {
 
+    }
+
+    public Lock getLock() {
+        return lock;
+    }
+
+    public int getCurrentTerm() {
+        return currentTerm;
+    }
+
+    public void setCurrentTerm(int currentTerm) {
+        this.currentTerm = currentTerm;
+    }
+
+    public int getVotedFor() {
+        return votedFor;
+    }
+
+    public void setVotedFor(int votedFor) {
+        this.votedFor = votedFor;
+    }
+
+    public RaftLog getRaftLog() {
+        return raftLog;
+    }
+
+    public void setRaftLog(RaftLog raftLog) {
+        this.raftLog = raftLog;
+    }
+
+    public long getNextIndex() {
+        return nextIndex;
+    }
+
+    public void setNextIndex(long nextIndex) {
+        this.nextIndex = nextIndex;
+    }
+
+    public long getMatchIndex() {
+        return matchIndex;
+    }
+
+    public void setMatchIndex(long matchIndex) {
+        this.matchIndex = matchIndex;
+    }
+
+    public RaftServer getRaftServer() {
+        return raftServer;
+    }
+
+    public void setRaftServer(RaftServer raftServer) {
+        this.raftServer = raftServer;
+    }
+
+    public Executor getHeartBeatThread() {
+        return heartBeatThread;
+    }
+
+    public void setHeartBeatThread(Executor heartBeatThread) {
+        this.heartBeatThread = heartBeatThread;
+    }
+
+    public void setLock(Lock lock) {
+        this.lock = lock;
     }
 }
