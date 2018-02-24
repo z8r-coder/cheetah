@@ -19,6 +19,8 @@ public class RaftServer {
 
     private NodeState serverState;
 
+    private int serverId;
+
     RaftServer (int host, int port) {
         this.host = host;
         this.port = port;
@@ -46,5 +48,13 @@ public class RaftServer {
 
     public NodeState getServerState() {
         return serverState;
+    }
+
+    public void setServerId(int serverId) {
+        this.serverId = serverId;
+    }
+
+    public int getServerId() {
+        return serverId;
     }
 }
