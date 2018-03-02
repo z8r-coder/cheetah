@@ -74,7 +74,8 @@ public class RaftCore {
             int currentTerm = raftNode.getCurrentTerm() + 1;
             raftNode.setCurrentTerm(currentTerm);
             logger.info("Running for election in term " + currentTerm);
-
+            raftNode.getRaftServer().setServerState(RaftServer.NodeState.CANDIDATE);
+            raftNode.setVotedFor(serverId);
         } finally {
             lock.unlock();
         }
