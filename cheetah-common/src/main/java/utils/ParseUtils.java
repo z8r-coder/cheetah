@@ -38,6 +38,13 @@ public class ParseUtils {
         return serverList;
     }
 
+    public static int generateServerId(String host, int port) {
+        String preServerId = host.replaceAll("\\.", "");
+        String strServerId = preServerId + port;
+        int serverId = Integer.parseInt(strServerId);
+        return serverId;
+    }
+
     public static void main(String[] args) {
         CheetahAddress cheetahAddress = parseAddress("127.0.0.1:8080");
         System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());

@@ -15,10 +15,7 @@ import rpc.utils.RpcUtils;
 import sun.net.www.ParseUtil;
 import utils.ParseUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -45,9 +42,10 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
                 registerInfo.updateList();
 
                 // TODO: 2018/2/22 test
-                Set<String> serverList = registerInfo.getServerList();
-                for (String address : serverList) {
-                    System.out.println(address);
+                Map<Integer,String> serverList = registerInfo.getServerListCache();
+                for (Integer serverId : serverList.keySet()) {
+                    System.out.println("serverId:" + serverId + " ----- "
+                            + "server address:" + serverList.get(serverId));
                 }
             }
         }, 0, Globle.REG_UPDATE_SERVER_LIST_TEST, TimeUnit.SECONDS);
@@ -56,15 +54,6 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
     public void stopService() {
         super.stopService();
         heartBeatExecutor.shutdown();
-    }
-
-    public List<CheetahAddress> getServerList() {
-        if (registerInfo != null) {
-            Set<String> serverList = registerInfo.getServerList();
-            List<CheetahAddress> cheetahAddressList = ParseUtils.parseListAddress(serverList);
-            return cheetahAddressList;
-        }
-        return new ArrayList<CheetahAddress>();
     }
 
     public static void main(String[] args) {

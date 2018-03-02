@@ -1,5 +1,8 @@
 package raft.core.server;
 
+import raft.utils.RaftUtils;
+import utils.ParseUtils;
+
 /**
  * @author ruanxin
  * @create 2018-02-06
@@ -13,7 +16,7 @@ public class RaftServer {
         LEADER;
     }
 
-    private int host;
+    private String host;
 
     private int port;
 
@@ -21,16 +24,17 @@ public class RaftServer {
 
     private int serverId;
 
-    RaftServer (int host, int port) {
+    RaftServer (String host, int port) {
         this.host = host;
         this.port = port;
+        serverId = ParseUtils.generateServerId(host, port);
     }
 
-    public int getHost() {
+    public String getHost() {
         return host;
     }
 
-    public void setHost(int host) {
+    public void setHost(String host) {
         this.host = host;
     }
 
@@ -56,5 +60,15 @@ public class RaftServer {
 
     public int getServerId() {
         return serverId;
+    }
+
+    public static void main(String[] args) {
+        String host = "192.0.0.1";
+        int port = 8854;
+        String preId = host.replaceAll("\\.","");
+        int predId = Integer.parseInt(preId);
+        String por = preId + port;
+        int serverId = Integer.parseInt(por);
+        System.out.println(serverId);
     }
 }

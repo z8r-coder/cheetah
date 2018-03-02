@@ -3,6 +3,7 @@ package rpc.registry;
 import models.CheetahAddress;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -12,8 +13,6 @@ import java.util.Set;
  */
 public interface IServerRegisterInfo {
 
-    public Set<String> getServerList();
-
     public void updateList();
 
     void register (String address);
@@ -21,4 +20,6 @@ public interface IServerRegisterInfo {
     void unRegister (String address);
 
     void heartBeat (String address);
+
+    Map<Integer, String> getServerListCache();
 }

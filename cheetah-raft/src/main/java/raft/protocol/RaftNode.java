@@ -33,7 +33,7 @@ public class RaftNode implements RaftListener{
 
     private Executor heartBeatThread;
 
-    private RaftCore raftCore = new RaftCore();
+//    private RaftCore raftCore = new RaftCore();
 
     private Lock lock = new ReentrantLock();
 

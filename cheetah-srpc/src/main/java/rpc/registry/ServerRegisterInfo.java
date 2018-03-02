@@ -1,12 +1,9 @@
 package rpc.registry;
 
 import models.CheetahAddress;
+import utils.ParseUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.*;
 
 /**
  * @author ruanxin
@@ -15,30 +12,41 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class ServerRegisterInfo implements IServerRegisterInfo {
 
-    Set<String> serverList = new CopyOnWriteArraySet<String>();
+    Map<Integer, String> serverCache = new HashMap<Integer, String>();
 
-    Set<String> heartBeatList = new CopyOnWriteArraySet<String>();
-
-    public Set<String> getServerList() {
-        return serverList;
-    }
+    Map<Integer, String> heartBeatCache = new HashMap<Integer, String>();
 
     public void updateList() {
-        serverList.clear();
-        serverList.addAll(heartBeatList);
-        heartBeatList.clear();
+        serverCache.clear();
+        serverCache.putAll(heartBeatCache);
+        heartBeatCache.clear();
     }
 
     public void register(String address) {
-        serverList.add(address);
-        heartBeatList.add(address);
+        int serverId = getServerId(address);
+        serverCache.put(serverId,address);
+        heartBeatCache.put(serverId, address);
     }
 
     public void unRegister(String address) {
-        serverList.remove(address);
+        heartBeatCache.remove(address);
+        serverCache.remove(address);
+        int serverId = getServerId(address);
+        serverCache.remove(serverId);
     }
 
-    public void heartBeat(String  address) {
-        heartBeatList.add(address);
+    public void heartBeat(String address) {
+        int serverId = getServerId(address);
+        heartBeatCache.put(serverId, address);
+    }
+
+    public Map<Integer, String> getServerListCache() {
+        return serverCache;
+    }
+
+    private int getServerId(String address) {
+        CheetahAddress cheetahAddress = ParseUtils.parseAddress(address);
+        int serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
+        return serverId;
     }
 }
