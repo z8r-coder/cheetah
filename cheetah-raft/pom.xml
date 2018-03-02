@@ -12,5 +12,17 @@
 
     <artifactId>cheetah-raft</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.roy.cheetah</groupId>
+            <artifactId>cheetah-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.roy.cheetah</groupId>
+            <artifactId>cheetah-srpc</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>

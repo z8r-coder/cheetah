@@ -1,6 +1,7 @@
 package raft.protocol;
 
 import org.apache.log4j.Logger;
+import raft.core.RaftCore;
 import raft.core.RaftListener;
 import raft.core.server.RaftServer;
 
@@ -31,6 +32,8 @@ public class RaftNode implements RaftListener{
     private RaftServer raftServer;
 
     private Executor heartBeatThread;
+
+    private RaftCore raftCore = new RaftCore();
 
     private Lock lock = new ReentrantLock();
 
