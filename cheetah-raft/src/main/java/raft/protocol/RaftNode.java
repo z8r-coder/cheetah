@@ -35,6 +35,10 @@ public class RaftNode implements RaftListener{
 
 //    private RaftCore raftCore = new RaftCore();
 
+    public RaftNode (RaftLog raftLog, RaftServer raftServer) {
+        this.raftLog = raftLog;
+        this.raftServer = raftServer;
+    }
     private Lock lock = new ReentrantLock();
 
     public void onListen() {

@@ -3,8 +3,9 @@ package raft.core;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
-import rpc.registry.IServerRegisterInfo;
+import raft.protocol.RaftNode;
 
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,19 +24,19 @@ public class RaftCore {
 
     private Lock lock = new ReentrantLock();
 
+    RaftNode raftNode;
     private RaftOptions raftOptions;
-    private RaftServer raftServer;
-    private IServerRegisterInfo serverRegisterInfo;
+    private Map<Integer, String> serverList;
 
     private ScheduledExecutorService scheduledExecutorService;
     private ScheduledFuture electionScheduledFuture;
     private ScheduledFuture heartBeatScheduledFuture;
 
-    public RaftCore (RaftOptions raftOptions,RaftServer raftServer,
-                     IServerRegisterInfo serverRegisterInfo) {
+    public RaftCore (RaftOptions raftOptions,RaftNode raftNode,
+                     Map<Integer, String> serverList) {
         this.raftOptions = raftOptions;
-        this.raftServer = raftServer;
-        this.serverRegisterInfo = serverRegisterInfo;
+        this.raftNode = raftNode;
+        this.serverList = serverList;
         init();
     }
     public void init() {
@@ -65,6 +66,14 @@ public class RaftCore {
     private void startNewElection() {
         lock.lock();
         try {
+            int serverId = raftNode.getRaftServer().getServerId();
+            if (serverList.get(serverId) == null) {
+                resetElectionTimer();
+                return;
+            }
+            int currentTerm = raftNode.getCurrentTerm() + 1;
+            raftNode.setCurrentTerm(currentTerm);
+            logger.info("Running for election in term " + currentTerm);
 
         } finally {
             lock.unlock();
