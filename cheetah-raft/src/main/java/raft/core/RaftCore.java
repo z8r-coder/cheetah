@@ -4,13 +4,11 @@ import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
 import raft.protocol.RaftNode;
+import raft.protocol.VotedRequest;
 
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -24,19 +22,22 @@ public class RaftCore {
 
     private Lock lock = new ReentrantLock();
 
+    private VotedRequest votedRequest;
     RaftNode raftNode;
     private RaftOptions raftOptions;
     private Map<Integer, String> serverList;
 
+    private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
     private ScheduledFuture electionScheduledFuture;
     private ScheduledFuture heartBeatScheduledFuture;
 
     public RaftCore (RaftOptions raftOptions,RaftNode raftNode,
-                     Map<Integer, String> serverList) {
+                     Map<Integer, String> serverList, VotedRequest votedRequest) {
         this.raftOptions = raftOptions;
         this.raftNode = raftNode;
         this.serverList = serverList;
+        this.votedRequest = votedRequest;
         init();
     }
     public void init() {
@@ -65,8 +66,9 @@ public class RaftCore {
 
     private void startNewElection() {
         lock.lock();
+        RaftServer raftServer = raftNode.getRaftServer();
         try {
-            int serverId = raftNode.getRaftServer().getServerId();
+            int serverId = raftServer.getServerId();
             if (serverList.get(serverId) == null) {
                 resetElectionTimer();
                 return;
@@ -79,5 +81,24 @@ public class RaftCore {
         } finally {
             lock.unlock();
         }
+
+        for (Integer serverId : serverList.keySet()) {
+            if (serverId == raftServer.getServerId()) {
+                continue;
+            }
+            executorService.submit(new Runnable() {
+                public void run() {
+                    requestVoteFor(votedRequest);
+                }
+            });
+        }
+    }
+
+    private void requestVoteFor(VotedRequest request) {
+
+    }
+
+    public static void main(String[] args) {
+
     }
 }
