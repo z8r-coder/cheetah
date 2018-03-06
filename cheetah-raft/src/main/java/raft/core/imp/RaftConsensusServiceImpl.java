@@ -1,7 +1,9 @@
 package raft.core.imp;
 
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.apache.log4j.Logger;
 import raft.core.RaftConsensusService;
+import raft.core.RaftCore;
 import raft.protocol.*;
 
 /**
@@ -14,21 +16,22 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     private Logger logger = Logger.getLogger(RaftConsensusServiceImpl.class);
 
     private RaftNode raftNode;
+    private RaftCore raftCore;
 
-    public RaftConsensusServiceImpl (RaftNode raftNode) {
+    public RaftConsensusServiceImpl (RaftNode raftNode, RaftCore raftCore) {
         this.raftNode = raftNode;
+        this.raftCore = raftCore;
     }
 
     public RaftResponse leaderElection(VotedRequest request) {
         raftNode.getLock().lock();
         try {
             RaftResponse raftResponse = new RaftResponse(raftNode.getCurrentTerm(), false);
-            if (raftNode.getCurrentTerm() > request.getTerm()) {
+            if (request.getTerm() < raftNode.getCurrentTerm()) {
                 return raftResponse;
             }
-            if (raftNode.getVotedFor() == 0 ||
-                    raftNode.getVotedFor() == request.getCandidateId()) {
-
+            if (request.getTerm() > raftNode.getCurrentTerm()) {
+                raftCore.updateMore(request.getTerm());
             }
             boolean newLog = false;
         } finally {

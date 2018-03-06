@@ -45,10 +45,27 @@ public class RaftCore {
         resetElectionTimer();
     }
 
+    public void updateMore(int newTerm) {
+        if (raftNode.getCurrentTerm() < newTerm) {
+            raftNode.setCurrentTerm(newTerm);
+            raftNode.setVotedFor(0);
+        }
+        RaftServer raftServer = raftNode.getRaftServer();
+        raftServer.setServerState(RaftServer.NodeState.FOLLOWER);
+
+        //stop heartBeat
+        if (heartBeatScheduledFuture != null && !heartBeatScheduledFuture.isDone()) {
+            heartBeatScheduledFuture.cancel(true);
+        }
+        resetElectionTimer();
+    }
+
     public void resetElectionTimer() {
         if (electionScheduledFuture != null && !electionScheduledFuture.isDone()) {
             electionScheduledFuture.cancel(true);
         }
+
+        //timeout
         electionScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             public void run() {
                 startNewElection();
@@ -92,6 +109,7 @@ public class RaftCore {
                 }
             });
         }
+        resetElectionTimer();
     }
 
     private void requestVoteFor(VotedRequest request) {
