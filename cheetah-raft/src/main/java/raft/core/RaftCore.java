@@ -22,7 +22,6 @@ public class RaftCore {
 
     private Lock lock = new ReentrantLock();
 
-    private VotedRequest votedRequest;
     RaftNode raftNode;
     private RaftOptions raftOptions;
     private Map<Integer, String> serverList;
@@ -33,11 +32,10 @@ public class RaftCore {
     private ScheduledFuture heartBeatScheduledFuture;
 
     public RaftCore (RaftOptions raftOptions,RaftNode raftNode,
-                     Map<Integer, String> serverList, VotedRequest votedRequest) {
+                     Map<Integer, String> serverList) {
         this.raftOptions = raftOptions;
         this.raftNode = raftNode;
         this.serverList = serverList;
-        this.votedRequest = votedRequest;
         init();
     }
     public void init() {
@@ -105,6 +103,11 @@ public class RaftCore {
             }
             executorService.submit(new Runnable() {
                 public void run() {
+                    VotedRequest votedRequest = new VotedRequest(
+                            raftNode.getCurrentTerm(),
+                            raftNode.getRaftServer().getServerId(),
+                            raftNode.getRaftLog().getLastLogIndex(),
+                            raftNode.getRaftLog().getLastLogTerm());
                     requestVoteFor(votedRequest);
                 }
             });

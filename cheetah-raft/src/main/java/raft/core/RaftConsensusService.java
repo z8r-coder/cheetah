@@ -14,6 +14,11 @@ public interface RaftConsensusService {
     public RaftResponse leaderElection(VotedRequest request);
 
     /**
+     * reset timeout
+     */
+    public void resetTimeOut();
+
+    /**
      * append entry
      */
     public RaftResponse appendEntry (AddRequest request);

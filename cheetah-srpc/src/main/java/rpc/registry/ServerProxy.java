@@ -16,6 +16,7 @@ import rpc.server.SimpleServerRemoteExecutor;
 import rpc.utils.RpcUtils;
 import utils.Configuration;
 
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,11 @@ public class ServerProxy extends RpcNioAcceptor{
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private Configuration configuration;
     private IServerRegisterInfo registerInfo;
+
+    //every node needs to cache serverList
+    protected Map<Integer, String> cacheServerList;
+
+    protected SimpleClientRemoteProxy proxy;
 
     private String address;
     public ServerProxy () {
@@ -58,16 +64,16 @@ public class ServerProxy extends RpcNioAcceptor{
         RpcUtils.setAddress(registerHost, registerPort, connector);
         SimpleClientRemoteExecutor remoteExecutor = new SimpleClientRemoteExecutor(connector);
 
-        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(remoteExecutor);
+        proxy = new SimpleClientRemoteProxy(remoteExecutor);
         proxy.startService();
 
         //register server ip
         registerInfo = proxy.registerRemote(IServerRegisterInfo.class);
-        registerInfo.register(address);
+        cacheServerList = registerInfo.register(address);
 
         executorService.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                registerInfo.heartBeat(address);
+                cacheServerList = registerInfo.heartBeat(address);
             }
         }, Globle.REG_HEART_BEAT_INIT_TEST, Globle.REG_HEART_BEAT_INTERVAL_TEST, TimeUnit.SECONDS);
     }

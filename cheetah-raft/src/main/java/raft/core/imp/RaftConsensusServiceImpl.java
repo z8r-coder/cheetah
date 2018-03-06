@@ -40,6 +40,10 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         return null;
     }
 
+    public void resetTimeOut() {
+        raftCore.resetElectionTimer();
+    }
+
     public RaftResponse appendEntry(AddRequest request) {
         return null;
     }

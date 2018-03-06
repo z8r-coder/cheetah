@@ -12,7 +12,7 @@ public class RaftLog {
     private Logger log = Logger.getLogger(RaftLog.class);
 
     //候选人最后日志条目的任期号
-    private long lastLogTerm;
+    private int lastLogTerm;
     //候选人的最后日志条目的索引值
     private long lastLogIndex;
     //已知的最大的已经被提交的日志条目的索引值
@@ -20,9 +20,11 @@ public class RaftLog {
     //最后被应用到状态机的日志条目索引值
     private long lastApplied = 0;
 
-    public RaftLog(long commitIndex, long lastApplied) {
+    public RaftLog(long commitIndex, long lastApplied, int lastLogTerm, int lastLogIndex) {
         this.commitIndex = commitIndex;
         this.lastApplied = lastApplied;
+        this.lastLogTerm = lastLogTerm;
+        this.lastLogIndex = lastLogIndex;
     }
 
     public long getCommitIndex() {
@@ -41,11 +43,11 @@ public class RaftLog {
         this.lastApplied = lastApplied;
     }
 
-    public long getLastLogTerm() {
+    public int getLastLogTerm() {
         return lastLogTerm;
     }
 
-    public void setLastLogTerm(long lastLogTerm) {
+    public void setLastLogTerm(int lastLogTerm) {
         this.lastLogTerm = lastLogTerm;
     }
 

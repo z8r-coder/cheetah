@@ -13,13 +13,13 @@ import java.util.Set;
  */
 public interface IServerRegisterInfo {
 
-    public void updateList();
+    void updateList();
 
-    void register (String address);
+    Map<Integer, String> register (String address);
 
     void unRegister (String address);
 
-    void heartBeat (String address);
+    Map<Integer, String> heartBeat (String address);
 
     Map<Integer, String> getServerListCache();
 }

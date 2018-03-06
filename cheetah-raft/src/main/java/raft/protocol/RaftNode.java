@@ -33,12 +33,9 @@ public class RaftNode implements RaftListener{
 
     private Executor heartBeatThread;
 
-    private RaftCore raftCore;
-
-    public RaftNode (RaftLog raftLog, RaftServer raftServer, RaftCore raftCore) {
+    public RaftNode (RaftLog raftLog, RaftServer raftServer) {
         this.raftLog = raftLog;
         this.raftServer = raftServer;
-        this.raftCore = raftCore;
     }
     private Lock lock = new ReentrantLock();
 

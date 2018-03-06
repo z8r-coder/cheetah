@@ -19,7 +19,7 @@ public class VotedRequest implements Serializable {
     //候选人最后日志条目的任期号
     private int lastLogTerm;
 
-    public VotedRequest (int term, int candidateId, int lastLogIndex, int lastLogTerm) {
+    public VotedRequest (int term, int candidateId, long lastLogIndex, int lastLogTerm) {
         this.term = term;
         this.candidateId = candidateId;
         this.lastLogIndex = lastLogIndex;

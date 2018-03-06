@@ -22,10 +22,11 @@ public class ServerRegisterInfo implements IServerRegisterInfo {
         heartBeatCache.clear();
     }
 
-    public void register(String address) {
+    public Map<Integer, String> register(String address) {
         int serverId = getServerId(address);
         serverCache.put(serverId,address);
         heartBeatCache.put(serverId, address);
+        return getServerListCache();
     }
 
     public void unRegister(String address) {
@@ -35,13 +36,18 @@ public class ServerRegisterInfo implements IServerRegisterInfo {
         serverCache.remove(serverId);
     }
 
-    public void heartBeat(String address) {
+    public Map<Integer, String> heartBeat(String address) {
         int serverId = getServerId(address);
         heartBeatCache.put(serverId, address);
+        return getServerListCache();
     }
 
     public Map<Integer, String> getServerListCache() {
-        return serverCache;
+        Map<Integer, String> cloneCache = new HashMap<Integer, String>();
+        synchronized (serverCache) {
+            cloneCache.putAll(serverCache);
+        }
+        return cloneCache;
     }
 
     private int getServerId(String address) {
