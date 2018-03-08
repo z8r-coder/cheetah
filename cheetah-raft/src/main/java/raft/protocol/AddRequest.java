@@ -1,11 +1,15 @@
 package raft.protocol;
 
+import raft.model.BaseRequest;
+
+import java.io.Serializable;
+
 /**
  * @author ruanxin
  * @create 2018-02-08
  * @desc 附加日志
  */
-public class AddRequest {
+public class AddRequest extends BaseRequest implements Serializable {
     //领导人的任期号
     private int term;
     //领导人的 Id，以便于跟随者重定向请求

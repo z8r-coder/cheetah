@@ -1,5 +1,7 @@
 package raft.protocol;
 
+import raft.model.BaseRequest;
+
 import java.io.Serializable;
 
 /**
@@ -7,7 +9,7 @@ import java.io.Serializable;
  * @create 2018-02-08
  * @desc 请求投票的RPC
  */
-public class VotedRequest implements Serializable {
+public class VotedRequest extends BaseRequest implements Serializable {
     //机器id
     private int serverId;
     //候选人的任期号
