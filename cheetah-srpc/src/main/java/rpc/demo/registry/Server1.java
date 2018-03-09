@@ -1,6 +1,6 @@
 package rpc.demo.registry;
 
-import rpc.registry.ServerProxy;
+import rpc.registry.SimpleServerProxy;
 import rpc.utils.RpcUtils;
 
 /**
@@ -10,7 +10,7 @@ import rpc.utils.RpcUtils;
  */
 public class Server1 {
     public static void main(String[] args) {
-        ServerProxy proxy = new ServerProxy();
+        SimpleServerProxy proxy = new SimpleServerProxy();
         RpcUtils.setAddress("127.0.0.1", 4333, proxy);
         proxy.startService();
     }

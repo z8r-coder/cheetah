@@ -26,9 +26,9 @@ import java.util.concurrent.TimeUnit;
  * @create 2018-02-10
  * @desc start the service to register
  */
-public class ServerProxy extends RpcNioAcceptor{
+public abstract class AbstractServerProxy extends RpcNioAcceptor{
 
-    private Logger logger = Logger.getLogger(ServerProxy.class);
+    private Logger logger = Logger.getLogger(AbstractServerProxy.class);
 
     //heart beat
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -41,11 +41,11 @@ public class ServerProxy extends RpcNioAcceptor{
     protected SimpleClientRemoteProxy proxy;
 
     private String address;
-    public ServerProxy () {
+    public AbstractServerProxy () {
         this(null, new Configuration());
     }
 
-    public ServerProxy (AbstractRpcNioSelector selector, Configuration configuration) {
+    public AbstractServerProxy (AbstractRpcNioSelector selector, Configuration configuration) {
         super(selector);
         this.configuration = configuration;
     }
@@ -76,7 +76,12 @@ public class ServerProxy extends RpcNioAcceptor{
                 cacheServerList = registerInfo.heartBeat(address);
             }
         }, Globle.REG_HEART_BEAT_INIT_TEST, Globle.REG_HEART_BEAT_INTERVAL_TEST, TimeUnit.SECONDS);
+
+        // business
+        register();
     }
+
+    protected abstract void register();
 
     public void stopService() {
         super.stopService();
