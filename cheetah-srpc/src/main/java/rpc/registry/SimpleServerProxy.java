@@ -28,6 +28,6 @@ public class SimpleServerProxy extends AbstractServerProxy {
     }
 
     protected void register() {
-        System.out.println("this is SimpleServerProxy!");
+        System.out.println("this is address: " + getHost() + ":" + getPort());
     }
 }

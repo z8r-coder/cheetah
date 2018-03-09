@@ -4,6 +4,7 @@ import models.CheetahAddress;
 import utils.ParseUtils;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author ruanxin
@@ -12,9 +13,9 @@ import java.util.*;
  */
 public class ServerRegisterInfo implements IServerRegisterInfo {
 
-    Map<Integer, String> serverCache = new HashMap<Integer, String>();
+    Map<Integer, String> serverCache = new ConcurrentHashMap<Integer, String>();
 
-    Map<Integer, String> heartBeatCache = new HashMap<Integer, String>();
+    Map<Integer, String> heartBeatCache = new ConcurrentHashMap<Integer, String>();
 
     public void updateList() {
         serverCache.clear();

@@ -17,6 +17,7 @@ import rpc.utils.RpcUtils;
 import utils.Configuration;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +37,7 @@ public abstract class AbstractServerProxy extends RpcNioAcceptor{
     private IServerRegisterInfo registerInfo;
 
     //every node needs to cache serverList
-    protected Map<Integer, String> cacheServerList;
+    protected Map<Integer, String> cacheServerList = new ConcurrentHashMap<Integer, String>();
 
     protected SimpleClientRemoteProxy proxy;
 
@@ -86,5 +87,9 @@ public abstract class AbstractServerProxy extends RpcNioAcceptor{
     public void stopService() {
         super.stopService();
         registerInfo.unRegister(address);
+    }
+
+    public Map<Integer, String> getCacheServerList() {
+        return cacheServerList;
     }
 }

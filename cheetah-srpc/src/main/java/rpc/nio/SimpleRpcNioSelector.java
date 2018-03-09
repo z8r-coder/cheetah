@@ -31,7 +31,7 @@ public class SimpleRpcNioSelector extends AbstractRpcNioSelector {
     private final static int READ_WRITE_OP = SelectionKey.OP_READ | SelectionKey.OP_WRITE;
     private LinkedList<RpcTask> selectTasks = new LinkedList<RpcTask>();
 
-    private AbstractRpcNioSelector delegageSelector;
+    private AbstractRpcNioSelector delegateSelector;
 
     private Logger logger = Logger.getLogger(SimpleRpcNioSelector.class);
 
@@ -150,7 +150,7 @@ public class SimpleRpcNioSelector extends AbstractRpcNioSelector {
     }
 
     public void setDelegageSelector(AbstractRpcNioSelector delegageSelector) {
-        this.delegageSelector = delegageSelector;
+        this.delegateSelector = delegageSelector;
     }
 
     private class SelectionThread extends Thread {
@@ -207,12 +207,12 @@ public class SimpleRpcNioSelector extends AbstractRpcNioSelector {
                     logger.warn( "----" + client.socket().getRemoteSocketAddress() + "-----");
                 }
                 client.configureBlocking(false);
-                if (delegageSelector != null) {
-                    RpcNioConnector connector = new RpcNioConnector(client, delegageSelector);
+                if (delegateSelector != null) {
+                    RpcNioConnector connector = new RpcNioConnector(client, delegateSelector);
                     connector.setAcceptor(acceptor);
                     connector.setExecutorService(acceptor.getExecutorService());
                     connector.setExecutorSharable(true);
-                    delegageSelector.register(connector);
+                    delegateSelector.register(connector);
                     connector.startService();
                 } else {
                     RpcNioConnector connector = new RpcNioConnector(client, this);
