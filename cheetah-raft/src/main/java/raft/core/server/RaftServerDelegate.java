@@ -60,12 +60,12 @@ public class RaftServerDelegate implements Service {
         delegateServer.addRpcCallListener(provider);
         delegateServer.startService();
 
-        //def client connect
-        AbstractRpcConnector connector = new RpcNioConnector(null);
-        RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
-        SimpleClientRemoteExecutor clientRemoteExecutor = new SimpleClientRemoteExecutor(connector);
-        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
-        proxy.startService();
+//        //def client connect
+//        AbstractRpcConnector connector = new RpcNioConnector(null);
+//        RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
+//        SimpleClientRemoteExecutor clientRemoteExecutor = new SimpleClientRemoteExecutor(connector);
+//        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
+//        proxy.startService();
     }
 
     public void stopService() {

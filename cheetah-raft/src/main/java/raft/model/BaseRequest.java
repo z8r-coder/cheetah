@@ -11,6 +11,12 @@ public class BaseRequest {
     private String remoteHost;
     private int remotePort;
 
+    public void setAddress(String localHost, int localPort, String remoteHost, int remotePort) {
+        this.localHost = localHost;
+        this.localPort = localPort;
+        this.remoteHost = remoteHost;
+        this.remotePort = remotePort;
+    }
     public String getLocalHost() {
         return localHost;
     }

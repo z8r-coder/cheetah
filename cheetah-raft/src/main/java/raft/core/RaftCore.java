@@ -1,10 +1,17 @@
 package raft.core;
 
+import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
 import raft.protocol.RaftNode;
 import raft.protocol.VotedRequest;
+import rpc.client.SimpleClientRemoteExecutor;
+import rpc.client.SimpleClientRemoteProxy;
+import rpc.net.AbstractRpcConnector;
+import rpc.nio.RpcNioConnector;
+import rpc.utils.RpcUtils;
+import utils.ParseUtils;
 
 import java.util.Map;
 import java.util.Random;
@@ -81,7 +88,7 @@ public class RaftCore {
 
     private void startNewElection() {
         lock.lock();
-        RaftServer raftServer = raftNode.getRaftServer();
+        final RaftServer raftServer = raftNode.getRaftServer();
         try {
             int serverId = raftServer.getServerId();
             if (serverList.get(serverId) == null) {
@@ -101,6 +108,7 @@ public class RaftCore {
             if (serverId == raftServer.getServerId()) {
                 continue;
             }
+            final CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverList.get(serverId));
             executorService.submit(new Runnable() {
                 public void run() {
                     VotedRequest votedRequest = new VotedRequest(
@@ -108,6 +116,8 @@ public class RaftCore {
                             raftNode.getRaftServer().getServerId(),
                             raftNode.getRaftLog().getLastLogIndex(),
                             raftNode.getRaftLog().getLastLogTerm());
+                    votedRequest.setAddress(raftServer.getHost(), raftServer.getPort(),
+                            cheetahAddress.getHost(), cheetahAddress.getPort());
                     requestVoteFor(votedRequest);
                 }
             });
@@ -115,8 +125,20 @@ public class RaftCore {
         resetElectionTimer();
     }
 
+    /**
+     * rpc call
+     * @param request
+     */
     private void requestVoteFor(VotedRequest request) {
+        //def client connect
+        AbstractRpcConnector connector = new RpcNioConnector(null);
+        RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
+        SimpleClientRemoteExecutor clientRemoteExecutor = new SimpleClientRemoteExecutor(connector);
+        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
+        proxy.startService();
 
+        RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
+        raftConsensusService.leaderElection(request);
     }
 
     public static void main(String[] args) {
