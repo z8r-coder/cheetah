@@ -4,6 +4,7 @@ import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
+import raft.model.BaseRequest;
 import raft.protocol.AddRequest;
 import raft.protocol.RaftNode;
 import raft.protocol.VotedRequest;
@@ -184,7 +185,7 @@ public class RaftCore {
      * rpc call
      * @param request
      */
-    private void requestVoteFor(VotedRequest request) {
+    private void requestVoteFor(BaseRequest request) {
         //def client connect
         AbstractRpcConnector connector = new RpcNioConnector(null);
         RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
@@ -193,7 +194,13 @@ public class RaftCore {
         proxy.startService();
 
         RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
-        raftConsensusService.leaderElection(request);
+        if (request instanceof VotedRequest) {
+            //vote
+            raftConsensusService.leaderElection((VotedRequest) request);
+        } else {
+            //append entries
+            raftConsensusService.appendEntries((AddRequest) request);
+        }
     }
 
     public static void main(String[] args) {
