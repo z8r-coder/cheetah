@@ -44,7 +44,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         raftCore.resetElectionTimer();
     }
 
-    public RaftResponse appendEntry(AddRequest request) {
+    public RaftResponse appendEntries(AddRequest request) {
         return null;
     }
 }

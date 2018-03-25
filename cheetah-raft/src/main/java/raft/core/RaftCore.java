@@ -4,6 +4,7 @@ import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
+import raft.protocol.AddRequest;
 import raft.protocol.RaftNode;
 import raft.protocol.VotedRequest;
 import rpc.client.SimpleClientRemoteExecutor;
@@ -12,6 +13,7 @@ import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
 import utils.ParseUtils;
+import utils.StringUtils;
 
 import java.util.Map;
 import java.util.Random;
@@ -48,6 +50,42 @@ public class RaftCore {
     public void init() {
         scheduledExecutorService = Executors.newScheduledThreadPool(2);
         resetElectionTimer();
+    }
+
+    public void becomeLeader() {
+        raftNode.getRaftServer().setServerState(RaftServer.NodeState.LEADER);
+        raftNode.setLeaderId(raftNode.getLeaderId());
+
+        //stop election
+        if (electionScheduledFuture != null && !electionScheduledFuture.isDone()) {
+            electionScheduledFuture.cancel(true);
+        }
+
+
+    }
+
+    //begin heart beat
+    private void startNewHeartBeat() {
+        logger.info("begin start heart beat. leaderId:" + raftNode.getLeaderId());
+        for (String address : serverList.values()) {
+            final CheetahAddress cheetahAddress = ParseUtils.parseAddress(address);
+            if (StringUtils.equals(cheetahAddress.getHost(), raftNode.getRaftServer().getHost()) &&
+                    cheetahAddress.getPort() == raftNode.getRaftServer().getPort()) {
+                continue;
+            }
+            executorService.submit(new Runnable() {
+                public void run() {
+                    AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
+                            raftNode.getLeaderId(), raftNode.getRaftLog());
+                    appendEntries(request);
+                }
+            });
+        }
+    }
+
+    //附加RPC
+    public void appendEntries (AddRequest request) {
+
     }
 
     public void updateMore(int newTerm) {

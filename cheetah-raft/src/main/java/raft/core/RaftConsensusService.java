@@ -21,7 +21,7 @@ public interface RaftConsensusService {
     /**
      * append entry
      */
-    public RaftResponse appendEntry (AddRequest request);
+    public RaftResponse appendEntries (AddRequest request);
 
 
 }

@@ -29,6 +29,10 @@ public class RaftNode implements RaftListener{
     private long nextIndex;
     //对于每一个服务器，已经复制给他的日志的最高索引值
     private long matchIndex;
+
+    //用于附加乳RPC时的重定向
+    private int leaderId;
+
     private RaftServer raftServer;
 
     private Executor heartBeatThread;
@@ -105,5 +109,13 @@ public class RaftNode implements RaftListener{
 
     public void setLock(Lock lock) {
         this.lock = lock;
+    }
+
+    public int getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(int leaderId) {
+        this.leaderId = leaderId;
     }
 }
