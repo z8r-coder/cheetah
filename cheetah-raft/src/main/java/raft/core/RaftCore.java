@@ -60,27 +60,44 @@ public class RaftCore {
         if (electionScheduledFuture != null && !electionScheduledFuture.isDone()) {
             electionScheduledFuture.cancel(true);
         }
-
-
+        //start new heart beat
+        startNewHeartBeat();
     }
 
-    //begin heart beat
+    /**
+     * begin heart beat
+     */
     private void startNewHeartBeat() {
         logger.info("begin start heart beat. leaderId:" + raftNode.getLeaderId());
         for (String address : serverList.values()) {
+            final RaftServer localServer = raftNode.getRaftServer();
             final CheetahAddress cheetahAddress = ParseUtils.parseAddress(address);
-            if (StringUtils.equals(cheetahAddress.getHost(), raftNode.getRaftServer().getHost()) &&
-                    cheetahAddress.getPort() == raftNode.getRaftServer().getPort()) {
+            if (StringUtils.equals(cheetahAddress.getHost(), localServer.getHost()) &&
+                    cheetahAddress.getPort() == localServer.getPort()) {
                 continue;
             }
             executorService.submit(new Runnable() {
                 public void run() {
                     AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
                             raftNode.getLeaderId(), raftNode.getRaftLog());
+                    request.setAddress(localServer.getHost(), localServer.getPort(),
+                            cheetahAddress.getHost(), cheetahAddress.getPort());
                     appendEntries(request);
                 }
             });
         }
+        resetHeartBeatTimer();
+    }
+
+    private void resetHeartBeatTimer() {
+        if (heartBeatScheduledFuture != null && !heartBeatScheduledFuture.isDone()) {
+            heartBeatScheduledFuture.cancel(true);
+        }
+        heartBeatScheduledFuture = scheduledExecutorService.schedule(new Runnable() {
+            public void run() {
+                startNewHeartBeat();
+            }
+        },raftOptions.getHeartbeatPeriodMilliseconds(), TimeUnit.MILLISECONDS);
     }
 
     //附加RPC
