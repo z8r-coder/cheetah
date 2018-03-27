@@ -8,6 +8,7 @@ import rpc.exception.RpcException;
  * @Date: Created in 18:57 2017/12/2 0002
  */
 public class SimpleFutureRpcSync implements RpcSync {
+
     public void waitForResult(int time, RpcCallSync sync) {
         int timeAll = 0;
         while (!sync.isDone()) {

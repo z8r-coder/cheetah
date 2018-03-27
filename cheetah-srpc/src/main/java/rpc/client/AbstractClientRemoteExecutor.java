@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Author:Roy
- * @Date: Created in 18:47 2017/12/2 0002
+ * @Date: Created in 18:47 2017/12/2
  */
 public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Service, RpcCallListener {
     protected int timeout = 10000;
