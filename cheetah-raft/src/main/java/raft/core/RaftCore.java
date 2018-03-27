@@ -59,8 +59,11 @@ public class RaftCore {
     }
 
     public void becomeLeader() {
-        raftNode.getRaftServer().setServerState(RaftServer.NodeState.LEADER);
+        RaftServer raftServer = raftNode.getRaftServer();
+        raftServer.setServerState(RaftServer.NodeState.LEADER);
         raftNode.setLeaderId(raftNode.getLeaderId());
+
+        logger.info("serverId:" + raftServer.getServerId() + "in term:" + raftNode.getCurrentTerm());
 
         //stop election
         if (electionScheduledFuture != null && !electionScheduledFuture.isDone()) {
@@ -200,16 +203,45 @@ public class RaftCore {
      * @param futures
      */
     private void electionFutureHandler(List<Future> futures, List<VotedRequest> requests) {
-        for (Future<RaftResponse> future : futures) {
+        int voteGrantedNum = 0;
+        for (int i = 0; i < futures.size();i++) {
+            Future<RaftResponse> future = futures.get(i);
+            VotedRequest request = requests.get(i);
             try {
+                RaftServer raftServer = raftNode.getRaftServer();
                 RaftResponse response = future.get(raftOptions.getRaftFutureTimeOut(), TimeUnit.SECONDS);
-                if (response != null) {
-                    RaftServer raftServer = raftNode.getRaftServer();
+                if (raftNode.getCurrentTerm() != request.getTerm() ||
+                        raftServer.getServerState() != RaftServer.NodeState.CANDIDATE ||
+                        response == null) {
+                    logger.info("ignore,the state or term is wrong");
+                    continue;
                 }
+                if (response.getTerm() > raftNode.getCurrentTerm()) {
+                    logger.info("Receive resp from server:" + response.getServerId() +
+                    "in term:" + response.getTerm() + "but this server was in term:" + raftNode.getCurrentTerm());
+                    updateMore(response.getTerm());
+                } else {
+                    if (response.isGranted()) {
+                        //success
+                        logger.info("Got vote from server:" + raftServer.getServerId() +
+                                        " for term {}" + raftNode.getCurrentTerm());
+                        voteGrantedNum += 1;
+                        logger.info("voteGrantedNum= + voteGrantedNum");
+                    } else {
+                        logger.info("Vote denied by server {}" + raftServer.getServerId() +
+                                        " with term {}" + response.getTerm() +
+                                        ", my term is {}" + raftNode.getCurrentTerm());
+                    }
+                }
+
             } catch (Exception e) {
                 logger.error("electionFutureHandler occurs exception:", e);
                 continue;
             }
+        }
+        if (voteGrantedNum > serverList.size() / 2) {
+            //success to become leader
+            becomeLeader();
         }
     }
 

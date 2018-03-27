@@ -26,7 +26,9 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     public RaftResponse leaderElection(VotedRequest request) {
         raftNode.getLock().lock();
         try {
-            RaftResponse raftResponse = new RaftResponse(raftNode.getCurrentTerm(), false);
+            RaftResponse raftResponse = new RaftResponse(raftNode.getCurrentTerm(),
+                    false,
+                    raftNode.getRaftServer().getServerId());
             if (request.getTerm() < raftNode.getCurrentTerm()) {
                 return raftResponse;
             }

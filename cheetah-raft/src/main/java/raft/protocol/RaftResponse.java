@@ -12,10 +12,13 @@ public class RaftResponse implements Serializable{
     private int term;
     //候选人赢得了此张选票时为真
     private boolean granted;
+    //标注来自哪台服务器
+    private int serverId;
 
-    public RaftResponse (int term, boolean granted) {
+    public RaftResponse (int term, boolean granted, int serverId) {
         this.term = term;
         this.granted = granted;
+        this.serverId = serverId;
     }
 
     public int getTerm() {
@@ -32,5 +35,13 @@ public class RaftResponse implements Serializable{
 
     public void setGranted(boolean granted) {
         this.granted = granted;
+    }
+
+    public int getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(int serverId) {
+        this.serverId = serverId;
     }
 }
