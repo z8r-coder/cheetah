@@ -230,7 +230,7 @@ public class RaftCore {
                     } else {
                         logger.info("Vote denied by server {}" + raftServer.getServerId() +
                                         " with term {}" + response.getTerm() +
-                                        ", my term is {}" + raftNode.getCurrentTerm());
+                                        ", this server's term is {}" + raftNode.getCurrentTerm());
                     }
                 }
 
