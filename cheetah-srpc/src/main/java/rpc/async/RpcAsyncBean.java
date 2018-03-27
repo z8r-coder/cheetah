@@ -18,6 +18,11 @@ public class RpcAsyncBean {
      */
     private RpcObject request;
 
+    public RpcAsyncBean (int index, RpcObject request) {
+        this.index = index;
+        this.request = request;
+    }
+
     public int getIndex() {
         return index;
     }

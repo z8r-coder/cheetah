@@ -5,7 +5,7 @@ package rpc.async;
  * @create 2018-03-27
  * @desc
  */
-public interface RPCCallback<V> {
+public interface RpcCallback<V> {
     /**
      * 异步成功
      * @param resp

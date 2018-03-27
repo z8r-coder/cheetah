@@ -16,12 +16,12 @@ public class SimpleRpcCallAsync implements RpcCallAsync{
 
     private Logger logger = Logger.getLogger(SimpleRpcCallAsync.class);
 
-    private RPCCallback rpcCallback;
+    private RpcCallback rpcCallback;
     private RpcObject resp;
     private RpcAsyncBean rpcAsync;
     private ExecutorService executorService = Executors.newScheduledThreadPool(3);
 
-    public SimpleRpcCallAsync(RPCCallback rpcCallback, RpcObject resp, RpcAsyncBean rpcAsync) {
+    public SimpleRpcCallAsync(RpcCallback rpcCallback, RpcObject resp, RpcAsyncBean rpcAsync) {
         this.rpcCallback = rpcCallback;
         this.resp = resp;
         this.rpcAsync = rpcAsync;
@@ -31,8 +31,10 @@ public class SimpleRpcCallAsync implements RpcCallAsync{
         executorService.execute(new Runnable() {
             public void run() {
                 if (resp != null && rpcAsync.getRequest().getThreadId() == resp.getThreadId()) {
+                    logger.error("callBack success!");
                     rpcCallback.success(resp);
                 } else {
+                    logger.error("callBack fail!");
                     rpcCallback.fail(new RpcException("resp=" + resp + " request threadId=" +
                     rpcAsync.getRequest().getThreadId() + " resp threadId=" +
                     resp.getThreadId()));

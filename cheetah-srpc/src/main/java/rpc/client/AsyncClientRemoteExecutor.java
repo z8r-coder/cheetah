@@ -4,6 +4,10 @@ import org.apache.log4j.Logger;
 import rpc.RemoteCall;
 import rpc.RpcObject;
 import rpc.RpcSender;
+import rpc.async.RpcAsyncBean;
+import rpc.async.RpcCallAsync;
+import rpc.async.RpcCallback;
+import rpc.async.SimpleRpcCallAsync;
 import rpc.constants.RpcType;
 import rpc.exception.RpcException;
 import rpc.net.AbstractRpcConnector;
@@ -16,24 +20,25 @@ import java.util.List;
 /**
  * @author ruanxin
  * @create 2018-03-27
- * @desc 同步RPC调用器
+ * @desc 异步RPC调用器
  */
-public class SyncClientRemoteExecutor extends AbstractClientRemoteExecutor {
+public abstract class AsyncClientRemoteExecutor extends AbstractClientRemoteExecutor {
 
     private Logger logger = Logger.getLogger(SyncClientRemoteExecutor.class);
 
-    private RpcSync clientRpcSync;
+    private RpcCallAsync clientRpcAsync;
+    private RpcCallback rpcCallback;
     private AbstractRpcConnector connector;
     private List<AbstractRpcConnector> connectors;
 
-    public SyncClientRemoteExecutor(AbstractRpcConnector connector) {
+    public AsyncClientRemoteExecutor (AbstractRpcConnector connector, RpcCallback rpcCallback) {
         super();
-        clientRpcSync = new SimpleFutureRpcSync();
+        this.rpcCallback = rpcCallback;
         connector.addRpcCallListener(this);
         this.connector = connector;
     }
 
-    public SyncClientRemoteExecutor(List<AbstractRpcConnector> connectors) {
+    public AsyncClientRemoteExecutor(List<AbstractRpcConnector> connectors) {
         super();
         for (AbstractRpcConnector connector : connectors) {
             connector.addRpcCallListener(this);
@@ -46,27 +51,20 @@ public class SyncClientRemoteExecutor extends AbstractClientRemoteExecutor {
         byte[] buffer = serializer.serialize(call);
         int length = buffer.length;
         RpcObject request = new RpcObject(INVOKE, this.getIndex(), length, buffer);
-        RpcCallSync sync = new RpcCallSync(request.getIndex(), request);
-        rpcCache.put(makeRpcCallCacheKey(request.getThreadId(), request.getIndex()), sync);
+        RpcAsyncBean async = new RpcAsyncBean(request.getIndex(), request);
+        rpcAsynCache.put(this.makeRpcCallCacheKey(request.getThreadId(), request.getIndex()), async);
         connector.sendRpcObject(request, timeout);
-        clientRpcSync.waitForResult(timeout, sync);
-        rpcCache.remove(makeRpcCallCacheKey(request.getThreadId(), request.getIndex()));
-        RpcObject response = sync.getResponse();
-        if (response == null) {
-            throw new RpcException("rpc response == null");
-        }
 
-        if (response.getType() != RpcType.FAIL && response.getLength() > 0) {
-            return serializer.deserialize(sync.getResponse().getData());
-        }
+        //异步调用只管回调
         return null;
     }
 
     public void onRpcMessage(RpcObject rpc, RpcSender sender) {
-        RpcCallSync sync = rpcCache.get(this.makeRpcCallCacheKey(rpc.getThreadId(), rpc.getIndex()));
-        if (sync != null && sync.getRequest().getThreadId() == rpc.getThreadId()) {
-            clientRpcSync.notifyResult(sync, rpc);
-        }
+        RpcAsyncBean rpcAsync = rpcAsynCache.get(this.makeRpcCallCacheKey(rpc.getThreadId(), rpc.getIndex()));
+        clientRpcAsync = new SimpleRpcCallAsync(rpcCallback, rpc, rpcAsync);
+        //回调
+        clientRpcAsync.callBack();
+        rpcAsynCache.remove(makeRpcCallCacheKey(rpc.getThreadId(), rpc.getIndex()));
     }
 
     public AbstractRpcConnector getConnector() {
