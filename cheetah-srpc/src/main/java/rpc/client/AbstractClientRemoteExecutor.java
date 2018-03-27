@@ -2,6 +2,7 @@ package rpc.client;
 
 import org.apache.log4j.Logger;
 import rpc.*;
+import rpc.constants.RpcType;
 import rpc.exception.RpcException;
 import rpc.net.AbstractRpcConnector;
 import rpc.net.RpcCallListener;
@@ -70,7 +71,7 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Se
             throw new RpcException("rpc response == null");
         }
 
-        if (response.getLength() > 0) {
+        if (response.getType() != RpcType.FAIL && response.getLength() > 0) {
             return serializer.deserialize(sync.getResponse().getData());
         }
         return null;

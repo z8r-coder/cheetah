@@ -7,6 +7,7 @@ import raft.core.server.RaftServer;
 import raft.model.BaseRequest;
 import raft.protocol.AddRequest;
 import raft.protocol.RaftNode;
+import raft.protocol.RaftResponse;
 import raft.protocol.VotedRequest;
 import rpc.client.SimpleClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
@@ -16,8 +17,7 @@ import rpc.utils.RpcUtils;
 import utils.ParseUtils;
 import utils.StringUtils;
 
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -49,6 +49,11 @@ public class RaftCore {
         init();
     }
     public void init() {
+        executorService = new ThreadPoolExecutor(raftOptions.getRaftConsensusThreadNum(),
+                raftOptions.getRaftConsensusThreadNum(),
+                60,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
         scheduledExecutorService = Executors.newScheduledThreadPool(2);
         resetElectionTimer();
     }
@@ -160,13 +165,16 @@ public class RaftCore {
             lock.unlock();
         }
 
+        List<Future> futureList = new ArrayList<Future>();
+        final List<VotedRequest> requestList = new ArrayList<VotedRequest>();
+
         for (Integer serverId : serverList.keySet()) {
             if (serverId == raftServer.getServerId()) {
                 continue;
             }
             final CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverList.get(serverId));
-            executorService.submit(new Runnable() {
-                public void run() {
+            Future<RaftResponse> future = executorService.submit(new Callable<RaftResponse>() {
+                public RaftResponse call() {
                     VotedRequest votedRequest = new VotedRequest(
                             raftNode.getCurrentTerm(),
                             raftNode.getRaftServer().getServerId(),
@@ -174,18 +182,42 @@ public class RaftCore {
                             raftNode.getRaftLog().getLastLogTerm());
                     votedRequest.setAddress(raftServer.getHost(), raftServer.getPort(),
                             cheetahAddress.getHost(), cheetahAddress.getPort());
-                    requestVoteFor(votedRequest);
+                    requestList.add(votedRequest);
+                    return requestVoteFor(votedRequest);
                 }
             });
+            //get result
+            futureList.add(future);
         }
+        //handle future
+        electionFutureHandler(futureList, requestList);
+
         resetElectionTimer();
+    }
+
+    /**
+     * handle the election future obj, syc
+     * @param futures
+     */
+    private void electionFutureHandler(List<Future> futures, List<VotedRequest> requests) {
+        for (Future<RaftResponse> future : futures) {
+            try {
+                RaftResponse response = future.get(raftOptions.getRaftFutureTimeOut(), TimeUnit.SECONDS);
+                if (response != null) {
+                    RaftServer raftServer = raftNode.getRaftServer();
+                }
+            } catch (Exception e) {
+                logger.error("electionFutureHandler occurs exception:", e);
+                continue;
+            }
+        }
     }
 
     /**
      * rpc call
      * @param request
      */
-    private void requestVoteFor(BaseRequest request) {
+    private RaftResponse requestVoteFor(BaseRequest request) {
         //def client connect
         AbstractRpcConnector connector = new RpcNioConnector(null);
         RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
@@ -194,16 +226,43 @@ public class RaftCore {
         proxy.startService();
 
         RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
+        RaftResponse response;
+
         if (request instanceof VotedRequest) {
             //vote
-            raftConsensusService.leaderElection((VotedRequest) request);
+            response = raftConsensusService.leaderElection((VotedRequest) request);
         } else {
             //append entries
-            raftConsensusService.appendEntries((AddRequest) request);
+            response = raftConsensusService.appendEntries((AddRequest) request);
         }
+        return response;
     }
 
     public static void main(String[] args) {
-
+        ExecutorService executorService = new ThreadPoolExecutor(20,
+                20,
+                60,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        List<Future> list = new ArrayList<Future>();
+        for (int i = 0; i < 20 ; i++) {
+            Future<String> future = executorService.submit(new Callable<String>() {
+                public String call() {
+                    return "1";
+                }
+            });
+            list.add(future);
+        }
+        for (Future future : list) {
+            try {
+                System.out.println(future.get(5,TimeUnit.SECONDS));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
