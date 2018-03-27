@@ -3,6 +3,8 @@ package rpc.async;
 import org.apache.log4j.Logger;
 import rpc.RpcObject;
 import rpc.exception.RpcException;
+import rpc.serializer.JdkSerializer;
+import rpc.serializer.RpcSerializer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,20 +21,23 @@ public class SimpleRpcCallAsync implements RpcCallAsync{
     private RpcCallback rpcCallback;
     private RpcObject resp;
     private RpcAsyncBean rpcAsync;
+    private RpcSerializer serializer;
     private ExecutorService executorService = Executors.newScheduledThreadPool(3);
 
     public SimpleRpcCallAsync(RpcCallback rpcCallback, RpcObject resp, RpcAsyncBean rpcAsync) {
         this.rpcCallback = rpcCallback;
         this.resp = resp;
         this.rpcAsync = rpcAsync;
+        serializer = new JdkSerializer();
     }
 
     public void callBack() {
-        executorService.execute(new Runnable() {
+        executorService.submit(new Runnable() {
             public void run() {
                 if (resp != null && rpcAsync.getRequest().getThreadId() == resp.getThreadId()) {
+                    Object result = serializer.deserialize(resp.getData());
+                    rpcCallback.success(result);
                     logger.info("callBack success!");
-                    rpcCallback.success(resp);
                 } else {
                     logger.error("callBack fail!");
                     rpcCallback.fail(new RpcException("resp=" + resp + " request threadId=" +

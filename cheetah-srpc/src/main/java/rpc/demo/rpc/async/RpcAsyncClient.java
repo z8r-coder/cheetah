@@ -24,16 +24,6 @@ public class RpcAsyncClient {
         connector.setHost(host);
         connector.setPort(port);
 
-        RpcCallback<String> callback = new RpcCallback<String>() {
-            public void success(String resp) {
-                System.out.println("this is async " + resp);
-            }
-
-            public void fail(Throwable t) {
-                System.out.println(t);
-            }
-        };
-
         RpcCallback<String> testCallBack = new TestCallBack();
 
         AsyncClientRemoteExecutor remoteExecutor = new AsyncClientRemoteExecutor(connector, testCallBack);

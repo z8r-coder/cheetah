@@ -12,6 +12,7 @@ public class TestCallBack implements RpcCallback<String>{
     private Logger logger = Logger.getLogger(TestCallBack.class);
     private int i = 1;
     public void success(java.lang.String resp) {
+        i = 2;
         logger.info("this is callback " + resp);
     }
 
