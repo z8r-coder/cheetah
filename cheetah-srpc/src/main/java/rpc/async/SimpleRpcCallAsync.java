@@ -31,7 +31,7 @@ public class SimpleRpcCallAsync implements RpcCallAsync{
         executorService.execute(new Runnable() {
             public void run() {
                 if (resp != null && rpcAsync.getRequest().getThreadId() == resp.getThreadId()) {
-                    logger.error("callBack success!");
+                    logger.info("callBack success!");
                     rpcCallback.success(resp);
                 } else {
                     logger.error("callBack fail!");

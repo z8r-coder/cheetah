@@ -8,12 +8,7 @@ import rpc.async.RpcAsyncBean;
 import rpc.async.RpcCallAsync;
 import rpc.async.RpcCallback;
 import rpc.async.SimpleRpcCallAsync;
-import rpc.constants.RpcType;
-import rpc.exception.RpcException;
 import rpc.net.AbstractRpcConnector;
-import rpc.sync.RpcCallSync;
-import rpc.sync.RpcSync;
-import rpc.sync.SimpleFutureRpcSync;
 
 import java.util.List;
 
@@ -22,7 +17,7 @@ import java.util.List;
  * @create 2018-03-27
  * @desc 异步RPC调用器
  */
-public abstract class AsyncClientRemoteExecutor extends AbstractClientRemoteExecutor {
+public class AsyncClientRemoteExecutor extends AbstractClientRemoteExecutor {
 
     private Logger logger = Logger.getLogger(SyncClientRemoteExecutor.class);
 
@@ -38,8 +33,9 @@ public abstract class AsyncClientRemoteExecutor extends AbstractClientRemoteExec
         this.connector = connector;
     }
 
-    public AsyncClientRemoteExecutor(List<AbstractRpcConnector> connectors) {
+    public AsyncClientRemoteExecutor(List<AbstractRpcConnector> connectors, RpcCallback rpcCallback) {
         super();
+        this.rpcCallback = rpcCallback;
         for (AbstractRpcConnector connector : connectors) {
             connector.addRpcCallListener(this);
         }
