@@ -2,6 +2,8 @@ package rpc.client;
 
 import org.apache.log4j.Logger;
 import rpc.*;
+import rpc.async.RpcCallAsync;
+import rpc.async.SimpleRpcCallAsync;
 import rpc.constants.RpcType;
 import rpc.exception.RpcException;
 import rpc.net.AbstractRpcConnector;
@@ -27,11 +29,11 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Se
     protected int timeout = 10000;
     private AtomicInteger index = new AtomicInteger(10000);
     private RpcSync clientRpcSync;
-    private RpcSerializer serializer;
+    protected RpcSerializer serializer;
 
     private Logger logger = Logger.getLogger(AbstractClientRemoteExecutor.class);
 
-    private Map<String, RpcCallSync> rpcCache = new ConcurrentHashMap<String, RpcCallSync>();
+    protected Map<String, RpcCallSync> rpcCache = new ConcurrentHashMap<String, RpcCallSync>();
 
     public AbstractClientRemoteExecutor() {
         clientRpcSync = new SimpleFutureRpcSync();
@@ -84,7 +86,7 @@ public abstract class AbstractClientRemoteExecutor implements RemoteExecutor, Se
         }
     }
 
-    private String makeRpcCallCacheKey(long threadId, int index) {
+    protected String makeRpcCallCacheKey(long threadId, int index) {
         return "rpc_" + threadId + "_" + index;
     }
 

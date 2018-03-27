@@ -16,6 +16,7 @@ public class Configuration {
 
     private String registerHost;
     private int registerPort;
+    private String cheetahSignal;
 
     private Properties properties;
 
@@ -54,6 +55,10 @@ public class Configuration {
         if (!StringUtils.isBlank(host)) {
             this.registerHost = host.trim();
         }
+        String signal = properties.getProperty("cheetah.signal");
+        if (!StringUtils.isBlank(signal)) {
+            this.cheetahSignal = signal.trim();
+        }
     }
 
     public String getRegisterHost() {
@@ -72,9 +77,17 @@ public class Configuration {
         this.registerPort = registerPort;
     }
 
+    public String getCheetahSignal() {
+        return cheetahSignal;
+    }
+
+    public void setCheetahSignal(String cheetahSignal) {
+        this.cheetahSignal = cheetahSignal;
+    }
+
     public static void main(String[] args) {
         Configuration config = new Configuration();
         config.loadPropertiesFromSrc();
-        System.out.println(config.getRegisterHost() + " : " + config.getRegisterPort());
+        System.out.println(config.getCheetahSignal());
     }
 }

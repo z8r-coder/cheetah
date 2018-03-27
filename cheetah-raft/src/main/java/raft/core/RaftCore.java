@@ -9,15 +9,18 @@ import raft.protocol.AddRequest;
 import raft.protocol.RaftNode;
 import raft.protocol.RaftResponse;
 import raft.protocol.VotedRequest;
-import rpc.client.SimpleClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
+import rpc.client.SyncClientRemoteExecutor;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
 import utils.ParseUtils;
 import utils.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -253,7 +256,7 @@ public class RaftCore {
         //def client connect
         AbstractRpcConnector connector = new RpcNioConnector(null);
         RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
-        SimpleClientRemoteExecutor clientRemoteExecutor = new SimpleClientRemoteExecutor(connector);
+        SyncClientRemoteExecutor clientRemoteExecutor = new SyncClientRemoteExecutor(connector);
         SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
         proxy.startService();
 

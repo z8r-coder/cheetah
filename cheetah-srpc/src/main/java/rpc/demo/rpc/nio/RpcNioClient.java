@@ -1,8 +1,8 @@
 package rpc.demo.rpc.nio;
 
 import org.apache.log4j.Logger;
-import rpc.client.SimpleClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
+import rpc.client.SyncClientRemoteExecutor;
 import rpc.demo.rpc.provider.HelloRpcService;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
@@ -36,7 +36,7 @@ public class RpcNioClient {
         List<AbstractRpcConnector> connectors = new ArrayList<AbstractRpcConnector>();
         connectors.add(connector);connectors.add(connector1);
 
-        SimpleClientRemoteExecutor executor = new SimpleClientRemoteExecutor(connectors);
+        SyncClientRemoteExecutor executor = new SyncClientRemoteExecutor(connectors);
 
         SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(executor);
 

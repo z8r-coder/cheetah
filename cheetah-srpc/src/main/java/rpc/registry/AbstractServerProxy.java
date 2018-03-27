@@ -1,18 +1,13 @@
 package rpc.registry;
 
 import constants.Globle;
-import constants.HeartBeatType;
-import models.CheetahAddress;
-import models.HeartBeatResponse;
 import org.apache.log4j.Logger;
-import rpc.client.SimpleClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
+import rpc.client.SyncClientRemoteExecutor;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.AbstractRpcNioSelector;
 import rpc.nio.RpcNioAcceptor;
 import rpc.nio.RpcNioConnector;
-import rpc.server.RpcServiceProvider;
-import rpc.server.SimpleServerRemoteExecutor;
 import rpc.utils.RpcUtils;
 import utils.Configuration;
 
@@ -63,7 +58,7 @@ public abstract class AbstractServerProxy extends RpcNioAcceptor{
 
         AbstractRpcConnector connector = new RpcNioConnector(null);
         RpcUtils.setAddress(registerHost, registerPort, connector);
-        SimpleClientRemoteExecutor remoteExecutor = new SimpleClientRemoteExecutor(connector);
+        SyncClientRemoteExecutor remoteExecutor = new SyncClientRemoteExecutor(connector);
 
         proxy = new SimpleClientRemoteProxy(remoteExecutor);
         proxy.startService();
