@@ -8,6 +8,7 @@ import rpc.serializer.RpcSerializer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author ruanxin
@@ -39,10 +40,10 @@ public class SimpleRpcCallAsync implements RpcCallAsync{
                     rpcCallback.success(result);
                     logger.info("callBack success!");
                 } else {
-                    logger.error("callBack fail!");
                     rpcCallback.fail(new RpcException("resp=" + resp + " request threadId=" +
                     rpcAsync.getRequest().getThreadId() + " resp threadId=" +
                     resp.getThreadId()));
+                    logger.error("callBack fail!");
                 }
             }
         });
