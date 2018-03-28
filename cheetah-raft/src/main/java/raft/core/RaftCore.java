@@ -4,16 +4,17 @@ import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
-import raft.model.BaseRequest;
 import raft.protocol.AddRequest;
 import raft.protocol.RaftNode;
 import raft.protocol.RaftResponse;
 import raft.protocol.VotedRequest;
+import rpc.async.RpcCallback;
+import rpc.client.AsyncClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
-import rpc.client.SyncClientRemoteExecutor;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
+import utils.Configuration;
 import utils.ParseUtils;
 import utils.StringUtils;
 
@@ -34,8 +35,10 @@ public class RaftCore {
     private Logger logger = Logger.getLogger(RaftCore.class);
 
     private Lock lock = new ReentrantLock();
+    private Configuration configuration;
 
     RaftNode raftNode;
+    int asyncVoteNum;
     private RaftOptions raftOptions;
     private Map<Integer, String> serverList;
 
@@ -49,6 +52,8 @@ public class RaftCore {
         this.raftOptions = raftOptions;
         this.raftNode = raftNode;
         this.serverList = serverList;
+        this.configuration = new Configuration();
+        this.asyncVoteNum = 0;
         init();
     }
     public void init() {
@@ -64,7 +69,7 @@ public class RaftCore {
     public void becomeLeader() {
         RaftServer raftServer = raftNode.getRaftServer();
         raftServer.setServerState(RaftServer.NodeState.LEADER);
-        raftNode.setLeaderId(raftNode.getLeaderId());
+        raftNode.setLeaderId(raftServer.getServerId());
 
         logger.info("serverId:" + raftServer.getServerId() + "in term:" + raftNode.getCurrentTerm());
 
@@ -171,106 +176,110 @@ public class RaftCore {
             lock.unlock();
         }
 
-        List<Future> futureList = new ArrayList<Future>();
-        final List<VotedRequest> requestList = new ArrayList<VotedRequest>();
-
+        //vote call back handler
+        final RaftVoteAsyncCallBack raftVoteAsyncCallBack = new RaftVoteAsyncCallBack();
         for (Integer serverId : serverList.keySet()) {
             if (serverId == raftServer.getServerId()) {
                 continue;
             }
             final CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverList.get(serverId));
-            Future<RaftResponse> future = executorService.submit(new Callable<RaftResponse>() {
-                public RaftResponse call() {
-                    VotedRequest votedRequest = new VotedRequest(
-                            raftNode.getCurrentTerm(),
-                            raftNode.getRaftServer().getServerId(),
-                            raftNode.getRaftLog().getLastLogIndex(),
-                            raftNode.getRaftLog().getLastLogTerm());
-                    votedRequest.setAddress(raftServer.getHost(), raftServer.getPort(),
-                            cheetahAddress.getHost(), cheetahAddress.getPort());
-                    requestList.add(votedRequest);
-                    return requestVoteFor(votedRequest);
+            //build request
+            final VotedRequest votedRequest = new VotedRequest(
+                    raftNode.getCurrentTerm(),
+                    raftNode.getRaftServer().getServerId(),
+                    raftNode.getRaftLog().getLastLogIndex(),
+                    raftNode.getRaftLog().getLastLogTerm());
+            votedRequest.setAddress(raftServer.getHost(), raftServer.getPort(),
+                    cheetahAddress.getHost(), cheetahAddress.getPort());
+            raftVoteAsyncCallBack.setRequest(votedRequest);
+            executorService.submit(new Runnable() {
+                public void run() {
+                    //async req
+                    requestVoteFor(votedRequest, raftVoteAsyncCallBack);
                 }
             });
-            //get result
-            futureList.add(future);
         }
-        //handle future
-        electionFutureHandler(futureList, requestList);
-
         resetElectionTimer();
     }
 
     /**
-     * handle the election future obj, syc
-     * @param futures
-     */
-    private void electionFutureHandler(List<Future> futures, List<VotedRequest> requests) {
-        int voteGrantedNum = 0;
-        for (int i = 0; i < futures.size();i++) {
-            Future<RaftResponse> future = futures.get(i);
-            VotedRequest request = requests.get(i);
-            try {
-                RaftServer raftServer = raftNode.getRaftServer();
-                RaftResponse response = future.get(raftOptions.getRaftFutureTimeOut(), TimeUnit.SECONDS);
-                if (raftNode.getCurrentTerm() != request.getTerm() ||
-                        raftServer.getServerState() != RaftServer.NodeState.CANDIDATE ||
-                        response == null) {
-                    logger.info("ignore,the state or term is wrong");
-                    continue;
-                }
-                if (response.getTerm() > raftNode.getCurrentTerm()) {
-                    logger.info("Receive resp from server:" + response.getServerId() +
-                    "in term:" + response.getTerm() + "but this server was in term:" + raftNode.getCurrentTerm());
-                    updateMore(response.getTerm());
-                } else {
-                    if (response.isGranted()) {
-                        //success
-                        logger.info("Got vote from server:" + raftServer.getServerId() +
-                                        " for term {}" + raftNode.getCurrentTerm());
-                        voteGrantedNum += 1;
-                        logger.info("voteGrantedNum= + voteGrantedNum");
-                    } else {
-                        logger.info("Vote denied by server {}" + raftServer.getServerId() +
-                                        " with term {}" + response.getTerm() +
-                                        ", this server's term is {}" + raftNode.getCurrentTerm());
-                    }
-                }
-
-            } catch (Exception e) {
-                logger.error("electionFutureHandler occurs exception:", e);
-                continue;
-            }
-        }
-        if (voteGrantedNum > serverList.size() / 2) {
-            //success to become leader
-            becomeLeader();
-        }
-    }
-
-    /**
-     * rpc call
+     * rpc call, async
      * @param request
      */
-    private RaftResponse requestVoteFor(BaseRequest request) {
+    private void requestVoteFor(VotedRequest request, RpcCallback raftVoteAsyncCallBack) {
         //def client connect
         AbstractRpcConnector connector = new RpcNioConnector(null);
         RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
-        SyncClientRemoteExecutor clientRemoteExecutor = new SyncClientRemoteExecutor(connector);
+
+        //def vote callback
+
+        AsyncClientRemoteExecutor clientRemoteExecutor = new AsyncClientRemoteExecutor(connector, raftVoteAsyncCallBack);
+
         SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
         proxy.startService();
 
         RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
-        RaftResponse response;
+        //async rpc call
+        raftConsensusService.leaderElection(request);
+    }
 
-        if (request instanceof VotedRequest) {
-            //vote
-            response = raftConsensusService.leaderElection((VotedRequest) request);
-        } else {
-            //append entries
-            response = raftConsensusService.appendEntries((AddRequest) request);
+    /**
+     * async rpc call, raft async call back impl
+     */
+    public class RaftVoteAsyncCallBack implements RpcCallback<RaftResponse> {
+
+        private VotedRequest request;
+
+        public void success(RaftResponse resp) {
+            lock.lock();
+            try {
+                RaftServer raftServer = raftNode.getRaftServer();
+
+                if (raftNode.getCurrentTerm() != request.getTerm() ||
+                        raftServer.getServerState() != RaftServer.NodeState.CANDIDATE ||
+                        resp == null) {
+                    logger.info("ignore,the state or term is wrong");
+                    return;
+                }
+                if (resp.getTerm() > raftNode.getCurrentTerm()) {
+                    logger.info("Receive resp from server:" + resp.getServerId() +
+                            "in term:" + resp.getTerm() + "but this server was in term:" + raftNode.getCurrentTerm());
+                    updateMore(resp.getTerm());
+                } else {
+                    if (resp.isGranted()) {
+                        //success
+                        asyncVoteNum += 1;
+                        logger.info("Got vote from server:" + raftServer.getServerId() +
+                                " for term {}" + raftNode.getCurrentTerm());
+                        logger.info("voteGrantedNum= + voteGrantedNum");
+                        if (asyncVoteNum > serverList.size() / 2) {
+                            logger.info("Got majority vote, serverId={}" + raftNode.getRaftServer().getServerId() +
+                                    " become leader");
+                            becomeLeader();
+                        }
+                    } else {
+                        logger.info("Vote denied by server {}" + raftServer.getServerId() +
+                                " with term {}" + resp.getTerm() +
+                                ", this server's term is {}" + raftNode.getCurrentTerm());
+                    }
+                }
+            }finally{
+                lock.unlock();
+            }
         }
-        return response;
+
+        public void fail(Throwable t) {
+            logger.warn("Call Back fail from server host:" + request.getRemoteHost() +
+            " port:" + request.getRemotePort(), t);
+        }
+
+        public VotedRequest getRequest() {
+            return request;
+        }
+
+        public void setRequest(VotedRequest request) {
+            this.request = request;
+        }
     }
 
     public static void main(String[] args) {
