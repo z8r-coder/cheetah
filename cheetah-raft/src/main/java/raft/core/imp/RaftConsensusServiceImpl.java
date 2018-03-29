@@ -35,11 +35,20 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             if (request.getTerm() > raftNode.getCurrentTerm()) {
                 raftCore.updateMore(request.getTerm());
             }
-            boolean newLog = false;
+            boolean newLog = request.getLastLogTerm() >= raftNode.getRaftLog().getLastLogTerm()
+                    && request.getLastLogIndex() >= raftNode.getRaftLog().getLastLogIndex();
+            if ((raftNode.getVotedFor() == 0 || raftNode.getVotedFor() == request.getServerId()) &&
+                    newLog) {
+                raftNode.setVotedFor(request.getServerId());
+                // TODO: 2018/3/29 need to update log 
+                raftResponse.setGranted(true);
+                raftResponse.setTerm(raftNode.getCurrentTerm());
+                raftResponse.setServerId(raftNode.getRaftServer().getServerId());
+            }
+            return raftResponse;
         } finally {
             raftNode.getLock().unlock();
         }
-        return null;
     }
 
     public void resetTimeOut() {
