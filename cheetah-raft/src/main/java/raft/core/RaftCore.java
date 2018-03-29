@@ -176,7 +176,7 @@ public class RaftCore {
             lock.unlock();
         }
 
-        //vote call back handler
+        //async vote call back handler
         final RaftVoteAsyncCallBack raftVoteAsyncCallBack = new RaftVoteAsyncCallBack();
         for (Integer serverId : serverList.keySet()) {
             if (serverId == raftServer.getServerId()) {

@@ -50,7 +50,6 @@ public class AsyncClientRemoteExecutor extends AbstractClientRemoteExecutor {
         RpcAsyncBean async = new RpcAsyncBean(request.getIndex(), request);
         rpcAsynCache.put(this.makeRpcCallCacheKey(request.getThreadId(), request.getIndex()), async);
         connector.sendRpcObject(request, timeout);
-
         //异步调用只管回调
         return null;
     }
