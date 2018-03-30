@@ -1,6 +1,10 @@
 package raft.protocol;
 
+import com.sun.xml.internal.xsom.impl.scd.Iterators;
 import org.apache.log4j.Logger;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author ruanxin
@@ -19,7 +23,49 @@ public class RaftLog {
     private long commitIndex;
     //最后被应用到状态机的日志条目索引值
     private long lastApplied = 0;
+    //log entry
+    private Map<Long, LogEntry> logEntries = new TreeMap<Long, LogEntry>();
 
+    public static class LogEntry {
+        private long term;
+        private long index;
+        private byte[] data;
+
+        public LogEntry() {
+            term = 0l;
+            index = 0l;
+            data = new byte[1];
+        }
+        public LogEntry(long term, long index, byte[] data) {
+            this.data = data;
+            this.term = term;
+            this.index = index;
+        }
+
+        public long getTerm() {
+            return term;
+        }
+
+        public void setTerm(long term) {
+            this.term = term;
+        }
+
+        public long getIndex() {
+            return index;
+        }
+
+        public void setIndex(long index) {
+            this.index = index;
+        }
+
+        public byte[] getData() {
+            return data;
+        }
+
+        public void setData(byte[] data) {
+            this.data = data;
+        }
+    }
     public RaftLog(long commitIndex, long lastApplied, int lastLogTerm, int lastLogIndex) {
         this.commitIndex = commitIndex;
         this.lastApplied = lastApplied;

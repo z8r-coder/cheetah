@@ -1,6 +1,5 @@
 package raft.core.imp;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.apache.log4j.Logger;
 import raft.core.RaftConsensusService;
 import raft.core.RaftCore;
@@ -23,14 +22,14 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         this.raftCore = raftCore;
     }
 
-    public RaftResponse leaderElection(VotedRequest request) {
+    public VotedResponse leaderElection(VotedRequest request) {
         raftNode.getLock().lock();
         try {
-            RaftResponse raftResponse = new RaftResponse(raftNode.getCurrentTerm(),
+            VotedResponse votedResponse = new VotedResponse(raftNode.getCurrentTerm(),
                     false,
                     raftNode.getRaftServer().getServerId());
             if (request.getTerm() < raftNode.getCurrentTerm()) {
-                return raftResponse;
+                return votedResponse;
             }
             if (request.getTerm() > raftNode.getCurrentTerm()) {
                 raftCore.updateMore(request.getTerm());
@@ -41,11 +40,11 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                     newLog) {
                 raftNode.setVotedFor(request.getServerId());
                 // TODO: 2018/3/29 need to update log 
-                raftResponse.setGranted(true);
-                raftResponse.setTerm(raftNode.getCurrentTerm());
-                raftResponse.setServerId(raftNode.getRaftServer().getServerId());
+                votedResponse.setGranted(true);
+                votedResponse.setTerm(raftNode.getCurrentTerm());
+                votedResponse.setServerId(raftNode.getRaftServer().getServerId());
             }
-            return raftResponse;
+            return votedResponse;
         } finally {
             raftNode.getLock().unlock();
         }
@@ -55,7 +54,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         raftCore.resetElectionTimer();
     }
 
-    public RaftResponse appendEntries(AddRequest request) {
+    public AddResponse appendEntries(AddRequest request) {
         return null;
     }
 }

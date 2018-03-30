@@ -4,10 +4,7 @@ import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
-import raft.protocol.AddRequest;
-import raft.protocol.RaftNode;
-import raft.protocol.RaftResponse;
-import raft.protocol.VotedRequest;
+import raft.protocol.*;
 import rpc.async.RpcCallback;
 import rpc.client.AsyncClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
@@ -226,11 +223,11 @@ public class RaftCore {
     /**
      * async rpc call, raft async call back impl
      */
-    public class RaftVoteAsyncCallBack implements RpcCallback<RaftResponse> {
+    public class RaftVoteAsyncCallBack implements RpcCallback<VotedResponse> {
 
         private VotedRequest request;
 
-        public void success(RaftResponse resp) {
+        public void success(VotedResponse resp) {
             lock.lock();
             try {
                 RaftServer raftServer = raftNode.getRaftServer();

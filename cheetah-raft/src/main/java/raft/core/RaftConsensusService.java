@@ -11,7 +11,7 @@ public interface RaftConsensusService {
     /**
      * leader election
      */
-    public RaftResponse leaderElection(VotedRequest request);
+    public VotedResponse leaderElection(VotedRequest request);
 
     /**
      * reset timeout
@@ -21,7 +21,7 @@ public interface RaftConsensusService {
     /**
      * append entry
      */
-    public RaftResponse appendEntries (AddRequest request);
+    public AddResponse appendEntries (AddRequest request);
 
 
 }
