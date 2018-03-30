@@ -3,6 +3,7 @@ package raft.core.imp;
 import org.apache.log4j.Logger;
 import raft.core.RaftConsensusService;
 import raft.core.RaftCore;
+import raft.core.server.RaftServer;
 import raft.protocol.*;
 
 /**
@@ -55,6 +56,26 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     }
 
     public AddResponse appendEntries(AddRequest request) {
+        raftNode.getLock().lock();
+        try {
+            RaftServer raftServer = raftNode.getRaftServer();
+            AddResponse response = new AddResponse(raftServer.getServerId(),
+                    raftNode.getCurrentTerm(),
+                    false);
+            if (request.getTerm() < raftNode.getCurrentTerm()) {
+                return response;
+            }
+            if (request.getTerm() > raftNode.getCurrentTerm()) {
+                raftCore.updateMore(request.getTerm());
+            }
+            if (raftNode.getLeaderId() != request.getLeaderId()) {
+                raftNode.setLeaderId(request.getLeaderId());
+                logger.info("new leaderId:" + raftNode.getLeaderId());
+            }
+
+        } finally {
+            raftNode.getLock().unlock();
+        }
         return null;
     }
 }

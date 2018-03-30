@@ -20,7 +20,7 @@ public class RaftLog {
     //候选人的最后日志条目的索引值
     private long lastLogIndex;
     //已知的最大的已经被提交的日志条目的索引值
-    private long commitIndex;
+    private long commitIndex = 0;
     //最后被应用到状态机的日志条目索引值
     private long lastApplied = 0;
     //log entry

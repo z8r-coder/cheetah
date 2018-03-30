@@ -305,5 +305,6 @@ public class RaftCore {
                 e.printStackTrace();
             }
         }
+
     }
 }
