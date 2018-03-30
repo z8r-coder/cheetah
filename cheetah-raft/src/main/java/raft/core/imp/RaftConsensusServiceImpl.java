@@ -68,9 +68,20 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             if (request.getTerm() > raftNode.getCurrentTerm()) {
                 raftCore.updateMore(request.getTerm());
             }
-            if (raftNode.getLeaderId() != request.getLeaderId()) {
+            if (raftNode.getLeaderId() == 0) {
                 raftNode.setLeaderId(request.getLeaderId());
                 logger.info("new leaderId:" + raftNode.getLeaderId());
+            }
+            if (raftNode.getLeaderId() != request.getLeaderId()) {
+                logger.warn("another server declare it is leader:" + raftNode.getLeaderId() +
+                "at term:" + raftNode.getCurrentTerm() + "now real leader is " + request.getLeaderId() +
+                "and the term will plus one!");
+                raftNode.setLeaderId(request.getLeaderId());
+                raftCore.updateMore(request.getTerm() + 1);
+                response.setSuccess(false);
+                response.setTerm(request.getTerm() + 1);
+                response.setServerId(raftServer.getServerId());
+                return response;
             }
 
         } finally {
