@@ -16,6 +16,8 @@ public class RaftOptions {
     private int raftConsensusThreadNum = 20;
     //get result by future obj(sec)
     private int raftFutureTimeOut = 5;
+    //100M per log file
+    private int maxLogSizePerFile = 1024 * 1024 * 100;
 
     public int getElectionTimeOutMilliSec() {
         return electionTimeOutMilliSec;
