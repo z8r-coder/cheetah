@@ -3,6 +3,8 @@ package raft.protocol;
 import raft.model.BaseRequest;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ruanxin
@@ -14,19 +16,32 @@ public class AddRequest extends BaseRequest implements Serializable {
     private int term;
     //领导人的 Id，以便于跟随者重定向请求
     private int leaderId;
-    //准备存储的日志条目（表示心跳时为空；一次性发送多个是为了提高效率）
-    private RaftLog raftLog;
-//    //新的日志条目紧随之前的索引值
-//    private long prevLogIndex;
-//    //prevLogIndex 条目的任期号
-//    private int prevLogTerm;
+    //新的日志条目紧随之前的索引值
+    private long prevLogIndex;
+    //prevLogIndex 条目的任期号
+    private int prevLogTerm;
     //领导人已经提交的日志的索引值
-//    private long leaderCommit;
+    private long leaderCommit;
+    //log entry
+    private List<RaftLog.LogEntry> logEntries;
 
-    public AddRequest (int term, int leaderId, RaftLog raftLog) {
+    public AddRequest (int term, int leaderId, long prevLogIndex,
+                       int prevLogTerm, long leaderCommit) {
         this.term = term;
         this.leaderId = leaderId;
-        this.raftLog = raftLog;
+        this.prevLogIndex = prevLogIndex;
+        this.prevLogTerm = prevLogTerm;
+        this.leaderCommit = leaderCommit;
+        logEntries = new ArrayList<RaftLog.LogEntry>();
+    }
+    public AddRequest (int term, int leaderId, long prevLogIndex,
+                       int prevLogTerm, long leaderCommit, List<RaftLog.LogEntry> logEntries) {
+        this.term = term;
+        this.leaderId = leaderId;
+        this.prevLogIndex = prevLogIndex;
+        this.prevLogTerm = prevLogTerm;
+        this.leaderCommit = leaderCommit;
+        this.logEntries = logEntries;
     }
 
     public int getTerm() {
@@ -45,11 +60,36 @@ public class AddRequest extends BaseRequest implements Serializable {
         this.leaderId = leaderId;
     }
 
-    public RaftLog getRaftLog() {
-        return raftLog;
+
+    public long getPrevLogIndex() {
+        return prevLogIndex;
     }
 
-    public void setRaftLog(RaftLog raftLog) {
-        this.raftLog = raftLog;
+    public void setPrevLogIndex(long prevLogIndex) {
+        this.prevLogIndex = prevLogIndex;
+    }
+
+    public int getPrevLogTerm() {
+        return prevLogTerm;
+    }
+
+    public void setPrevLogTerm(int prevLogTerm) {
+        this.prevLogTerm = prevLogTerm;
+    }
+
+    public long getLeaderCommit() {
+        return leaderCommit;
+    }
+
+    public void setLeaderCommit(long leaderCommit) {
+        this.leaderCommit = leaderCommit;
+    }
+
+    public List<RaftLog.LogEntry> getLogEntries() {
+        return logEntries;
+    }
+
+    public void setLogEntries(List<RaftLog.LogEntry> logEntries) {
+        this.logEntries = logEntries;
     }
 }

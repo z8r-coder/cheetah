@@ -83,10 +83,53 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 response.setServerId(raftServer.getServerId());
                 return response;
             }
+            if (request.getPrevLogIndex() > raftNode.getRaftLog().getLastLogIndex()) {
+                logger.info("Refuse,request's log index:" + request.getPrevLogIndex() +
+                "local server's log index:" + raftNode.getRaftLog().getLastLogIndex());
+                return response;
+            }
+            if (request.getPrevLogTerm() != raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogTerm())) {
+                logger.warn("LogEntry tern is wrong, leader prevLogIndex=" + request.getPrevLogIndex() +
+                ",prevLogTerm=" + request.getPrevLogTerm() + "but local server prevLogIndex=" + request.getPrevLogIndex() +
+                ",prevLogTerm=" + raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogIndex()));
+                //找到最初不一致的地方，然后覆盖掉
+                response.setLastLogIndex(request.getPrevLogIndex() - 1);
+                return response;
+            }
+            if (request.getLogEntries().size() == 0) {
+                logger.info("heart beat request at term:" + request.getTerm() +
+                "local host term:" + raftNode.getCurrentTerm());
+                response.setTerm(raftNode.getCurrentTerm());
+                response.setServerId(raftServer.getServerId());
+                response.setSuccess(true);
+                response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+                //sync
+                applyLogOnStateMachine(request);
+                return response;
+            }
 
         } finally {
             raftNode.getLock().unlock();
         }
         return null;
+    }
+
+    //apply on state machine
+    private void applyLogOnStateMachine(AddRequest request) {
+        //can't longer than leader
+        long newCommitIndex = Math.min(request.getLeaderCommit(),
+                request.getPrevLogIndex() + request.getLogEntries().size());
+        raftNode.getRaftLog().setCommitIndex(newCommitIndex);
+        //apply on state machine
+        if (raftNode.getRaftLog().getLastApplied() < raftNode.getRaftLog().getCommitIndex()) {
+            for (long index = raftNode.getRaftLog().getLastApplied() + 1;
+                    index <= raftNode.getRaftLog().getCommitIndex(); index++) {
+                RaftLog.LogEntry logEntry = raftNode.getRaftLog().getEntry(index);
+                if (logEntry != null) {
+                    raftNode.getStateMachine().submit(logEntry.getData());
+                }
+                raftNode.getRaftLog().setLastApplied(index);
+            }
+        }
     }
 }

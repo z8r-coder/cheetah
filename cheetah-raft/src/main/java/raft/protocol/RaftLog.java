@@ -1,6 +1,5 @@
 package raft.protocol;
 
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
 import org.apache.log4j.Logger;
 
 import java.util.Map;
@@ -27,26 +26,26 @@ public class RaftLog {
     private Map<Long, LogEntry> logEntries = new TreeMap<Long, LogEntry>();
 
     public static class LogEntry {
-        private long term;
+        private int term;
         private long index;
         private byte[] data;
 
         public LogEntry() {
-            term = 0l;
+            term = 0;
             index = 0l;
             data = new byte[1];
         }
-        public LogEntry(long term, long index, byte[] data) {
+        public LogEntry(int term, long index, byte[] data) {
             this.data = data;
             this.term = term;
             this.index = index;
         }
 
-        public long getTerm() {
+        public int getTerm() {
             return term;
         }
 
-        public void setTerm(long term) {
+        public void setTerm(int term) {
             this.term = term;
         }
 
@@ -71,6 +70,18 @@ public class RaftLog {
         this.lastApplied = lastApplied;
         this.lastLogTerm = lastLogTerm;
         this.lastLogIndex = lastLogIndex;
+    }
+
+    public int getLogEntryTerm (long logIndex) {
+        LogEntry logEntry = getEntry(logIndex);
+        if (logEntry == null) {
+            return 0;
+        }
+        return logEntry.getTerm();
+    }
+
+    public LogEntry getEntry(long logIndex) {
+        return logEntries.get(logIndex);
     }
 
     public long getCommitIndex() {

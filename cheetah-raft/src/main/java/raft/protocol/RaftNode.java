@@ -3,6 +3,7 @@ package raft.protocol;
 import org.apache.log4j.Logger;
 import raft.core.RaftCore;
 import raft.core.RaftListener;
+import raft.core.StateMachine;
 import raft.core.server.RaftServer;
 
 import java.util.concurrent.Executor;
@@ -32,6 +33,8 @@ public class RaftNode implements RaftListener{
 
     //用于附加乳RPC时的重定向
     private int leaderId;
+
+    private StateMachine stateMachine;
 
     private RaftServer raftServer;
 
@@ -117,5 +120,13 @@ public class RaftNode implements RaftListener{
 
     public void setLeaderId(int leaderId) {
         this.leaderId = leaderId;
+    }
+
+    public StateMachine getStateMachine() {
+        return stateMachine;
+    }
+
+    public void setStateMachine(StateMachine stateMachine) {
+        this.stateMachine = stateMachine;
     }
 }

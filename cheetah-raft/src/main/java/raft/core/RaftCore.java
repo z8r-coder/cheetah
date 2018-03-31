@@ -93,7 +93,9 @@ public class RaftCore {
             executorService.submit(new Runnable() {
                 public void run() {
                     AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
-                            raftNode.getLeaderId(), raftNode.getRaftLog());
+                            raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
+                            raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
+                            raftNode.getRaftLog().getCommitIndex());
                     request.setAddress(localServer.getHost(), localServer.getPort(),
                             cheetahAddress.getHost(), cheetahAddress.getPort());
                     appendEntries(request);

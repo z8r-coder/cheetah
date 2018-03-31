@@ -10,6 +10,8 @@ public class AddResponse extends RaftResponse {
     private int term;
     //跟随者包含了匹配上 prevLogIndex 和 prevLogTerm 的日志时为真
     private boolean success;
+    //用于leader和follower日志不一致时，找到最近一条不一致的日志
+    private long lastLogIndex;
 
     public AddResponse(int serverId, int term, boolean success) {
         super(serverId);
@@ -31,5 +33,13 @@ public class AddResponse extends RaftResponse {
 
     public void setSuccess(boolean success) {
         this.success = success;
+    }
+
+    public long getLastLogIndex() {
+        return lastLogIndex;
+    }
+
+    public void setLastLogIndex(long lastLogIndex) {
+        this.lastLogIndex = lastLogIndex;
     }
 }
