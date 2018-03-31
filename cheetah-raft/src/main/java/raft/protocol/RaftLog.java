@@ -2,6 +2,7 @@ package raft.protocol;
 
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -24,6 +25,18 @@ public class RaftLog {
     private long lastApplied = 0;
     //log entry
     private Map<Long, LogEntry> logEntries = new TreeMap<Long, LogEntry>();
+    //max log size per file
+    private int maxFileLogSize;
+    //log entry directory
+    private String logEntryDir;
+    //total size info
+    private volatile long totalSize;
+
+    public RaftLog(int maxFileLogSize, String logEntryDir) {
+        this.maxFileLogSize = maxFileLogSize;
+        this.logEntryDir = logEntryDir + File.separator + "log";
+        File file = new File(logEntryDir);
+    }
 
     public static class LogEntry {
         private int term;
@@ -114,5 +127,9 @@ public class RaftLog {
 
     public void setLastLogIndex(long lastLogIndex) {
         this.lastLogIndex = lastLogIndex;
+    }
+
+    public void main(String[] args) {
+
     }
 }

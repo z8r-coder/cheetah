@@ -108,6 +108,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 return response;
             }
 
+
         } finally {
             raftNode.getLock().unlock();
         }
