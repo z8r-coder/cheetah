@@ -17,6 +17,7 @@ public class Configuration {
     private String registerHost;
     private int registerPort;
     private String cheetahSignal;
+    private String raftLogPath;
 
     private Properties properties;
 
@@ -59,6 +60,10 @@ public class Configuration {
         if (!StringUtils.isBlank(signal)) {
             this.cheetahSignal = signal.trim();
         }
+        String raftLogPath = properties.getProperty("raft.log.path");
+        if (!StringUtils.isBlank(raftLogPath)) {
+            this.raftLogPath = raftLogPath;
+        }
     }
 
     public String getRegisterHost() {
@@ -83,6 +88,14 @@ public class Configuration {
 
     public void setCheetahSignal(String cheetahSignal) {
         this.cheetahSignal = cheetahSignal;
+    }
+
+    public String getRaftLogPath() {
+        return raftLogPath;
+    }
+
+    public void setRaftLogPath(String raftLogPath) {
+        this.raftLogPath = raftLogPath;
     }
 
     public static void main(String[] args) {

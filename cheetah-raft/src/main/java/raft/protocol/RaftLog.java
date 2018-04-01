@@ -1,8 +1,10 @@
 package raft.protocol;
 
 import org.apache.log4j.Logger;
+import raft.core.RaftLogDataRoute;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -31,10 +33,13 @@ public class RaftLog {
     private String logEntryDir;
     //total size info
     private volatile long totalSize;
+    //data route
+    private RaftLogDataRoute logDataRoute;
 
     public RaftLog(int maxFileLogSize, String logEntryDir) {
         this.maxFileLogSize = maxFileLogSize;
-        this.logEntryDir = logEntryDir + File.separator + "log";
+        this.logEntryDir = logEntryDir + File.separator + "raft_log";
+        this.logDataRoute = new RaftLogDataRoute();
         File file = new File(logEntryDir);
     }
 
@@ -129,7 +134,8 @@ public class RaftLog {
         this.lastLogIndex = lastLogIndex;
     }
 
-    public void main(String[] args) {
-
+    public static void main(String[] args) {
+        File file = new File("/Users/ruanxin/IdeaProjects/cheetah/test");
+        file.mkdir();
     }
 }

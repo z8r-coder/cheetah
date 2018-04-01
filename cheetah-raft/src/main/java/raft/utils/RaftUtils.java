@@ -7,5 +7,4 @@ package raft.utils;
  */
 public class RaftUtils {
 
-
 }
