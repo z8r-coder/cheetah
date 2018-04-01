@@ -1,14 +1,13 @@
 package raft.core;
 
-import constants.Globle;
 import raft.utils.RaftUtils;
 import utils.ParseUtils;
 import utils.StringUtils;
-import utils.code.CodeUtils;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -119,15 +118,11 @@ public class RaftLogDataRoute {
         File file = new File("/Users/ruanxin/IdeaProjects/cheetah/raft/3.txt");
         try {
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-//            randomAccessFile.writeLong(1l);
-//            randomAccessFile.writeLong(2l);
-            ByteBuffer buffer = ByteBuffer.allocate(512);
-            CodeUtils.encode("testtest", buffer);
-            FileChannel fileChannel = randomAccessFile.getChannel();
-            while (buffer.hasRemaining()) {
-                fileChannel.write(buffer);
-            }
-            fileChannel.close();
+            randomAccessFile.writeLong(1l);
+            randomAccessFile.writeLong(2l);
+            byte[] strByte = "testtest".getBytes();
+            randomAccessFile.writeInt(strByte.length);
+            randomAccessFile.write(strByte);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -135,14 +130,14 @@ public class RaftLogDataRoute {
         }
 
         try {
-            ByteBuffer b = ByteBuffer.allocate(512);
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-            FileChannel fileChannel = randomAccessFile.getChannel();
-//            System.out.println(randomAccessFile.readLong());
-//            System.out.println(randomAccessFile.readLong());
-            fileChannel.read(b);
-            String res = (String) CodeUtils.decode(b);
-            System.out.println(res);
+            System.out.println(randomAccessFile.readLong());
+            System.out.println(randomAccessFile.readLong());
+            int lenth = randomAccessFile.readInt();
+            byte[] buf = new byte[lenth];
+            randomAccessFile.read(buf);
+            String test = new String(buf);
+            System.out.println(test);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
