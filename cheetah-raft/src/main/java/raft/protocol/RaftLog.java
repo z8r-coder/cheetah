@@ -74,17 +74,20 @@ public class RaftLog {
     public static class LogEntry {
         private int term;
         private long index;
+        private int dataLength;
         private byte[] data;
 
         public LogEntry() {
             term = 0;
             index = 0l;
             data = new byte[1];
+            dataLength = 1;
         }
         public LogEntry(int term, long index, byte[] data) {
             this.data = data;
             this.term = term;
             this.index = index;
+            dataLength = data.length;
         }
 
         public LogEntry readFrom(Segment segment) {
@@ -120,6 +123,14 @@ public class RaftLog {
 
         public void setData(byte[] data) {
             this.data = data;
+        }
+
+        public int getDataLength() {
+            return dataLength;
+        }
+
+        public void setDataLength(int dataLength) {
+            this.dataLength = dataLength;
         }
     }
     public RaftLog(long commitIndex, long lastApplied, int lastLogTerm, int lastLogIndex) {
