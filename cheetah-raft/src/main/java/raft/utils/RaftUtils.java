@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,19 +20,6 @@ import java.util.List;
 public class RaftUtils {
 
     private static final Logger logger = Logger.getLogger(RaftUtils.class);
-
-//    public static RaftLogDataRoute.GlobleMetaData readGlobleMetaData(
-//            RandomAccessFile randomAccessFile) {
-//        try {
-//            RaftLogDataRoute.GlobleMetaData metaData =
-//                    new RaftLogDataRoute.GlobleMetaData(
-//                            randomAccessFile.readLong(), randomAccessF);
-//        } catch (IOException e) {
-//            logger.warn("read globle meta data to file error");
-//            throw new RuntimeException("read meta data to file error");
-//        }
-//
-//    }
 
     public static void closeFile(RandomAccessFile randomAccessFile) {
         try {
@@ -54,16 +42,34 @@ public class RaftUtils {
         }
     }
 
-    public static void writeMetaToFile(RandomAccessFile file,
-                                       String lastSegmentLogName, long lastIndex) {
-        byte[] segLog = lastSegmentLogName.getBytes();
+    /**
+     * 暂时不用
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public static <T> T readRaftFrom(Class<T> clazz) {
         try {
-            file.writeLong(lastIndex);
-            file.write(segLog);
-        } catch (IOException e) {
-            logger.warn("write meta data to file error, lastSegmentLogName=" + lastSegmentLogName +
-            ", lastIndex=" + lastIndex);
-            throw new RuntimeException("write meta data to file error");
+            Method method = clazz.getMethod("readFrom");
+            T result = (T) method.invoke(clazz);
+            return result;
+        } catch (Exception e) {
+            logger.error("readRaftFrom occurs problem!", e);
+            return null;
+        }
+    }
+
+    /**
+     * 暂时不用
+     * @param clazz
+     * @param <T>
+     */
+    public static <T> void writeRaftTo(Class<T> clazz) {
+        try {
+            Method method = clazz.getMethod("writeTo");
+            method.invoke(clazz);
+        } catch (Exception e) {
+            logger.error("writeRaftTo occurs problem!", e);
         }
     }
 
@@ -89,16 +95,35 @@ public class RaftUtils {
         Collections.sort(fileList);
         return fileList;
     }
+    public static class Test{
+        String hello = "hell world";
+
+        public String test() {
+            System.out.println(hello);
+            return hello;
+        }
+    }
+    public static <T> T test(Class<T> clazz) {
+        try {
+            Method method = clazz.getMethod("test");
+            T result = (T) method.invoke(clazz);
+            return result;
+        } catch (Exception e) {
+            logger.error("test occurs problem!", e);
+            return null;
+        }
+    }
 
     public static void main(String[] args) {
-        try {
-            List<String> fileList = RaftUtils.getSortedFilesInDir("/Users/ruanxin/IdeaProjects/cheetah/raft",
-                    "/Users/ruanxin/IdeaProjects/cheetah/raft");
-            for (String fileName : fileList) {
-                System.out.println(fileName);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            List<String> fileList = RaftUtils.getSortedFilesInDir("/Users/ruanxin/IdeaProjects/cheetah/raft",
+//                    "/Users/ruanxin/IdeaProjects/cheetah/raft");
+//            for (String fileName : fileList) {
+//                System.out.println(fileName);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        RaftUtils.test(Test.class);
     }
 }

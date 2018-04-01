@@ -15,7 +15,7 @@ import java.util.TreeMap;
 /**
  * @author ruanxin
  * @create 2018-04-01
- * @desc 日志数据路由
+ * @desc 日志数据路由,no status
  */
 public class RaftLogDataRoute {
     //log meta data path
@@ -55,6 +55,10 @@ public class RaftLogDataRoute {
         public GlobleMetaData (String lastSegmentLogName, long lastIndex) {
             this.lastIndex = lastIndex;
             this.lastSegmentLogName = lastSegmentLogName;
+        }
+
+        public void reset() {
+
         }
     }
 

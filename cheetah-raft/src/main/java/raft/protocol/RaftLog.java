@@ -75,6 +75,7 @@ public class RaftLog {
         private int term;
         private long index;
         private int dataLength;
+        private Segment segment;
         private byte[] data;
 
         public LogEntry() {
@@ -83,22 +84,40 @@ public class RaftLog {
             data = new byte[1];
             dataLength = 1;
         }
-        public LogEntry(int term, long index, byte[] data) {
+        public LogEntry(int term, long index,
+                        byte[] data, Segment segment) {
             this.data = data;
             this.term = term;
             this.index = index;
             dataLength = data.length;
+            this.segment = segment;
         }
 
-        public LogEntry readFrom(Segment segment) {
+        public void writeTo() {
             RandomAccessFile randomAccessFile = segment.getRandomAccessFile();
             try {
-                randomAccessFile.readInt();
+                randomAccessFile.writeInt(term);
+                randomAccessFile.writeLong(index);
+                randomAccessFile.writeInt(dataLength);
+                randomAccessFile.write(data);
+            } catch (IOException e) {
+                throw new RuntimeException("write to file error!");
+            }
+        }
+
+        public LogEntry readFrom() {
+            RandomAccessFile randomAccessFile = segment.getRandomAccessFile();
+            try {
+                int term = randomAccessFile.readInt();
+                long index = randomAccessFile.readLong();
+                int dataLength = randomAccessFile.readInt();
+                byte[] data = new byte[dataLength];
+                randomAccessFile.read(data);
+                LogEntry logEntry = new LogEntry(term, index, data,segment);
+                return logEntry;
             } catch (IOException e) {
                 throw new RuntimeException("read from file error!");
             }
-            LogEntry logEntry = new LogEntry();
-            return logEntry;
         }
 
         public int getTerm() {
