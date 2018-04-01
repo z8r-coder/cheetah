@@ -5,6 +5,7 @@ import raft.core.RaftLogDataRoute;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -84,6 +85,17 @@ public class RaftLog {
             this.data = data;
             this.term = term;
             this.index = index;
+        }
+
+        public LogEntry readFrom(Segment segment) {
+            RandomAccessFile randomAccessFile = segment.getRandomAccessFile();
+            try {
+                randomAccessFile.readInt();
+            } catch (IOException e) {
+                throw new RuntimeException("read from file error!");
+            }
+            LogEntry logEntry = new LogEntry();
+            return logEntry;
         }
 
         public int getTerm() {
