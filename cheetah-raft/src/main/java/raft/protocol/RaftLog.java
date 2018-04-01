@@ -15,7 +15,7 @@ import java.util.TreeMap;
  */
 public class RaftLog {
 
-    private Logger log = Logger.getLogger(RaftLog.class);
+    private Logger logger = Logger.getLogger(RaftLog.class);
 
     //候选人最后日志条目的任期号
     private int lastLogTerm;
@@ -31,17 +31,44 @@ public class RaftLog {
     private int maxFileLogSize;
     //log entry directory
     private String logEntryDir;
+    //log meta data directory
+    private String metaDataDir;
     //total size info
     private volatile long totalSize;
     //data route
     private RaftLogDataRoute logDataRoute;
+    //meta's file name
+    private String metaFileName;
+    //meta's file full name
+    private String metaFileFullName;
 
-    public RaftLog(int maxFileLogSize, String logEntryDir) {
+    public RaftLog(int maxFileLogSize, String logEntryDir, String metaFileName) {
         this.maxFileLogSize = maxFileLogSize;
         this.logEntryDir = logEntryDir + File.separator + "raft_log";
-        this.logDataRoute = new RaftLogDataRoute();
-        File file = new File(logEntryDir);
+        this.metaDataDir = logEntryDir + File.separator + "raft_meta";
+        this.metaFileFullName = metaDataDir + File.separator + metaFileName + ".meta";
+
+        this.metaFileName = metaFileName;
+        File fileEntryDir = new File(logEntryDir);
+        if (!fileEntryDir.exists()) {
+            fileEntryDir.mkdir();
+        }
+        File fileMetaDir = new File(metaDataDir);
+        if (!fileMetaDir.exists()) {
+            fileMetaDir.mkdir();
+        }
+        File fileMeta = new File(metaFileFullName);
+        if (!fileMeta.exists()) {
+            try {
+                fileMetaDir.createNewFile();
+            } catch (IOException e) {
+                logger.error("create new file occur ex=", e);
+            }
+        }
+        this.logDataRoute = new RaftLogDataRoute(logEntryDir,metaDataDir, metaFileName);
     }
+
+
 
     public static class LogEntry {
         private int term;
@@ -135,7 +162,10 @@ public class RaftLog {
     }
 
     public static void main(String[] args) {
-        File file = new File("/Users/ruanxin/IdeaProjects/cheetah/test");
-        file.mkdir();
+//        File file = new File("/Users/ruanxin/IdeaProjects/cheetah" + File.separator + "raft_log");
+//        if (!file.exists()) {
+//            file.mkdir();
+//        }
+        System.out.println(String.format("%s-%s.rl",100,120));
     }
 }

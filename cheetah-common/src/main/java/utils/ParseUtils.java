@@ -38,6 +38,19 @@ public class ParseUtils {
         return serverList;
     }
 
+    /**
+     * parse filename,example:test.txt => [test][txt], only allow one point
+     * @param fileName
+     * @return
+     */
+    public static String[] parseByPoint(String fileName) {
+        String fileMeta[] = fileName.split("\\.");
+        if (fileMeta.length > 2) {
+            throw new IllegalArgumentException("more than one point is found in this file name");
+        }
+        return fileMeta;
+    }
+
     public static int generateServerId(String host, int port) {
         String preServerId = host.replaceAll("\\.", "");
         String strServerId = preServerId + port;
@@ -46,7 +59,8 @@ public class ParseUtils {
     }
 
     public static void main(String[] args) {
-        CheetahAddress cheetahAddress = parseAddress("127.0.0.1:8080");
-        System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
+//        CheetahAddress cheetahAddress = parseAddress("127.0.0.1:8080");
+//        System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
+        System.out.println(ParseUtils.parseByPoint("test.tt")[1]);
     }
 }
