@@ -40,12 +40,11 @@ public class RaftLogDataRoute {
         String fileName = segmentMetaData.fileName;
         ;
         RandomAccessFile randomAccessFile = RaftUtils.openFile(logEntryDir, fileName, "r");
-        long dataLength = randomAccessFile.readLong();
-        boolean isCanWrite = randomAccessFile.readBoolean();
+
         RaftIndexInfo raftIndexInfo = ParseUtils.parseIndexInfoByFileName(fileName);
         Segment segment = new Segment(fileName, raftIndexInfo.getStartIndex(),
                 raftIndexInfo.getEndIndex(), randomAccessFile, isCanWrite);
-        List<RaftLog.LogEntry> entries = raftLog.loadSegment(segment, dataLength);
+        List<RaftLog.LogEntry> entries = raftLog.loadSegment(segment);
         segment.setEntries(entries);
 
         return segment.getEntry(index);

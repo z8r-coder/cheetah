@@ -73,6 +73,22 @@ public class RaftUtils {
         }
     }
 
+    /**
+     * get file count in directory
+     * @param dirName
+     * @param rootDirName
+     * @return
+     * @throws IOException
+     */
+    public static int getFileNumInDir(String dirName, String rootDirName) throws IOException {
+        File rootDir = new File(rootDirName);
+        File dir = new File(dirName);
+        if (!rootDir.isDirectory() || !dir.isDirectory()) {
+            return 0;
+        }
+        return dir.listFiles().length;
+    }
+
     public static List<String> getSortedFilesInDir(String dirName, String rootDirName) throws IOException {
         List<String> fileList = new ArrayList<String>();
         File rootDir = new File(rootDirName);

@@ -1,9 +1,9 @@
 package raft.protocol;
 
+import models.RaftIndexInfo;
 import org.apache.log4j.Logger;
 import raft.core.RaftLogDataRoute;
 import raft.utils.RaftUtils;
-import sun.rmi.runtime.Log;
 import utils.ParseUtils;
 import utils.StringUtils;
 
@@ -127,7 +127,19 @@ public class RaftLog {
             byte[] segmentNameByteArr = new byte[segmentNameLength];
             randomAccessFile.read(segmentNameByteArr);
             String segmentName = new String(segmentNameByteArr);
-            globleMetaData = new GlobleMetaData(segmentName,lastIndex, startIndex);
+            //load log entry meta info
+            List<String> fileNameList = RaftUtils.getSortedFilesInDir(logEntryDir,logEntryDir);
+
+            Map<Long, SegmentInfo> segmentInfoMap = new HashMap<Long, SegmentInfo>();
+            for (int i = 0; i < fileNameList.size(); i++) {
+                String fileName = fileNameList.get(i);
+                RaftIndexInfo raftIndexInfo = ParseUtils.parseIndexInfoByFileName(fileName);
+                boolean isCanWrite = randomAccessFile.readBoolean();
+                long dataNum = randomAccessFile.readLong();
+                SegmentInfo segmentInfo = new SegmentInfo(isCanWrite, dataNum);
+                segmentInfoMap.put(raftIndexInfo.getStartIndex(), segmentInfo);
+            }
+            globleMetaData = new GlobleMetaData(segmentName,lastIndex, startIndex, segmentInfoMap);
         } catch (IOException e) {
             logger.error("read globle meta data occurs ex",e);
             throw new RuntimeException("read globle meta data occurs ex");
@@ -138,18 +150,17 @@ public class RaftLog {
 
     /**
      * load segment
-     * @param segment
-     * @param dataLength
      * @return
      */
-    public List<LogEntry> loadSegment(Segment segment, long dataLength) {
+    public Segment loadSegment(long realIndex) {
+        SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(segment.getStartIndex());
         List<LogEntry> entries = new ArrayList<LogEntry>();
-        for (long i = 0l;i < dataLength;i++) {
+        for (long i = 0l;i < segmentInfo.dataNum;i++) {
             LogEntry logEntry = new LogEntry(segment);
             logEntry.readFrom();
             entries.add(logEntry);
         }
-        return entries;
+
     }
 
     /**
@@ -185,12 +196,25 @@ public class RaftLog {
         private int nameLength;
         private long lastIndex;
         private long startIndex;
+        private Map<Long, SegmentInfo> segmentInfoMap;
         public GlobleMetaData (String lastSegmentLogName,
-                               long lastIndex, long startIndex) {
+                               long lastIndex, long startIndex,
+                               Map<Long, SegmentInfo> segmentInfoMap) {
             this.startIndex = startIndex;
             this.lastIndex = lastIndex;
             this.lastSegmentLogName = lastSegmentLogName;
             this.nameLength = lastSegmentLogName.getBytes().length;
+            this.segmentInfoMap = segmentInfoMap;
+        }
+    }
+
+    public static class SegmentInfo {
+        public boolean isCanWrite;
+        public long dataNum;
+
+        public SegmentInfo (boolean isCanWrite, long dataNum) {
+            this.isCanWrite = isCanWrite;
+            this.dataNum = dataNum;
         }
     }
 
