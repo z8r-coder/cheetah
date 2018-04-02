@@ -1,11 +1,17 @@
 package raft.core;
 
+import models.RaftIndexInfo;
+import raft.protocol.RaftLog;
+import raft.protocol.Segment;
 import raft.utils.RaftUtils;
+import utils.ParseUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author ruanxin
@@ -14,7 +20,36 @@ import java.io.RandomAccessFile;
  */
 public class RaftLogDataRoute {
 
+    private RaftLog raftLog;
 
+    public RaftLogDataRoute (RaftLog raftLog) {
+        this.raftLog = raftLog;
+    }
+
+    public RaftLog.LogEntry findLogEntryByIndex (long index,
+                                                 Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap,
+                                                 String logEntryDir) throws IOException {
+        long realIndex = 0;
+        for (Long startIndex : segmentMetaDataMap.keySet()) {
+            if (startIndex > index) {
+                break;
+            }
+            realIndex = startIndex;
+        }
+        RaftLog.SegmentMetaData segmentMetaData = segmentMetaDataMap.get(realIndex);
+        String fileName = segmentMetaData.fileName;
+        ;
+        RandomAccessFile randomAccessFile = RaftUtils.openFile(logEntryDir, fileName, "r");
+        long dataLength = randomAccessFile.readLong();
+        boolean isCanWrite = randomAccessFile.readBoolean();
+        RaftIndexInfo raftIndexInfo = ParseUtils.parseIndexInfoByFileName(fileName);
+        Segment segment = new Segment(fileName, raftIndexInfo.getStartIndex(),
+                raftIndexInfo.getEndIndex(), randomAccessFile, isCanWrite);
+        List<RaftLog.LogEntry> entries = raftLog.loadSegment(segment, dataLength);
+        segment.setEntries(entries);
+
+        return segment.getEntry(index);
+    }
 
     public static void main(String[] args) {
         File file = new File("/Users/ruanxin/IdeaProjects/cheetah/raft/3.txt");

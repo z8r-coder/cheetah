@@ -1,6 +1,7 @@
 package utils;
 
 import models.CheetahAddress;
+import models.RaftIndexInfo;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -49,6 +50,19 @@ public class ParseUtils {
             throw new IllegalArgumentException("more than one point is found in this file name");
         }
         return fileMeta;
+    }
+
+    /**
+     * parse file name to get the start index and end index info
+     * @param fileName
+     * @return
+     */
+    public static RaftIndexInfo parseIndexInfoByFileName(String fileName) {
+        String[] fileMeta = parseByPoint(fileName);
+        String[] indexInfo = fileMeta[0].split("-");
+        RaftIndexInfo raftIndexInfo = new RaftIndexInfo(Long.parseLong(indexInfo[0]),
+                Long.parseLong(indexInfo[1]));
+        return raftIndexInfo;
     }
 
     public static int generateServerId(String host, int port) {

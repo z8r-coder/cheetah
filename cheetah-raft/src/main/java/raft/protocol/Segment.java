@@ -11,21 +11,21 @@ import java.util.List;
  */
 public class Segment {
 
-    public static class Record{
-        public long offset;
-        public RaftLog.LogEntry logEntry;
-        public Record(long offset, RaftLog.LogEntry logEntry) {
-            this.offset = offset;
-            this.logEntry = logEntry;
-        }
-    }
-
     private boolean canWrite;
     private String fileName;
     private long startIndex;
     private long endIndex;
     private RandomAccessFile randomAccessFile;
-    private List<Record> entries = new ArrayList<Record>();
+    private List<RaftLog.LogEntry> entries = new ArrayList<RaftLog.LogEntry>();
+
+    public Segment(String fileName, long startIndex, long endIndex,
+                   RandomAccessFile randomAccessFile, boolean canWrite) {
+        this.canWrite = canWrite;
+        this.fileName = fileName;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
+        this.randomAccessFile = randomAccessFile;
+    }
 
     public RaftLog.LogEntry getEntry(long index) {
         if (startIndex == 0 || endIndex == 0) {
@@ -35,7 +35,7 @@ public class Segment {
             return null;
         }
         int myIndex = (int) (index - startIndex);
-        return entries.get(myIndex).logEntry;
+        return entries.get(myIndex);
     }
 
     public boolean isCanWrite() {
@@ -78,11 +78,11 @@ public class Segment {
         this.randomAccessFile = randomAccessFile;
     }
 
-    public List<Record> getEntries() {
+    public List<RaftLog.LogEntry> getEntries() {
         return entries;
     }
 
-    public void setEntries(List<Record> entries) {
+    public void setEntries(List<RaftLog.LogEntry> entries) {
         this.entries = entries;
     }
 }
