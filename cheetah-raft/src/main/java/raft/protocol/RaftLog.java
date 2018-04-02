@@ -98,10 +98,11 @@ public class RaftLog {
                 RaftUtils.closeFile(randomAccessFile);
             }
         } else {
-            //exist, read meta data from this
+            //exist, read globle meta data from this
             RandomAccessFile randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "rw");
             readGlobleMetaData(randomAccessFile);
         }
+        //read every segment data
         readSegmentData();
     }
 
@@ -112,6 +113,11 @@ public class RaftLog {
             randomAccessFile.writeLong(globleMetaData.lastIndex);
             randomAccessFile.writeInt(globleMetaData.nameLength);
             randomAccessFile.write(globleMetaData.lastSegmentLogName.getBytes());
+            for (Long index : globleMetaData.segmentInfoMap.keySet()) {
+                SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(index);
+                randomAccessFile.writeBoolean(segmentInfo.isCanWrite);
+                randomAccessFile.writeLong(segmentInfo.dataNum);
+            }
         } catch (IOException e) {
             logger.error("write globle meta data occurs ex", e);
         } finally {
@@ -130,7 +136,8 @@ public class RaftLog {
             //load log entry meta info
             List<String> fileNameList = RaftUtils.getSortedFilesInDir(logEntryDir,logEntryDir);
 
-            Map<Long, SegmentInfo> segmentInfoMap = new HashMap<Long, SegmentInfo>();
+            Map<Long, SegmentInfo> segmentInfoMap = new TreeMap<Long, SegmentInfo>();
+
             for (int i = 0; i < fileNameList.size(); i++) {
                 String fileName = fileNameList.get(i);
                 RaftIndexInfo raftIndexInfo = ParseUtils.parseIndexInfoByFileName(fileName);
@@ -153,14 +160,25 @@ public class RaftLog {
      * @return
      */
     public Segment loadSegment(long realIndex) {
-        SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(segment.getStartIndex());
+        if (segmentCache.get(realIndex) != null) {
+            return segmentCache.get(realIndex);
+        }
+        SegmentMetaData segmentMetaData = logMetaDataMap.get(realIndex);
+        SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(realIndex);
+        RandomAccessFile randomAccessFile = RaftUtils.openFile(logEntryDir, segmentMetaData.fileName, "rw");
+        Segment segment = new Segment(segmentMetaData.fileName, segmentMetaData.startIndex,
+                segmentMetaData.endIndex, randomAccessFile, segmentInfo.isCanWrite);
+
         List<LogEntry> entries = new ArrayList<LogEntry>();
-        for (long i = 0l;i < segmentInfo.dataNum;i++) {
+        for (long i = 0l; i < segmentInfo.dataNum;i++) {
             LogEntry logEntry = new LogEntry(segment);
             logEntry.readFrom();
             entries.add(logEntry);
         }
-
+        segment.setEntries(entries);
+        //cache
+        cacheSegment(segment);
+        return segment;
     }
 
     /**

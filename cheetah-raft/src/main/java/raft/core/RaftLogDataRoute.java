@@ -27,8 +27,7 @@ public class RaftLogDataRoute {
     }
 
     public RaftLog.LogEntry findLogEntryByIndex (long index,
-                                                 Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap,
-                                                 String logEntryDir) throws IOException {
+                                                 Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap) throws IOException {
         long realIndex = 0;
         for (Long startIndex : segmentMetaDataMap.keySet()) {
             if (startIndex > index) {
@@ -36,17 +35,8 @@ public class RaftLogDataRoute {
             }
             realIndex = startIndex;
         }
-        RaftLog.SegmentMetaData segmentMetaData = segmentMetaDataMap.get(realIndex);
-        String fileName = segmentMetaData.fileName;
-        ;
-        RandomAccessFile randomAccessFile = RaftUtils.openFile(logEntryDir, fileName, "r");
 
-        RaftIndexInfo raftIndexInfo = ParseUtils.parseIndexInfoByFileName(fileName);
-        Segment segment = new Segment(fileName, raftIndexInfo.getStartIndex(),
-                raftIndexInfo.getEndIndex(), randomAccessFile, isCanWrite);
-        List<RaftLog.LogEntry> entries = raftLog.loadSegment(segment);
-        segment.setEntries(entries);
-
+        Segment segment = raftLog.loadSegment(realIndex);
         return segment.getEntry(index);
     }
 
