@@ -201,6 +201,14 @@ public class RaftLog {
         }
     }
 
+    /**
+     * add log entry
+     * @param logEntries
+     */
+    public void append (List<LogEntry> logEntries) {
+
+    }
+
     public int getLogEntryTerm (long logIndex) throws Exception {
         LogEntry logEntry = getEntry(logIndex);
         if (logEntry == null) {
@@ -250,18 +258,6 @@ public class RaftLog {
         }
     }
 
-    public static class SegmentMetaData {
-        public long startIndex;
-        public long endIndex;
-        public String fileName;
-
-        public SegmentMetaData(long startIndex, long endIndex, String fileName) {
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
-            this.fileName = fileName;
-        }
-    }
-
     public void readSegmentData(){
         List<String> fileNameList = null;
         try {
@@ -281,6 +277,17 @@ public class RaftLog {
         }
     }
 
+    public static class SegmentMetaData {
+        public long startIndex;
+        public long endIndex;
+        public String fileName;
+
+        public SegmentMetaData(long startIndex, long endIndex, String fileName) {
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+            this.fileName = fileName;
+        }
+    }
 
     public static class LogEntry {
         private int term;
