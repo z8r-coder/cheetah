@@ -133,6 +133,11 @@ public class RaftLog {
             long startIndex = randomAccessFile.readLong();
             long lastIndex = randomAccessFile.readLong();
             int segmentNameLength = randomAccessFile.readInt();
+            if (segmentNameLength == 0) {
+                //init
+                globleMetaData = new GlobleMetaData(startIndex, lastIndex);
+            }
+
             byte[] segmentNameByteArr = new byte[segmentNameLength];
             randomAccessFile.read(segmentNameByteArr);
             String segmentName = new String(segmentNameByteArr);
@@ -218,6 +223,12 @@ public class RaftLog {
         private volatile long lastIndex;
         private long startIndex;
         private Map<Long, SegmentInfo> segmentInfoMap;
+
+        public GlobleMetaData (long startIndex,long lastIndex) {
+            this.lastIndex = lastIndex;
+            this.startIndex = startIndex;
+        }
+
         public GlobleMetaData (String lastSegmentLogName,
                                long lastIndex, long startIndex,
                                Map<Long, SegmentInfo> segmentInfoMap) {
@@ -393,14 +404,14 @@ public class RaftLog {
 //        if (!file.exists()) {
 //            file.mkdir();
 //        }
-        TreeMap<Long, String> map = new TreeMap<Long, String>();
-        map.put(1l,"1");
-        map.put(2l, "2");
-        map.put(5l, "5");
-        map.put(4l, "4");
-        for (Long key : map.keySet()) {
-            System.out.println(key);
-        }
-        System.out.println(String.format("%s-%s.rl",100,120));
+//        TreeMap<Long, String> map = new TreeMap<Long, String>();
+//        map.put(1l,"1");
+//        map.put(2l, "2");
+//        map.put(5l, "5");
+//        map.put(4l, "4");
+//        for (Long key : map.keySet()) {
+//            System.out.println(key);
+//        }
+//        System.out.println(String.format("%s-%s.rl",100,120));
     }
 }
