@@ -3,6 +3,7 @@ package raft.protocol;
 import org.apache.log4j.Logger;
 import raft.core.RaftLogDataRoute;
 import raft.utils.RaftUtils;
+import sun.rmi.runtime.Log;
 import utils.ParseUtils;
 import utils.StringUtils;
 
@@ -37,7 +38,7 @@ public class RaftLog {
     //log entry directory
     private String logEntryDir;
     //log meta data directory
-    private String metaDataDir;
+    protected String metaDataDir;
     //total size info
     private volatile long totalSize;
     //data route
@@ -47,7 +48,9 @@ public class RaftLog {
     //meta's file full name
     private String metaFileFullName;
     //meta data map
-    private Map<String, SegmentMetaData> logMetaDataMap = new TreeMap<String, SegmentMetaData>();
+    private Map<Long, SegmentMetaData> logMetaDataMap = new TreeMap<Long, SegmentMetaData>();
+
+    private GlobleMetaData globleMetaData;
 
     public RaftLog(int maxFileLogSize, String logEntryDir, String metaFileName) {
         this.logDataRoute = new RaftLogDataRoute();
@@ -55,8 +58,19 @@ public class RaftLog {
         this.logEntryDir = logEntryDir + File.separator + "raft_log";
         this.metaDataDir = logEntryDir + File.separator + "raft_meta";
         this.metaFileFullName = metaDataDir + File.separator + metaFileName + ".meta";
-
         this.metaFileName = metaFileName;
+
+        initDirAndFileAndReadMetaData();
+    }
+
+    public RaftLog(long commitIndex, long lastApplied, int lastLogTerm, int lastLogIndex) {
+        this.commitIndex = commitIndex;
+        this.lastApplied = lastApplied;
+        this.lastLogTerm = lastLogTerm;
+        this.lastLogIndex = lastLogIndex;
+    }
+
+    private void initDirAndFileAndReadMetaData () {
         File fileEntryDir = new File(logEntryDir);
         if (!fileEntryDir.exists()) {
             fileEntryDir.mkdir();
@@ -68,26 +82,57 @@ public class RaftLog {
         File fileMeta = new File(metaFileFullName);
         if (!fileMeta.exists()) {
             try {
+                //first create
                 fileMetaDir.createNewFile();
             } catch (IOException e) {
                 logger.error("create new file occur ex=", e);
             }
+        } else {
+            //exist, read meta data from this
+            RandomAccessFile randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "rw");
+            readGlobleMetaData(randomAccessFile);
+        }
+        readSegmentData();
+    }
+
+    private void readGlobleMetaData(RandomAccessFile randomAccessFile) {
+        try {
+            long lastIndex = randomAccessFile.readLong();
+            int segmentNameLength = randomAccessFile.readInt();
+            byte[] segmentNameByteArr = new byte[segmentNameLength];
+            randomAccessFile.read(segmentNameByteArr);
+            String segmentName = new String(segmentNameByteArr);
+            globleMetaData = new GlobleMetaData(segmentName,lastIndex);
+        } catch (IOException e) {
+            logger.error("read globle meta data occurs ex",e);
+        } finally {
+            RaftUtils.closeFile(randomAccessFile);
         }
     }
 
+    public int getLogEntryTerm (long logIndex) {
+        LogEntry logEntry = getEntry(logIndex);
+        if (logEntry == null) {
+            return 0;
+        }
+        return logEntry.getTerm();
+    }
+
+    public LogEntry getEntry(long logIndex) {
+        return logEntries.get(logIndex);
+    }
 
     public static class GlobleMetaData {
         //last segment log
         private String lastSegmentLogName;
+        //last segment log name length
+        private int nameLength;
         //last index
         private long lastIndex;
         public GlobleMetaData (String lastSegmentLogName, long lastIndex) {
             this.lastIndex = lastIndex;
             this.lastSegmentLogName = lastSegmentLogName;
-        }
-
-        public void reset() {
-
+            this.nameLength = lastSegmentLogName.getBytes().length;
         }
     }
 
@@ -103,8 +148,13 @@ public class RaftLog {
         }
     }
 
-    public void readMetaData() throws IOException {
-        List<String> fileNameList = RaftUtils.getSortedFilesInDir(logEntryDir, logEntryDir);
+    public void readSegmentData(){
+        List<String> fileNameList = null;
+        try {
+            fileNameList = RaftUtils.getSortedFilesInDir(logEntryDir, logEntryDir);
+        } catch (IOException e) {
+            logger.error("read Segment Data occurs error!", e);
+        }
         for (String fileName : fileNameList) {
             String[] fileMeta = ParseUtils.parseByPoint(fileName);
             if (!StringUtils.equals(fileMeta[1], "rl")) {
@@ -113,10 +163,8 @@ public class RaftLog {
             String[] metaArray = fileMeta[0].split("-");
             SegmentMetaData metaData = new SegmentMetaData(Long.parseLong(metaArray[0]),
                     Long.parseLong(metaArray[1]), fileName);
-            logMetaDataMap.put(fileName, metaData);
+            logMetaDataMap.put(Long.parseLong(metaArray[0]), metaData);
         }
-
-//        RaftUtils
     }
 
     public static class LogEntry {
@@ -199,24 +247,6 @@ public class RaftLog {
         public void setDataLength(int dataLength) {
             this.dataLength = dataLength;
         }
-    }
-    public RaftLog(long commitIndex, long lastApplied, int lastLogTerm, int lastLogIndex) {
-        this.commitIndex = commitIndex;
-        this.lastApplied = lastApplied;
-        this.lastLogTerm = lastLogTerm;
-        this.lastLogIndex = lastLogIndex;
-    }
-
-    public int getLogEntryTerm (long logIndex) {
-        LogEntry logEntry = getEntry(logIndex);
-        if (logEntry == null) {
-            return 0;
-        }
-        return logEntry.getTerm();
-    }
-
-    public LogEntry getEntry(long logIndex) {
-        return logEntries.get(logIndex);
     }
 
     public long getCommitIndex() {
