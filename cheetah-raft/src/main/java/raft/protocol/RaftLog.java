@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author ruanxin
@@ -20,6 +21,8 @@ import java.util.*;
 public class RaftLog {
 
     private Logger logger = Logger.getLogger(RaftLog.class);
+
+    private ReentrantLock lock = new ReentrantLock(true);
 
     //候选人最后日志条目的任期号
     private int lastLogTerm;
@@ -206,13 +209,13 @@ public class RaftLog {
                 logIndex > globleMetaData.lastIndex) {
             return null;
         }
-        return logDataRoute.findLogEntryByIndex(logIndex,logMetaDataMap, logEntryDir);
+        return logDataRoute.findLogEntryByIndex(logIndex,logMetaDataMap);
     }
 
     public static class GlobleMetaData {
         private String lastSegmentLogName;
         private int nameLength;
-        private long lastIndex;
+        private volatile long lastIndex;
         private long startIndex;
         private Map<Long, SegmentInfo> segmentInfoMap;
         public GlobleMetaData (String lastSegmentLogName,
