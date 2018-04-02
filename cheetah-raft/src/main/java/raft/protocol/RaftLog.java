@@ -2,10 +2,14 @@ package raft.protocol;
 
 import org.apache.log4j.Logger;
 import raft.core.RaftLogDataRoute;
+import raft.utils.RaftUtils;
+import utils.ParseUtils;
+import utils.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -42,8 +46,11 @@ public class RaftLog {
     private String metaFileName;
     //meta's file full name
     private String metaFileFullName;
+    //meta data map
+    private Map<String, SegmentMetaData> logMetaDataMap = new TreeMap<String, SegmentMetaData>();
 
     public RaftLog(int maxFileLogSize, String logEntryDir, String metaFileName) {
+        this.logDataRoute = new RaftLogDataRoute();
         this.maxFileLogSize = maxFileLogSize;
         this.logEntryDir = logEntryDir + File.separator + "raft_log";
         this.metaDataDir = logEntryDir + File.separator + "raft_meta";
@@ -66,10 +73,51 @@ public class RaftLog {
                 logger.error("create new file occur ex=", e);
             }
         }
-        this.logDataRoute = new RaftLogDataRoute(logEntryDir,metaDataDir, metaFileName);
     }
 
 
+    public static class GlobleMetaData {
+        //last segment log
+        private String lastSegmentLogName;
+        //last index
+        private long lastIndex;
+        public GlobleMetaData (String lastSegmentLogName, long lastIndex) {
+            this.lastIndex = lastIndex;
+            this.lastSegmentLogName = lastSegmentLogName;
+        }
+
+        public void reset() {
+
+        }
+    }
+
+    public static class SegmentMetaData {
+        public long startIndex;
+        public long endIndex;
+        public String fileName;
+
+        public SegmentMetaData(long startIndex, long endIndex, String fileName) {
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+            this.fileName = fileName;
+        }
+    }
+
+    public void readMetaData() throws IOException {
+        List<String> fileNameList = RaftUtils.getSortedFilesInDir(logEntryDir, logEntryDir);
+        for (String fileName : fileNameList) {
+            String[] fileMeta = ParseUtils.parseByPoint(fileName);
+            if (!StringUtils.equals(fileMeta[1], "rl")) {
+                continue;
+            }
+            String[] metaArray = fileMeta[0].split("-");
+            SegmentMetaData metaData = new SegmentMetaData(Long.parseLong(metaArray[0]),
+                    Long.parseLong(metaArray[1]), fileName);
+            logMetaDataMap.put(fileName, metaData);
+        }
+
+//        RaftUtils
+    }
 
     public static class LogEntry {
         private int term;
