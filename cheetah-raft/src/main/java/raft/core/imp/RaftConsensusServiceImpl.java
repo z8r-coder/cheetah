@@ -6,6 +6,9 @@ import raft.core.RaftCore;
 import raft.core.server.RaftServer;
 import raft.protocol.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author ruanxin
  * @create 2018-02-08
@@ -108,6 +111,19 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 return response;
             }
 
+            response.setSuccess(true);
+            List<RaftLog.LogEntry> entries = new ArrayList<RaftLog.LogEntry>();
+            long index = request.getPrevLogIndex();
+            for (RaftLog.LogEntry entry : request.getLogEntries()) {
+                index++;
+                if (raftNode.getRaftLog().getLastLogIndex() > index) {
+                    if (raftNode.getRaftLog().getLogEntryTerm(index) == entry.getTerm()) {
+                        continue;
+                    }
+                    //truncate sync leader and follower
+                    
+                }
+            }
 
         } finally {
             raftNode.getLock().unlock();
