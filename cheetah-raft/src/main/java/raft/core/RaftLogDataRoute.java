@@ -28,16 +28,20 @@ public class RaftLogDataRoute {
 
     public RaftLog.LogEntry findLogEntryByIndex (long index,
                                                  Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap) {
+        Segment segment = findSegmentByIndex(index, segmentMetaDataMap);
+        return segment.getEntry(index);
+    }
+
+    public Segment findSegmentByIndex(long index, Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap) {
         long realIndex = 0;
-        for (Long startIndex : segmentMetaDataMap.keySet()) {
+        for (long startIndex : segmentMetaDataMap.keySet()) {
             if (startIndex > index) {
                 break;
             }
             realIndex = startIndex;
         }
-
         Segment segment = raftLog.loadSegment(realIndex);
-        return segment.getEntry(index);
+        return segment;
     }
 
     public static void main(String[] args) {

@@ -223,8 +223,49 @@ public class RaftLog {
      * add log entry
      * @param logEntries
      */
-    public void append (List<LogEntry> logEntries) {
-
+    public long append (List<LogEntry> logEntries) {
+        long newLastIndexLog = lastLogIndex;
+        for (LogEntry logEntry : logEntries) {
+            newLastIndexLog++;
+            int entrySize = logEntry.getSerializedSize();
+            int segmentSize = logMetaDataMap.size();
+            boolean isNeedNewSegmentFile = false;
+            Segment segment = null;
+            try {
+                if (segmentSize == 0) {
+                    isNeedNewSegmentFile = true;
+                } else {
+                    segment = logDataRoute.findSegmentByIndex(lastLogIndex, logMetaDataMap);
+                    if (!segment.isCanWrite()) {
+                        isNeedNewSegmentFile = true;
+                    } else if (segment.getFileSize() + entrySize >= maxFileLogSize) {
+                        isNeedNewSegmentFile = true;
+                        //close the last segment file
+                        RaftUtils.closeFile(segment.getRandomAccessFile());
+                        segment.setCanWrite(false);
+                    }
+                }
+                Segment newSegment;
+                //new segment file
+                if (isNeedNewSegmentFile) {
+                    String newFileName = String.format("%d-%d.rl",newLastIndexLog, newLastIndexLog);
+                    RandomAccessFile randomAccessFile = RaftUtils.openFile(logEntryDir, newFileName, "rw");
+                    newSegment = new Segment(newFileName, newLastIndexLog, newLastIndexLog,
+                            randomAccessFile, true);
+                } else {
+                    newSegment = segment;
+                }
+                newSegment.getEntries().add(logEntry);
+                newSegment.setEndIndex(newLastIndexLog);
+                logEntry.setSegment(newSegment);
+                //write protocol to
+                logEntry.writeTo();
+                newSegment.setFileSize(newSegment.getRandomAccessFile().length());
+            } catch (IOException ex) {
+                throw new RuntimeException("append raft log entry occurs ex:" + ex);
+            }
+        }
+        return newLastIndexLog;
     }
 
     public int getLogEntryTerm (long logIndex) {
@@ -394,6 +435,14 @@ public class RaftLog {
         public void setDataLength(int dataLength) {
             this.dataLength = dataLength;
         }
+
+        public Segment getSegment() {
+            return segment;
+        }
+
+        public void setSegment(Segment segment) {
+            this.segment = segment;
+        }
     }
 
     public long getCommitIndex() {
@@ -442,7 +491,7 @@ public class RaftLog {
 //            System.out.println(key);
 //        }
 //        System.out.println(String.format("%s-%s.rl",100,120));
-        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
+        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "4.txt", "rw");
         String test = "test";
         String secTest = "secTest";
         RandomAccessFile randomAccessFile1 = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");

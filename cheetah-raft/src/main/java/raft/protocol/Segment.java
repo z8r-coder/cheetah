@@ -15,6 +15,7 @@ public class Segment {
     private String fileName;
     private long startIndex;
     private long endIndex;
+    private long fileSize;
     private RandomAccessFile randomAccessFile;
     private List<RaftLog.LogEntry> entries = new ArrayList<RaftLog.LogEntry>();
 
@@ -84,5 +85,13 @@ public class Segment {
 
     public void setEntries(List<RaftLog.LogEntry> entries) {
         this.entries = entries;
+    }
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
     }
 }
