@@ -27,7 +27,7 @@ public class RaftLogDataRoute {
     }
 
     public RaftLog.LogEntry findLogEntryByIndex (long index,
-                                                 Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap) throws IOException {
+                                                 Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap) {
         long realIndex = 0;
         for (Long startIndex : segmentMetaDataMap.keySet()) {
             if (startIndex > index) {

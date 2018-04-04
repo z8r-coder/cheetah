@@ -227,7 +227,7 @@ public class RaftLog {
 
     }
 
-    public int getLogEntryTerm (long logIndex) throws Exception {
+    public int getLogEntryTerm (long logIndex) {
         LogEntry logEntry = getEntry(logIndex);
         if (logEntry == null) {
             return 0;
@@ -235,7 +235,7 @@ public class RaftLog {
         return logEntry.getTerm();
     }
 
-    public LogEntry getEntry(long logIndex) throws Exception {
+    public LogEntry getEntry(long logIndex) {
         if (logIndex < globleMetaData.startIndex ||
                 logIndex > globleMetaData.lastIndex) {
             return null;
@@ -442,5 +442,21 @@ public class RaftLog {
 //            System.out.println(key);
 //        }
 //        System.out.println(String.format("%s-%s.rl",100,120));
+        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
+        String test = "test";
+        String secTest = "secTest";
+        RandomAccessFile randomAccessFile1 = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
+        try {
+            byte[] data = new byte[test.getBytes().length];
+            randomAccessFile.read(data);
+            String res = new String(data);
+            System.out.println(res);
+            randomAccessFile.write(test.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            RaftUtils.closeFile(randomAccessFile);
+            RaftUtils.closeFile(randomAccessFile);
+        }
     }
 }
