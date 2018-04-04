@@ -359,6 +359,10 @@ public class RaftLog {
             }
         }
 
+        public int getSerializedSize() {
+            return 16 + data.length;
+        }
+
         public int getTerm() {
             return term;
         }
