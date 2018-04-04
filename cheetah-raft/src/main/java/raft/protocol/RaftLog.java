@@ -1,5 +1,6 @@
 package raft.protocol;
 
+import cache.LRUCache;
 import models.RaftIndexInfo;
 import org.apache.log4j.Logger;
 import raft.core.RaftLogDataRoute;
@@ -10,7 +11,10 @@ import utils.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -49,7 +53,7 @@ public class RaftLog {
     //meta data map
     private Map<Long, SegmentMetaData> logMetaDataMap = new TreeMap<Long, SegmentMetaData>();
     //segment cache LRU
-    private Map<Long, Segment> segmentCache = new LinkedHashMap<Long, Segment>(16,0.75f,true);
+    private LRUCache<Long, Segment> segmentCache = new LRUCache<Long, Segment>(16, 0.75f, true, 16);
 
     private GlobleMetaData globleMetaData;
 
@@ -194,11 +198,7 @@ public class RaftLog {
      * @param segment
      */
     public void cacheSegment (Segment segment) {
-        if (segmentCache.size() < 16) {
-            segmentCache.put(segment.getStartIndex(), segment);
-        } else {
-
-        }
+        segmentCache.put(segment.getStartIndex(), segment);
     }
 
     /**
