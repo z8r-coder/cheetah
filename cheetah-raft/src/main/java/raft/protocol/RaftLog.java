@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.io.FileUtils;
 
 /**
  * @author ruanxin
@@ -51,7 +52,7 @@ public class RaftLog {
     //meta's file full name
     private String metaFileFullName;
     //meta data map
-    private Map<Long, SegmentMetaData> logMetaDataMap = new TreeMap<Long, SegmentMetaData>();
+    private TreeMap<Long, SegmentMetaData> logMetaDataMap = new TreeMap<Long, SegmentMetaData>();
     //segment cache LRU
     private LRUCache<Long, Segment> segmentCache = new LRUCache<Long, Segment>(16, 0.75f, true, 16);
 
@@ -146,7 +147,7 @@ public class RaftLog {
             //load log entry meta info
             List<String> fileNameList = RaftUtils.getSortedFilesInDir(logEntryDir,logEntryDir);
 
-            Map<Long, SegmentInfo> segmentInfoMap = new TreeMap<Long, SegmentInfo>();
+            TreeMap<Long, SegmentInfo> segmentInfoMap = new TreeMap<Long, SegmentInfo>();
 
             for (int i = 0; i < fileNameList.size(); i++) {
                 String fileName = fileNameList.get(i);
@@ -219,6 +220,43 @@ public class RaftLog {
         segmentCache.put(segment.getStartIndex(), segment);
     }
 
+    public void truncateSuffix (long newEndIndex) {
+        if (newEndIndex > getLastLogIndex()) {
+            return;
+        }
+        logger.info("truncate log from old index " +  getLastLogIndex() + " to new end index " + newEndIndex);
+        while (!logMetaDataMap.isEmpty()) {
+            long lastSegmentIndex = logMetaDataMap.lastKey();
+            Segment segment = loadSegment(lastSegmentIndex);
+            try {
+                if (newEndIndex == segment.getEndIndex()) {
+                    LogEntry logEntry = segment.getEntry(newEndIndex);
+                    updateProtocolData(logEntry.getTerm(), newEndIndex, newEndIndex);
+                    //update globle info
+                    globleMetaData.lastSegmentLogName = segment.getFileName();
+                    globleMetaData.nameLength = segment.getFileName().getBytes().length;
+                    globleMetaData.lastIndex = newEndIndex;
+                    globleMetaData.segmentInfoMap.remove(globleMetaData.segmentInfoMap.lastKey());
+                    break;
+                } else if (newEndIndex < segment.getStartIndex()) {
+                    //last segment
+                    totalSize -= segment.getFileSize();
+                    segment.getRandomAccessFile().close();
+                    String fullFileName = logEntryDir + File.separator + segment.getFileName();
+                    FileUtils.forceDelete(new File(fullFileName));
+                    logMetaDataMap.remove(lastSegmentIndex);
+                    segmentCache.remove(lastSegmentIndex);
+                } else if (newEndIndex < segment.getEndIndex()){
+                    int index = (int)(newEndIndex + 1 - segment.getStartIndex());
+                    segment.setEndIndex(newEndIndex);
+
+                }
+            } catch (Exception ex) {
+                logger.warn("io exception ", ex);
+            }
+        }
+    }
+
     /**
      * add log entry
      * @param logEntries
@@ -252,6 +290,10 @@ public class RaftLog {
                     RandomAccessFile randomAccessFile = RaftUtils.openFile(logEntryDir, newFileName, "rw");
                     newSegment = new Segment(newFileName, newLastIndexLog, newLastIndexLog,
                             randomAccessFile, true);
+                    globleMetaData.lastSegmentLogName = newFileName;
+                    globleMetaData.nameLength = newFileName.getBytes().length;
+                    SegmentInfo segmentInfo = new SegmentInfo(true, 0);
+                    globleMetaData.segmentInfoMap.put(newLastIndexLog, segmentInfo);
                 } else {
                     newSegment = segment;
                 }
@@ -261,11 +303,28 @@ public class RaftLog {
                 //write protocol to
                 logEntry.writeTo();
                 newSegment.setFileSize(newSegment.getRandomAccessFile().length());
+                //update protocol data
+                updateProtocolData(logEntry.getTerm(), logEntry.getIndex(), logEntry.getIndex());
+
+                // TODO: 2018/4/8 全局元信息是否必须维护
+                //update meta data
+                globleMetaData.lastIndex = newLastIndexLog;
+                SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(newSegment.getStartIndex());
+                segmentInfo.dataNum++;
+                RandomAccessFile randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "rw");
+                writeGlobleMetaData(randomAccessFile, globleMetaData);
             } catch (IOException ex) {
                 throw new RuntimeException("append raft log entry occurs ex:" + ex);
             }
         }
         return newLastIndexLog;
+    }
+
+
+    public void updateProtocolData (int lastLogTerm, long lastLogIndex, long commitIndex) {
+        this.commitIndex = commitIndex;
+        this.lastLogIndex = lastLogIndex;
+        this.lastLogTerm = lastLogTerm;
     }
 
     public int getLogEntryTerm (long logIndex) {
@@ -289,7 +348,7 @@ public class RaftLog {
         private int nameLength;
         private volatile long lastIndex;
         private long startIndex;
-        private Map<Long, SegmentInfo> segmentInfoMap;
+        private TreeMap<Long, SegmentInfo> segmentInfoMap;
 
         public GlobleMetaData (long startIndex,long lastIndex) {
             this.lastIndex = lastIndex;
@@ -298,7 +357,7 @@ public class RaftLog {
 
         public GlobleMetaData (String lastSegmentLogName,
                                long lastIndex, long startIndex,
-                               Map<Long, SegmentInfo> segmentInfoMap) {
+                               TreeMap<Long, SegmentInfo> segmentInfoMap) {
             this.startIndex = startIndex;
             this.lastIndex = lastIndex;
             this.lastSegmentLogName = lastSegmentLogName;

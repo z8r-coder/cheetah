@@ -121,7 +121,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                         continue;
                     }
                     //truncate sync leader and follower
-                    
+
                 }
             }
 
