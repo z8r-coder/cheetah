@@ -11,6 +11,7 @@ import utils.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -255,6 +256,13 @@ public class RaftLog {
                 } else if (newEndIndex < segment.getEndIndex()){
                     int index = (int)(newEndIndex + 1 - segment.getStartIndex());
                     segment.setEndIndex(newEndIndex);
+                    long newFileSize = segment.getEntries().get(index).offset;
+                    segment.setFileSize(newFileSize);
+                    segment.getEntries().removeAll(
+                            segment.getEntries().subList(index, segment.getEntries().size()));
+                    FileChannel fileChannel = segment.getRandomAccessFile().getChannel();
+                    fileChannel.truncate(segment.getFileSize());
+                    fileChannel.close();
 
                 }
             } catch (Exception ex) {
