@@ -200,15 +200,21 @@ public class RaftLog {
         Segment segment = new Segment(segmentMetaData.fileName, segmentMetaData.startIndex,
                 segmentMetaData.endIndex, randomAccessFile, segmentInfo.isCanWrite);
 
-        List<LogEntry> entries = new ArrayList<LogEntry>();
-        for (long i = 0l; i < segmentInfo.dataNum;i++) {
-            LogEntry logEntry = new LogEntry(segment);
-            logEntry.readFrom();
-            entries.add(logEntry);
+        try {
+            List<Segment.Record> entries = new ArrayList<Segment.Record>();
+            for (long i = 0l; i < segmentInfo.dataNum;i++) {
+                LogEntry logEntry = new LogEntry(segment);
+                Segment.Record record = new Segment.Record(randomAccessFile.getFilePointer(), logEntry);
+                logEntry.readFrom();
+                entries.add(record);
+            }
+            segment.setEntries(entries);
+            //cache
+            cacheSegment(segment);
+        } catch (Exception ex) {
+            throw new RuntimeException("load segment occurs ex!", ex);
         }
-        segment.setEntries(entries);
-        //cache
-        cacheSegment(segment);
+
         return segment;
     }
 
@@ -297,7 +303,8 @@ public class RaftLog {
                 } else {
                     newSegment = segment;
                 }
-                newSegment.getEntries().add(logEntry);
+                newSegment.getEntries().add(new Segment.Record(newSegment.getRandomAccessFile().getFilePointer(),
+                        logEntry));
                 newSegment.setEndIndex(newLastIndexLog);
                 logEntry.setSegment(newSegment);
                 //write protocol to
@@ -553,6 +560,7 @@ public class RaftLog {
             System.out.println(test.getBytes().length);
             byte[] data = new byte[test.getBytes().length * 2];
             randomAccessFile.read(data);
+            System.out.println(randomAccessFile.getFilePointer());
             String res = new String(data);
             System.out.println(res);
             System.out.println();
