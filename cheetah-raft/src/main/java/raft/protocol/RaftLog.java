@@ -439,8 +439,6 @@ public class RaftLog {
                 randomAccessFile.write(data);
             } catch (IOException e) {
                 throw new RuntimeException("write to file error!");
-            } finally {
-                RaftUtils.closeFile(randomAccessFile);
             }
         }
 
@@ -454,8 +452,6 @@ public class RaftLog {
                 randomAccessFile.read(data);
             } catch (IOException e) {
                 throw new RuntimeException("read from file error!");
-            } finally {
-                RaftUtils.closeFile(randomAccessFile);
             }
         }
 
@@ -552,18 +548,23 @@ public class RaftLog {
 //        System.out.println(String.format("%s-%s.rl",100,120));
         RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "4.txt", "rw");
         String test = "test";
-        String secTest = "secTest";
-        RandomAccessFile randomAccessFile1 = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
+//        RandomAccessFile randomAccessFile1 = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
         try {
-            byte[] data = new byte[test.getBytes().length];
+            System.out.println(test.getBytes().length);
+            byte[] data = new byte[test.getBytes().length * 2];
             randomAccessFile.read(data);
             String res = new String(data);
             System.out.println(res);
+            System.out.println();
             randomAccessFile.write(test.getBytes());
+            randomAccessFile.writeLong(1l);
+            randomAccessFile.writeInt(4);
+            randomAccessFile.writeInt(2);
+            System.out.println(randomAccessFile.getFilePointer());
+            System.out.println(randomAccessFile.length());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            RaftUtils.closeFile(randomAccessFile);
             RaftUtils.closeFile(randomAccessFile);
         }
     }
