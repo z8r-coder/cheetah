@@ -238,12 +238,12 @@ public class RaftLog {
             try {
                 if (newEndIndex == segment.getEndIndex()) {
                     LogEntry logEntry = segment.getEntry(newEndIndex);
+                    //update protocol data
                     updateProtocolData(logEntry.getTerm(), newEndIndex, newEndIndex);
                     //update globle info
                     globleMetaData.lastSegmentLogName = segment.getFileName();
                     globleMetaData.nameLength = segment.getFileName().getBytes().length;
                     globleMetaData.lastIndex = newEndIndex;
-                    globleMetaData.segmentInfoMap.remove(globleMetaData.segmentInfoMap.lastKey());
                     break;
                 } else if (newEndIndex < segment.getStartIndex()) {
                     //last segment
@@ -253,6 +253,7 @@ public class RaftLog {
                     FileUtils.forceDelete(new File(fullFileName));
                     logMetaDataMap.remove(lastSegmentIndex);
                     segmentCache.remove(lastSegmentIndex);
+                    globleMetaData.segmentInfoMap.remove(lastSegmentIndex);
                 } else if (newEndIndex < segment.getEndIndex()){
                     int index = (int)(newEndIndex + 1 - segment.getStartIndex());
                     segment.setEndIndex(newEndIndex);
@@ -263,7 +264,26 @@ public class RaftLog {
                     FileChannel fileChannel = segment.getRandomAccessFile().getChannel();
                     fileChannel.truncate(segment.getFileSize());
                     fileChannel.close();
-
+                    segment.getRandomAccessFile().close();
+                    String oldFullFileName = logEntryDir + File.separator + segment.getFileName();
+                    String newFileName = String.format("%d-%d",
+                            segment.getStartIndex(), segment.getEndIndex());
+                    segment.setFileName(newFileName);
+                    String newFullFileName = logEntryDir + File.separator + newFileName;
+                    new File(oldFullFileName).renameTo(new File(newFullFileName));
+                    segment.setRandomAccessFile(RaftUtils.openFile(logEntryDir, segment.getFileName(), "rw"));
+                    if (newFileSize < maxFileLogSize) {
+                        segment.setCanWrite(true);
+                    }
+                    //update log meta data
+                    SegmentMetaData segmentMetaData = logMetaDataMap.get(segment.getStartIndex());
+                    segmentMetaData.fileName = newFullFileName;
+                    segmentMetaData.startIndex = segment.getStartIndex();
+                    segmentMetaData.endIndex = segment.getEndIndex();
+                    //update globle
+                    SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(segment.getStartIndex());
+                    segmentInfo.dataNum = index;
+                    segmentInfo.isCanWrite = true;
                 }
             } catch (Exception ex) {
                 logger.warn("io exception ", ex);
@@ -318,20 +338,36 @@ public class RaftLog {
                 //write protocol to
                 logEntry.writeTo();
                 newSegment.setFileSize(newSegment.getRandomAccessFile().length());
+                //update file name
+                String oldFullFileName = logEntryDir + File.separator + segment.getFileName();
+                String newFileName = String.format("%d-%d",newSegment.getStartIndex(), newSegment.getEndIndex());
+                newSegment.setFileName(newFileName);
+                String newFullFileName = logEntryDir + File.separator + newFileName;
+                new File(oldFullFileName).renameTo(new File(newFullFileName));
                 //update protocol data
                 updateProtocolData(logEntry.getTerm(), logEntry.getIndex(), logEntry.getIndex());
+                if (logMetaDataMap.get(newSegment.getStartIndex()) == null) {
+                    SegmentMetaData segmentMetaData = new SegmentMetaData(newSegment.getStartIndex(),
+                            newSegment.getEndIndex(), newFileName);
+                    logMetaDataMap.put(newSegment.getStartIndex(), segmentMetaData);
+                } else {
+                    SegmentMetaData segmentMetaData = logMetaDataMap.get(newSegment.getStartIndex());
+                    segmentMetaData.endIndex = newLastIndexLog;
+                    segmentMetaData.fileName = newFileName;
+                }
 
                 // TODO: 2018/4/8 全局元信息是否必须维护
                 //update meta data
                 globleMetaData.lastIndex = newLastIndexLog;
                 SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(newSegment.getStartIndex());
                 segmentInfo.dataNum++;
-                RandomAccessFile randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "rw");
-                writeGlobleMetaData(randomAccessFile, globleMetaData);
+
             } catch (IOException ex) {
                 throw new RuntimeException("append raft log entry occurs ex:" + ex);
             }
         }
+        RandomAccessFile randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "rw");
+        writeGlobleMetaData(randomAccessFile, globleMetaData);
         return newLastIndexLog;
     }
 
@@ -561,27 +597,30 @@ public class RaftLog {
 //            System.out.println(key);
 //        }
 //        System.out.println(String.format("%s-%s.rl",100,120));
-        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "4.txt", "rw");
-        String test = "test";
-//        RandomAccessFile randomAccessFile1 = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
-        try {
-            System.out.println(test.getBytes().length);
-            byte[] data = new byte[test.getBytes().length * 2];
-            randomAccessFile.read(data);
-            System.out.println(randomAccessFile.getFilePointer());
-            String res = new String(data);
-            System.out.println(res);
-            System.out.println();
-            randomAccessFile.write(test.getBytes());
-            randomAccessFile.writeLong(1l);
-            randomAccessFile.writeInt(4);
-            randomAccessFile.writeInt(2);
-            System.out.println(randomAccessFile.getFilePointer());
-            System.out.println(randomAccessFile.length());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            RaftUtils.closeFile(randomAccessFile);
-        }
+//        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "4.txt", "rw");
+//        String test = "test";
+////        RandomAccessFile randomAccessFile1 = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
+//        try {
+//            System.out.println(test.getBytes().length);
+//            byte[] data = new byte[test.getBytes().length * 2];
+//            randomAccessFile.read(data);
+//            System.out.println(randomAccessFile.getFilePointer());
+//            String res = new String(data);
+//            System.out.println(res);
+//            System.out.println();
+//            randomAccessFile.write(test.getBytes());
+//            randomAccessFile.writeLong(1l);
+//            randomAccessFile.writeInt(4);
+//            randomAccessFile.writeInt(2);
+//            System.out.println(randomAccessFile.getFilePointer());
+//            System.out.println(randomAccessFile.length());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            RaftUtils.closeFile(randomAccessFile);
+//        }
+        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "5.txt", "rw");
+
+        new File("/Users/ruanxin/IdeaProjects/cheetah/raft/5.txt").renameTo(new File("/Users/ruanxin/IdeaProjects/cheetah/raft/6.txt"));
     }
 }
