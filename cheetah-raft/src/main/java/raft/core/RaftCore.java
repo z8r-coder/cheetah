@@ -8,6 +8,7 @@ import raft.protocol.*;
 import rpc.async.RpcCallback;
 import rpc.client.AsyncClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
+import rpc.client.SyncClientRemoteExecutor;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
@@ -117,11 +118,6 @@ public class RaftCore {
         },raftOptions.getHeartbeatPeriodMilliseconds(), TimeUnit.MILLISECONDS);
     }
 
-    //附加RPC
-    public void appendEntries (AddRequest request) {
-
-    }
-
     public void updateMore(int newTerm) {
         if (raftNode.getCurrentTerm() < newTerm) {
             raftNode.setCurrentTerm(newTerm);
@@ -201,6 +197,34 @@ public class RaftCore {
             });
         }
         resetElectionTimer();
+    }
+
+    /**
+     * rpc call
+     * @param request
+     */
+    public void appendEntries (AddRequest request) {
+        //def client connect
+        AbstractRpcConnector connector = new RpcNioConnector(null);
+        RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
+        SyncClientRemoteExecutor clientRemoteExecutor = new SyncClientRemoteExecutor(connector);
+
+        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
+        proxy.startService();
+
+        RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
+        //sync rpc call
+        AddResponse response = raftConsensusService.appendEntries(request);
+        lock.lock();
+        try {
+            if (response == null) {
+                logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
+                " port=" + request.getRemotePort());
+
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
