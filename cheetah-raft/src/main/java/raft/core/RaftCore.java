@@ -97,7 +97,8 @@ public class RaftCore {
                             raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
                             raftNode.getRaftLog().getCommitIndex());
                     request.setAddress(localServer.getHost(), localServer.getPort(),
-                            cheetahAddress.getHost(), cheetahAddress.getPort());
+                            cheetahAddress.getHost(), cheetahAddress.getPort(),
+                            raftNode.getRaftServer().getServerId());
                     appendEntries(request);
                 }
             });
@@ -189,7 +190,8 @@ public class RaftCore {
                     raftNode.getRaftLog().getLastLogIndex(),
                     raftNode.getRaftLog().getLastLogTerm());
             votedRequest.setAddress(raftServer.getHost(), raftServer.getPort(),
-                    cheetahAddress.getHost(), cheetahAddress.getPort());
+                    cheetahAddress.getHost(), cheetahAddress.getPort(),
+                    raftServer.getServerId());
             raftVoteAsyncCallBack.setRequest(votedRequest);
             executorService.submit(new Runnable() {
                 public void run() {

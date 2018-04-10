@@ -121,14 +121,22 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                         continue;
                     }
                     //truncate sync leader and follower
-
+                    long lastIndexKept = index - 1;
+                    raftNode.getRaftLog().truncateSuffix(lastIndexKept);
                 }
+                entries.add(entry);
             }
+            raftNode.getRaftLog().append(entries);
+            response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
 
+            applyLogOnStateMachine(request);
+            logger.info("Append entries request from server:" + request.getServerId() + " in term:" +
+            request.getTerm() + " (my term is " + raftNode.getCurrentTerm() + ") " +
+            ", entryCount=" + request.getLogEntries().size() + " result:" + response.isSuccess());
+            return response;
         } finally {
             raftNode.getLock().unlock();
         }
-        return null;
     }
 
     //apply on state machine
