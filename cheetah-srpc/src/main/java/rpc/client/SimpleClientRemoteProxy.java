@@ -26,6 +26,11 @@ public class SimpleClientRemoteProxy implements InvocationHandler, Service {
 
     private Map<Class, String> groupCache = new ConcurrentHashMap<Class, String>();
 
+    private int remoteProxyStatus = 0;
+
+    public final static int STOP = 0;
+    public final static int STARTED = 1;
+
     /**
      * 应用
      */
@@ -37,10 +42,12 @@ public class SimpleClientRemoteProxy implements InvocationHandler, Service {
 
     public void startService() {
         remoteExecutor.startService();
+        remoteProxyStatus = STARTED;
     }
 
     public void stopService() {
         remoteExecutor.stopService();
+        remoteProxyStatus = STOP;
     }
 
     public void setApplication(String application) {
@@ -131,5 +138,13 @@ public class SimpleClientRemoteProxy implements InvocationHandler, Service {
 
         groupCache.put(remote, group);
         return result;
+    }
+
+    public int getRemoteProxyStatus() {
+        return remoteProxyStatus;
+    }
+
+    public void setRemoteProxyStatus(int remoteProxyStatus) {
+        this.remoteProxyStatus = remoteProxyStatus;
     }
 }

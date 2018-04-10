@@ -39,6 +39,8 @@ public class RaftCore {
     int asyncVoteNum;
     private RaftOptions raftOptions;
     private Map<Integer, String> serverList;
+    private Map<Integer, SimpleClientRemoteProxy> rpcAsyncClientCache = new ConcurrentHashMap<Integer, SimpleClientRemoteProxy>();
+    private Map<Integer, SimpleClientRemoteProxy> rpcSyncClientCache = new ConcurrentHashMap<Integer, SimpleClientRemoteProxy>();
 
     private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
@@ -204,14 +206,24 @@ public class RaftCore {
      * @param request
      */
     public void appendEntries (AddRequest request) {
-        //def client connect
-        AbstractRpcConnector connector = new RpcNioConnector(null);
-        RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
-        SyncClientRemoteExecutor clientRemoteExecutor = new SyncClientRemoteExecutor(connector);
+        SimpleClientRemoteProxy proxy = null;
+        if (rpcSyncClientCache.get(request.getServerId()) == null) {
+            //def client connect
+            AbstractRpcConnector connector = new RpcNioConnector(null);
+            RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
+            SyncClientRemoteExecutor clientRemoteExecutor = new SyncClientRemoteExecutor(connector);
 
-        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
-        proxy.startService();
+            proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
+            proxy.startService();
 
+            rpcSyncClientCache.put(request.getServerId(), proxy);
+        } else {
+            proxy = rpcSyncClientCache.get(request.getServerId());
+            if (proxy.getRemoteProxyStatus() == SimpleClientRemoteProxy.STOP) {
+                proxy.startService();
+            }
+            //have started
+        }
         RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
         //sync rpc call
         AddResponse response = raftConsensusService.appendEntries(request);
@@ -220,7 +232,7 @@ public class RaftCore {
             if (response == null) {
                 logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
                 " port=" + request.getRemotePort());
-
+                
             }
         } finally {
             lock.unlock();
@@ -232,16 +244,26 @@ public class RaftCore {
      * @param request
      */
     private void requestVoteFor(VotedRequest request, RpcCallback raftVoteAsyncCallBack) {
-        //def client connect
-        AbstractRpcConnector connector = new RpcNioConnector(null);
-        RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
+        SimpleClientRemoteProxy proxy = null;
+        if (rpcAsyncClientCache.get(request.getServerId()) == null) {
+            //def client connect
+            AbstractRpcConnector connector = new RpcNioConnector(null);
+            RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
 
-        //def vote callback
+            //def vote callback
+            AsyncClientRemoteExecutor clientRemoteExecutor = new AsyncClientRemoteExecutor(connector, raftVoteAsyncCallBack);
 
-        AsyncClientRemoteExecutor clientRemoteExecutor = new AsyncClientRemoteExecutor(connector, raftVoteAsyncCallBack);
+            proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
+            proxy.startService();
 
-        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
-        proxy.startService();
+            rpcAsyncClientCache.put(request.getServerId(), proxy);
+        } else {
+            proxy = rpcAsyncClientCache.get(request.getServerId());
+            if (proxy.getRemoteProxyStatus() == SimpleClientRemoteProxy.STOP) {
+                proxy.startService();
+            }
+            //have started
+        }
 
         RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
         //async rpc call
