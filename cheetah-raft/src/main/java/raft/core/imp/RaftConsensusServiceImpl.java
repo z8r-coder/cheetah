@@ -27,31 +27,8 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     }
 
     public VotedResponse leaderElection(VotedRequest request) {
-        raftNode.getLock().lock();
-        try {
-            VotedResponse votedResponse = new VotedResponse(raftNode.getCurrentTerm(),
-                    false,
-                    raftNode.getRaftServer().getServerId());
-            if (request.getTerm() < raftNode.getCurrentTerm()) {
-                return votedResponse;
-            }
-            if (request.getTerm() > raftNode.getCurrentTerm()) {
-                raftCore.updateMore(request.getTerm());
-            }
-            boolean newLog = request.getLastLogTerm() >= raftNode.getRaftLog().getLastLogTerm()
-                    && request.getLastLogIndex() >= raftNode.getRaftLog().getLastLogIndex();
-            if ((raftNode.getVotedFor() == 0 || raftNode.getVotedFor() == request.getServerId()) &&
-                    newLog) {
-                raftNode.setVotedFor(request.getServerId());
-                // TODO: 2018/3/29 need to update log 
-                votedResponse.setGranted(true);
-                votedResponse.setTerm(raftNode.getCurrentTerm());
-                votedResponse.setServerId(raftNode.getRaftServer().getServerId());
-            }
-            return votedResponse;
-        } finally {
-            raftNode.getLock().unlock();
-        }
+        // -> async
+        return null;
     }
 
     public void resetTimeOut() {

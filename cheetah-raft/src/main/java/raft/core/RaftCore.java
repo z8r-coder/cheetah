@@ -232,7 +232,32 @@ public class RaftCore {
             if (response == null) {
                 logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
                 " port=" + request.getRemotePort());
-                
+                if (serverList.get(request.getServerId()) == null) {
+                    rpcSyncClientCache.remove(request.getServerId());
+                    proxy.stopService();
+                }
+                return;
+            }
+
+            logger.info("Append Entries response:" + response.isSuccess() +
+            " from server:" + request.getServerId() + " in term:" + response.getTerm() +
+            " (my term in " + raftNode.getCurrentTerm() + ")");
+
+            if (response.getTerm() > raftNode.getCurrentTerm()) {
+                updateMore(response.getTerm());
+            } else {
+                if (response.isSuccess()) {
+                    //success
+                    raftNode.setMatchIndex(request.getPrevLogIndex() + request.getLogEntries().size());
+                    raftNode.setNextIndex(raftNode.getMatchIndex() + 1);
+                    if (serverList.get(request.getServerId()) != null) {
+                        applyLogOnStateMachine();
+                    } else {
+                        //add new node
+                    }
+                } else {
+                    raftNode.setNextIndex(response.getLastLogIndex() + 1);
+                }
             }
         } finally {
             lock.unlock();
@@ -268,6 +293,13 @@ public class RaftCore {
         RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
         //async rpc call
         raftConsensusService.leaderElection(request);
+    }
+
+    /**
+     * for leader applu log on state machine
+     */
+    public void applyLogOnStateMachine () {
+
     }
 
     /**

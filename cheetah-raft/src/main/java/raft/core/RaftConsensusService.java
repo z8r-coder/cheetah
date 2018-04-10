@@ -4,7 +4,7 @@ import raft.protocol.*;
 /**
  * @author ruanxin
  * @create 2018-02-08
- * @desc 一致性算法
+ * @desc 一致性算法 sync
  */
 public interface RaftConsensusService {
 
