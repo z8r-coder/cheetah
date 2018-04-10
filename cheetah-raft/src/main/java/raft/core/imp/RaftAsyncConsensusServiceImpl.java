@@ -13,7 +13,7 @@ import raft.protocol.VotedResponse;
  * @desc
  */
 public class RaftAsyncConsensusServiceImpl implements RaftAsyncConsensusService {
-    private Logger logger = Logger.getLogger(RaftConsensusServiceImpl.class);
+    private Logger logger = Logger.getLogger(RaftAsyncConsensusServiceImpl.class);
 
     private RaftNode raftNode;
     private RaftCore raftCore;
@@ -22,6 +22,7 @@ public class RaftAsyncConsensusServiceImpl implements RaftAsyncConsensusService 
         this.raftNode = raftNode;
         this.raftCore = raftCore;
     }
+
     public VotedResponse leaderElection(VotedRequest request) {
         raftNode.getLock().lock();
         try {

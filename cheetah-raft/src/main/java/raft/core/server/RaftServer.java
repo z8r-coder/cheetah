@@ -24,7 +24,7 @@ public class RaftServer {
 
     private int serverId;
 
-    RaftServer (String host, int port) {
+    public RaftServer (String host, int port) {
         this.host = host;
         this.port = port;
         serverId = ParseUtils.generateServerId(host, port);

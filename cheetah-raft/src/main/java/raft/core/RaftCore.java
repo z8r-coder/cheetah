@@ -4,6 +4,7 @@ import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
+import raft.core.server.ServerNode;
 import raft.protocol.*;
 import rpc.async.RpcCallback;
 import rpc.client.AsyncClientRemoteExecutor;
@@ -39,6 +40,7 @@ public class RaftCore {
     int asyncVoteNum;
     private RaftOptions raftOptions;
     private Map<Integer, String> serverList;
+    private Map<Integer, ServerNode> serverNodeCache = new ConcurrentHashMap<Integer, ServerNode>();
     private Map<Integer, SimpleClientRemoteProxy> rpcAsyncClientCache = new ConcurrentHashMap<Integer, SimpleClientRemoteProxy>();
     private Map<Integer, SimpleClientRemoteProxy> rpcSyncClientCache = new ConcurrentHashMap<Integer, SimpleClientRemoteProxy>();
 
@@ -57,6 +59,18 @@ public class RaftCore {
         init();
     }
     public void init() {
+        for (Integer serverId : serverList.keySet()) {
+            if (serverList.get(serverId) == null &&
+                    serverId != raftNode.getRaftServer().getServerId()) {
+                RaftVoteAsyncCallBack  asyncCallBack = new RaftVoteAsyncCallBack();
+                String serverInfo = serverList.get(serverId);
+                CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverInfo);
+                RaftServer raftServer = new RaftServer(cheetahAddress.getHost(), cheetahAddress.getPort());
+                ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
+                serverNodeCache.put(serverId, serverNode);
+            }
+        }
+
         executorService = new ThreadPoolExecutor(raftOptions.getRaftConsensusThreadNum(),
                 raftOptions.getRaftConsensusThreadNum(),
                 60,
@@ -86,23 +100,15 @@ public class RaftCore {
      */
     private void startNewHeartBeat() {
         logger.info("begin start heart beat. leaderId:" + raftNode.getLeaderId());
-        for (String address : serverList.values()) {
-            final RaftServer localServer = raftNode.getRaftServer();
-            final CheetahAddress cheetahAddress = ParseUtils.parseAddress(address);
-            if (StringUtils.equals(cheetahAddress.getHost(), localServer.getHost()) &&
-                    cheetahAddress.getPort() == localServer.getPort()) {
+        for (Integer serverId : serverList.keySet()) {
+            if (serverId == raftNode.getRaftServer().getServerId()) {
                 continue;
             }
+            // TODO: 2018/4/10 当有新机器加入时 可能为空
+            final ServerNode serverNode = serverNodeCache.get(serverId);
             executorService.submit(new Runnable() {
                 public void run() {
-                    AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
-                            raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
-                            raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
-                            raftNode.getRaftLog().getCommitIndex());
-                    request.setAddress(localServer.getHost(), localServer.getPort(),
-                            cheetahAddress.getHost(), cheetahAddress.getPort(),
-                            raftNode.getRaftServer().getServerId());
-                    appendEntries(request);
+                    appendEntries(serverNode);
                 }
             });
         }
@@ -174,27 +180,16 @@ public class RaftCore {
             lock.unlock();
         }
 
-        //async vote call back handler
-        final RaftVoteAsyncCallBack raftVoteAsyncCallBack = new RaftVoteAsyncCallBack();
         for (Integer serverId : serverList.keySet()) {
             if (serverId == raftServer.getServerId()) {
                 continue;
             }
-            final CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverList.get(serverId));
-            //build request
-            final VotedRequest votedRequest = new VotedRequest(
-                    raftNode.getCurrentTerm(),
-                    raftNode.getRaftServer().getServerId(),
-                    raftNode.getRaftLog().getLastLogIndex(),
-                    raftNode.getRaftLog().getLastLogTerm());
-            votedRequest.setAddress(raftServer.getHost(), raftServer.getPort(),
-                    cheetahAddress.getHost(), cheetahAddress.getPort(),
-                    raftServer.getServerId());
-            raftVoteAsyncCallBack.setRequest(votedRequest);
+
+            final ServerNode serverNode = serverNodeCache.get(serverId);
             executorService.submit(new Runnable() {
                 public void run() {
                     //async req
-                    requestVoteFor(votedRequest, raftVoteAsyncCallBack);
+                    requestVoteFor(serverNode);
                 }
             });
         }
@@ -203,38 +198,31 @@ public class RaftCore {
 
     /**
      * rpc call
-     * @param request
+     * @param serverNode
      */
-    public void appendEntries (AddRequest request) {
-        SimpleClientRemoteProxy proxy = null;
-        if (rpcSyncClientCache.get(request.getServerId()) == null) {
-            //def client connect
-            AbstractRpcConnector connector = new RpcNioConnector(null);
-            RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
-            SyncClientRemoteExecutor clientRemoteExecutor = new SyncClientRemoteExecutor(connector);
+    public void appendEntries (ServerNode serverNode) {
+        RaftServer remoteRaftServer = serverNode.getRaftServer();
+        RaftServer localRaftServer = raftNode.getRaftServer();
+        AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
+                raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
+                raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
+                raftNode.getRaftLog().getCommitIndex());
+        request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
+                remoteRaftServer.getHost(), remoteRaftServer.getPort(),
+                raftNode.getRaftServer().getServerId());
 
-            proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
-            proxy.startService();
-
-            rpcSyncClientCache.put(request.getServerId(), proxy);
-        } else {
-            proxy = rpcSyncClientCache.get(request.getServerId());
-            if (proxy.getRemoteProxyStatus() == SimpleClientRemoteProxy.STOP) {
-                proxy.startService();
-            }
-            //have started
-        }
-        RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
         //sync rpc call
-        AddResponse response = raftConsensusService.appendEntries(request);
+        AddResponse response = serverNode.getRaftConsensusService().appendEntries(request);
         lock.lock();
         try {
             if (response == null) {
                 logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
                 " port=" + request.getRemotePort());
                 if (serverList.get(request.getServerId()) == null) {
+                    //down
                     rpcSyncClientCache.remove(request.getServerId());
-                    proxy.stopService();
+                    serverNode.getAsyncProxy().stopService();
+                    serverNode.getSyncProxy().stopService();
                 }
                 return;
             }
@@ -248,8 +236,8 @@ public class RaftCore {
             } else {
                 if (response.isSuccess()) {
                     //success
-                    raftNode.setMatchIndex(request.getPrevLogIndex() + request.getLogEntries().size());
-                    raftNode.setNextIndex(raftNode.getMatchIndex() + 1);
+                    serverNode.setMatchIndex(request.getPrevLogIndex() + request.getLogEntries().size());
+                    serverNode.setNextIndex(serverNode.getMatchIndex() + 1);
                     if (serverList.get(request.getServerId()) != null) {
                         applyLogOnStateMachine();
                     } else {
@@ -266,40 +254,34 @@ public class RaftCore {
 
     /**
      * rpc call, async
-     * @param request
+     * @param serverNode
      */
-    private void requestVoteFor(VotedRequest request, RpcCallback raftVoteAsyncCallBack) {
-        SimpleClientRemoteProxy proxy = null;
-        if (rpcAsyncClientCache.get(request.getServerId()) == null) {
-            //def client connect
-            AbstractRpcConnector connector = new RpcNioConnector(null);
-            RpcUtils.setAddress(request.getRemoteHost(), request.getRemotePort(), connector);
+    private void requestVoteFor(ServerNode serverNode) {
+        logger.info("begin request vote for!");
+        RaftServer remoteRaftServer = serverNode.getRaftServer();
+        RaftServer localRaftServer = raftNode.getRaftServer();
+        VotedRequest request = new VotedRequest(raftNode.getCurrentTerm(),
+                raftNode.getRaftServer().getServerId(),
+                raftNode.getRaftLog().getLastLogIndex(),
+                raftNode.getRaftLog().getLastLogTerm());
+        request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
+                remoteRaftServer.getHost(), remoteRaftServer.getPort(),
+                localRaftServer.getServerId());
+        RaftVoteAsyncCallBack voteAsyncCallBack = (RaftVoteAsyncCallBack) serverNode.getRpcCallback();
+        voteAsyncCallBack.setRequest(request);
 
-            //def vote callback
-            AsyncClientRemoteExecutor clientRemoteExecutor = new AsyncClientRemoteExecutor(connector, raftVoteAsyncCallBack);
-
-            proxy = new SimpleClientRemoteProxy(clientRemoteExecutor);
-            proxy.startService();
-
-            rpcAsyncClientCache.put(request.getServerId(), proxy);
-        } else {
-            proxy = rpcAsyncClientCache.get(request.getServerId());
-            if (proxy.getRemoteProxyStatus() == SimpleClientRemoteProxy.STOP) {
-                proxy.startService();
-            }
-            //have started
-        }
-
-        RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
         //async rpc call
-        raftConsensusService.leaderElection(request);
+        serverNode.getRaftAsyncConsensusService().leaderElection(request);
     }
 
     /**
      * for leader applu log on state machine
      */
     public void applyLogOnStateMachine () {
-
+        int serverNodeNum = serverList.size();
+        long[] matchIndexes = new long[serverNodeNum];
+        int i = 0;
+        
     }
 
     /**

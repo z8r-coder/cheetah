@@ -22,6 +22,8 @@ public class ServerNode {
     private SimpleClientRemoteProxy asyncProxy;
     private RaftConsensusService raftConsensusService;
     private RaftAsyncConsensusService raftAsyncConsensusService;
+    private RpcCallback<VotedResponse> rpcCallback;
+
     // 需要发送给follower的下一个日志条目的索引值，只对leader有效
     private long nextIndex;
     // 已复制日志的最高索引值
@@ -30,6 +32,7 @@ public class ServerNode {
 
     public ServerNode (RaftServer raftServer, RpcCallback<VotedResponse> rpcCallback) {
         this.raftServer = raftServer;
+        this.rpcCallback = rpcCallback;
         //def client connect
         AbstractRpcConnector connector = new RpcNioConnector(null);
         RpcUtils.setAddress(raftServer.getHost(), raftServer.getPort(), connector);
@@ -106,5 +109,13 @@ public class ServerNode {
 
     public void setVoteGranted(boolean voteGranted) {
         this.voteGranted = voteGranted;
+    }
+
+    public RpcCallback<VotedResponse> getRpcCallback() {
+        return rpcCallback;
+    }
+
+    public void setRpcCallback(RpcCallback<VotedResponse> rpcCallback) {
+        this.rpcCallback = rpcCallback;
     }
 }
