@@ -7,15 +7,8 @@ import raft.core.server.RaftServer;
 import raft.core.server.ServerNode;
 import raft.protocol.*;
 import rpc.async.RpcCallback;
-import rpc.client.AsyncClientRemoteExecutor;
-import rpc.client.SimpleClientRemoteProxy;
-import rpc.client.SyncClientRemoteExecutor;
-import rpc.net.AbstractRpcConnector;
-import rpc.nio.RpcNioConnector;
-import rpc.utils.RpcUtils;
 import utils.Configuration;
 import utils.ParseUtils;
-import utils.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -38,8 +31,6 @@ public class RaftCore {
     private RaftOptions raftOptions;
     private Map<Integer, String> serverList;
     private Map<Integer, ServerNode> serverNodeCache = new ConcurrentHashMap<Integer, ServerNode>();
-    private Map<Integer, SimpleClientRemoteProxy> rpcAsyncClientCache = new ConcurrentHashMap<Integer, SimpleClientRemoteProxy>();
-    private Map<Integer, SimpleClientRemoteProxy> rpcSyncClientCache = new ConcurrentHashMap<Integer, SimpleClientRemoteProxy>();
 
     private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
@@ -217,7 +208,7 @@ public class RaftCore {
                 " port=" + request.getRemotePort());
                 if (serverList.get(request.getServerId()) == null) {
                     //down
-                    rpcSyncClientCache.remove(request.getServerId());
+                    serverNodeCache.remove(request.getServerId());
                     serverNode.getAsyncProxy().stopService();
                     serverNode.getSyncProxy().stopService();
                 }
