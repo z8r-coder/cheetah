@@ -25,12 +25,6 @@ public class RaftNode implements RaftListener{
     private int votedFor = 0;
     //日志条目
     private RaftLog raftLog;
-
-    //对于每一个服务器，需要发送给他的下一个日志条目的索引值（初始化为领导人最后索引值加一）leader
-    private long nextIndex;
-    //对于每一个服务器，已经复制给他的日志的最高索引值
-    private long matchIndex;
-
     //用于附加乳RPC时的重定向
     private int leaderId;
 
@@ -76,22 +70,6 @@ public class RaftNode implements RaftListener{
 
     public void setRaftLog(RaftLog raftLog) {
         this.raftLog = raftLog;
-    }
-
-    public long getNextIndex() {
-        return nextIndex;
-    }
-
-    public void setNextIndex(long nextIndex) {
-        this.nextIndex = nextIndex;
-    }
-
-    public long getMatchIndex() {
-        return matchIndex;
-    }
-
-    public void setMatchIndex(long matchIndex) {
-        this.matchIndex = matchIndex;
     }
 
     public RaftServer getRaftServer() {
