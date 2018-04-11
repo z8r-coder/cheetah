@@ -64,7 +64,7 @@ public class RaftLog {
         this.logEntryDir = logEntryDir + File.separator + "raft_log";
         this.metaDataDir = logEntryDir + File.separator + "raft_meta";
         this.metaFileFullName = metaDataDir + File.separator + metaFileName + ".meta";
-        this.metaFileName = metaFileName;
+        this.metaFileName = metaFileName + ".meta";
 
         initDirAndFileAndReadMetaData();
     }
@@ -87,12 +87,13 @@ public class RaftLog {
             RandomAccessFile randomAccessFile = null;
             try {
                 //first create
-                fileMetaDir.createNewFile();
+                fileMeta.createNewFile();
                 //init info
-                randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "w");
-                randomAccessFile.writeLong(0l);
-                randomAccessFile.writeLong(0l);
-                randomAccessFile.writeInt(0);
+                randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "rw");
+                randomAccessFile.writeLong(0l);//start index
+                randomAccessFile.writeLong(0l);//last index
+                randomAccessFile.writeLong(0l);//last apply
+                randomAccessFile.writeInt(0);//segment name length
             } catch (IOException e) {
                 logger.error("create new file occur ex=", e);
             } finally {
@@ -154,7 +155,6 @@ public class RaftLog {
             globleMetaData = new GlobleMetaData(segmentName,lastIndex, startIndex, segmentInfoMap);
         } catch (IOException e) {
             logger.error("read globle meta data occurs ex",e);
-            throw new RuntimeException("read globle meta data occurs ex");
         } finally {
             RaftUtils.closeFile(randomAccessFile);
         }

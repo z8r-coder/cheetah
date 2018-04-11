@@ -140,6 +140,15 @@ public class RaftUtils {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-        RaftUtils.test(Test.class);
+//        RaftUtils.test(Test.class);
+        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft/raft_meta",
+                "raft_meta.meta", "rw");
+        try {
+            randomAccessFile.writeInt(1);
+            long i = randomAccessFile.readLong();
+            System.out.println(i);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
