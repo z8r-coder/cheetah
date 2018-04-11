@@ -1,6 +1,7 @@
 package raft.protocol;
 
 import cache.LRUCache;
+import com.google.protobuf.ByteString;
 import models.RaftIndexInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -94,6 +95,7 @@ public class RaftLog {
                 randomAccessFile.writeLong(0l);//last index
                 randomAccessFile.writeLong(0l);//last apply
                 randomAccessFile.writeInt(0);//segment name length
+                globleMetaData = new GlobleMetaData(0,0);
             } catch (IOException e) {
                 logger.error("create new file occur ex=", e);
             } finally {
@@ -197,7 +199,8 @@ public class RaftLog {
         try {
             List<Segment.Record> entries = new ArrayList<Segment.Record>();
             for (long i = 0l; i < segmentInfo.dataNum;i++) {
-                LogEntry logEntry = new LogEntry(segment);
+                LogEntry logEntry = new LogEntry();
+                logEntry.setSegment(segment);
                 Segment.Record record = new Segment.Record(randomAccessFile.getFilePointer(), logEntry);
                 logEntry.readFrom();
                 entries.add(record);
@@ -398,6 +401,7 @@ public class RaftLog {
         public GlobleMetaData (long startIndex,long lastIndex) {
             this.lastIndex = lastIndex;
             this.startIndex = startIndex;
+            segmentInfoMap = new TreeMap<Long, SegmentInfo>();
         }
 
         public GlobleMetaData (String lastSegmentLogName,
@@ -459,20 +463,18 @@ public class RaftLog {
         private Segment segment;
         private byte[] data;
 
-        public LogEntry(Segment segment) {
+        public LogEntry() {
             term = 0;
             index = 0l;
-            data = new byte[1];
-            dataLength = 1;
-            this.segment = segment;
+            data = ByteString.EMPTY.toByteArray();
+            dataLength = 0;
         }
         public LogEntry(int term, long index,
-                        byte[] data, Segment segment) {
+                        byte[] data) {
             this.data = data;
             this.term = term;
             this.index = index;
             dataLength = data.length;
-            this.segment = segment;
         }
 
         public void writeTo() {
