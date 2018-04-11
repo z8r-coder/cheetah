@@ -17,10 +17,7 @@ import utils.Configuration;
 import utils.ParseUtils;
 import utils.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -244,7 +241,7 @@ public class RaftCore {
                         //add new node
                     }
                 } else {
-                    raftNode.setNextIndex(response.getLastLogIndex() + 1);
+                    serverNode.setNextIndex(response.getLastLogIndex() + 1);
                 }
             }
         } finally {
@@ -281,7 +278,33 @@ public class RaftCore {
         int serverNodeNum = serverList.size();
         long[] matchIndexes = new long[serverNodeNum];
         int i = 0;
-        
+        for (Integer serverId : serverList.keySet()) {
+            if (serverId != raftNode.getRaftServer().getServerId()) {
+                ServerNode serverNode = serverNodeCache.get(serverId);
+                matchIndexes[i++] = serverNode.getMatchIndex();
+            }
+        }
+        matchIndexes[i] = raftNode.getRaftLog().getLastLogIndex();
+        Arrays.sort(matchIndexes);
+        long newCommitIndex = matchIndexes[serverNodeNum / 2];
+        logger.info("newCommitIndex:" + newCommitIndex + " oldCommitIndex:" + raftNode.getRaftLog().getCommitIndex());
+        if (raftNode.getRaftLog().getLogEntryTerm(newCommitIndex) != raftNode.getCurrentTerm()) {
+            logger.debug("newCommitTerm=" + raftNode.getRaftLog().getLogEntryTerm(newCommitIndex) +
+            ", currentTerm=" + raftNode.getCurrentTerm());
+        }
+        if (newCommitIndex < raftNode.getRaftLog().getCommitIndex()) {
+            return;
+        }
+        long oldCommitIndex = raftNode.getRaftLog().getCommitIndex();
+        raftNode.getRaftLog().setCommitIndex(newCommitIndex);
+        //sync -> state machine
+        for (long index = oldCommitIndex + 1;index <= newCommitIndex;index++) {
+            RaftLog.LogEntry logEntry = raftNode.getRaftLog().getEntry(index);
+            raftNode.getStateMachine().submit(logEntry.getData());
+        }
+        raftNode.getRaftLog().setLastApplied(newCommitIndex);
+        logger.debug("commitIndex=" + raftNode.getRaftLog().getCommitIndex() +
+        "lastApplied=" + raftNode.getRaftLog().getLastApplied());
     }
 
     /**
