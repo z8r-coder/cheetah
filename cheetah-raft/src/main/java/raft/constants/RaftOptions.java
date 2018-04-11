@@ -58,4 +58,12 @@ public class RaftOptions {
     public void setRaftConsensusThreadNum(int raftConsensusThreadNum) {
         this.raftConsensusThreadNum = raftConsensusThreadNum;
     }
+
+    public int getMaxLogSizePerFile() {
+        return maxLogSizePerFile;
+    }
+
+    public void setMaxLogSizePerFile(int maxLogSizePerFile) {
+        this.maxLogSizePerFile = maxLogSizePerFile;
+    }
 }

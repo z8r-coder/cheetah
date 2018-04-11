@@ -23,6 +23,7 @@ public class RaftServerDelegate implements Service {
     private Logger logger = Logger.getLogger(RaftServer.class);
 
     private RaftConsensusService raftConsensusService;
+    private static final String LOGPATH = "/Users/ruanxin/IdeaProjects/cheetah/raft";
     private BaseRequest request;
 
     private AbstractServerProxy delegateServer;
@@ -35,7 +36,7 @@ public class RaftServerDelegate implements Service {
     public void init() {
         RaftOptions raftOptions = new RaftOptions();
         RaftServer raftServer = new RaftServer(delegateServer.getHost(), delegateServer.getPort());
-        RaftLog raftLog = new RaftLog(0, 0,0,0);
+        RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), LOGPATH, "raft_meta");
         RaftNode raftNode = new RaftNode(raftLog, raftServer);
         RaftCore raftCore = new RaftCore(raftOptions, raftNode, delegateServer.getCacheServerList());
         raftConsensusService = new RaftConsensusServiceImpl(raftNode, raftCore);

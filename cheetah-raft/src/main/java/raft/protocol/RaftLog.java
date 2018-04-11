@@ -2,6 +2,7 @@ package raft.protocol;
 
 import cache.LRUCache;
 import models.RaftIndexInfo;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import raft.core.RaftLogDataRoute;
 import raft.utils.RaftUtils;
@@ -14,10 +15,8 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.io.FileUtils;
 
 /**
  * @author ruanxin
@@ -68,13 +67,6 @@ public class RaftLog {
         this.metaFileName = metaFileName;
 
         initDirAndFileAndReadMetaData();
-    }
-
-    public RaftLog(long commitIndex, long lastApplied, int lastLogTerm, int lastLogIndex) {
-        this.commitIndex = commitIndex;
-        this.lastApplied = lastApplied;
-        this.lastLogTerm = lastLogTerm;
-        this.lastLogIndex = lastLogIndex;
     }
 
     /**
@@ -143,6 +135,7 @@ public class RaftLog {
             byte[] segmentNameByteArr = new byte[segmentNameLength];
             randomAccessFile.read(segmentNameByteArr);
             String segmentName = new String(segmentNameByteArr);
+            //update meta data
             loadLastSegment(segmentName);
 
             //load log entry meta info
@@ -331,6 +324,7 @@ public class RaftLog {
                 } else {
                     newSegment = segment;
                 }
+                totalSize += entrySize;
                 newSegment.getEntries().add(new Segment.Record(newSegment.getRandomAccessFile().getFilePointer(),
                         logEntry));
                 newSegment.setEndIndex(newLastIndexLog);
