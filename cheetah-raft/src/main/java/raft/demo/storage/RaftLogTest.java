@@ -19,6 +19,7 @@ public class RaftLogTest {
     public RaftLogTest () {
         raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), LOGPATH, "raft_meta");
     }
+
     public void appendEntries() {
         String set1 = "set A = B";
         String set2 = "set A = C";

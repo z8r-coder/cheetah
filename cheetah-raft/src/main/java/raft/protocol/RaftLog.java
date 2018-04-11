@@ -102,12 +102,12 @@ public class RaftLog {
                 RaftUtils.closeFile(randomAccessFile);
             }
         } else {
+            //read every segment data
+            readSegmentData();
             //exist, read globle meta data from this
             RandomAccessFile randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "rw");
             readGlobleMetaData(randomAccessFile);
         }
-        //read every segment data
-        readSegmentData();
     }
 
     private void loadLastSegment(String lastSegmentName) {
@@ -138,8 +138,6 @@ public class RaftLog {
             byte[] segmentNameByteArr = new byte[segmentNameLength];
             randomAccessFile.read(segmentNameByteArr);
             String segmentName = new String(segmentNameByteArr);
-            //update meta data
-            loadLastSegment(segmentName);
 
             //load log entry meta info
             List<String> fileNameList = RaftUtils.getSortedFilesInDir(logEntryDir,logEntryDir);
@@ -155,6 +153,8 @@ public class RaftLog {
                 segmentInfoMap.put(raftIndexInfo.getStartIndex(), segmentInfo);
             }
             globleMetaData = new GlobleMetaData(segmentName,lastIndex, startIndex, segmentInfoMap);
+            //update meta data
+            loadLastSegment(segmentName);
         } catch (IOException e) {
             logger.error("read globle meta data occurs ex",e);
         } finally {
@@ -209,6 +209,7 @@ public class RaftLog {
                 entries.add(record);
             }
             segment.setEntries(entries);
+            segment.setFileSize(randomAccessFile.length());
             //cache
             cacheSegment(segment);
         } catch (Exception ex) {
@@ -240,8 +241,7 @@ public class RaftLog {
                     //update protocol data
                     updateProtocolData(logEntry.getTerm(), newEndIndex, newEndIndex);
                     //update globle info
-                    globleMetaData.lastSegmentLogName = segment.getFileName();
-                    globleMetaData.nameLength = segment.getFileName().getBytes().length;
+                    globleMetaData.setLastSegmentLogName(segment.getFileName());
                     globleMetaData.lastIndex = newEndIndex;
                     break;
                 } else if (newEndIndex < segment.getStartIndex()) {
@@ -276,7 +276,7 @@ public class RaftLog {
                     }
                     //update log meta data
                     SegmentMetaData segmentMetaData = logMetaDataMap.get(segment.getStartIndex());
-                    segmentMetaData.fileName = newFullFileName;
+                    segmentMetaData.fileName = newFileName;
                     segmentMetaData.startIndex = segment.getStartIndex();
                     segmentMetaData.endIndex = segment.getEndIndex();
                     //update globle
@@ -327,8 +327,7 @@ public class RaftLog {
                     RandomAccessFile randomAccessFile = RaftUtils.openFile(logEntryDir, newFileName, "rw");
                     newSegment = new Segment(newFileName, newLastIndexLog, newLastIndexLog,
                             randomAccessFile, true);
-                    globleMetaData.lastSegmentLogName = newFileName;
-                    globleMetaData.nameLength = newFileName.getBytes().length;
+                    globleMetaData.setLastSegmentLogName(newFileName);
                     SegmentInfo segmentInfo = new SegmentInfo(true, 0);
                     globleMetaData.segmentInfoMap.put(newLastIndexLog, segmentInfo);
                 } else {
@@ -363,6 +362,7 @@ public class RaftLog {
                 // TODO: 2018/4/8 全局元信息是否必须维护
                 //update meta data
                 globleMetaData.lastIndex = newLastIndexLog;
+                globleMetaData.setLastSegmentLogName(newFileName);
                 SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(newSegment.getStartIndex());
                 segmentInfo.dataNum++;
 
@@ -419,6 +419,11 @@ public class RaftLog {
             this.lastSegmentLogName = lastSegmentLogName;
             this.nameLength = lastSegmentLogName.getBytes().length;
             this.segmentInfoMap = segmentInfoMap;
+        }
+
+        public void setLastSegmentLogName (String lastSegmentLogName) {
+            this.lastSegmentLogName = lastSegmentLogName;
+            this.nameLength = lastSegmentLogName.getBytes().length;
         }
     }
 

@@ -38,9 +38,6 @@ public class Segment {
     }
 
     public RaftLog.LogEntry getEntry(long index) {
-        if (startIndex == 0 || endIndex == 0) {
-            return null;
-        }
         if (index < startIndex || index > endIndex) {
             return null;
         }
