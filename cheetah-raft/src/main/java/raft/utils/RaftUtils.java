@@ -80,7 +80,7 @@ public class RaftUtils {
      * @return
      * @throws IOException
      */
-    public static int getFileNumInDir(String dirName, String rootDirName) throws IOException {
+    public static int getFileNumInDir(String dirName, String rootDirName) {
         File rootDir = new File(rootDirName);
         File dir = new File(dirName);
         if (!rootDir.isDirectory() || !dir.isDirectory()) {

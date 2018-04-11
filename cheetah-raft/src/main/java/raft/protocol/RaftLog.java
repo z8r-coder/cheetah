@@ -191,6 +191,9 @@ public class RaftLog {
             return segmentCache.get(realIndex);
         }
         SegmentMetaData segmentMetaData = logMetaDataMap.get(realIndex);
+        if (segmentMetaData == null) {
+            return null;
+        }
         SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(realIndex);
         RandomAccessFile randomAccessFile = RaftUtils.openFile(logEntryDir, segmentMetaData.fileName, "rw");
         Segment segment = new Segment(segmentMetaData.fileName, segmentMetaData.startIndex,
@@ -294,7 +297,11 @@ public class RaftLog {
     public long append (List<LogEntry> logEntries) {
         long newLastIndexLog = lastLogIndex;
         for (LogEntry logEntry : logEntries) {
-            newLastIndexLog++;
+            if (RaftUtils.getFileNumInDir(logEntryDir, logEntryDir) != 0) {
+                //there is >0 file in the dir
+                newLastIndexLog++;
+            }
+
             int entrySize = logEntry.getSerializedSize();
             int segmentSize = logMetaDataMap.size();
             boolean isNeedNewSegmentFile = false;
@@ -336,8 +343,8 @@ public class RaftLog {
                 logEntry.writeTo();
                 newSegment.setFileSize(newSegment.getRandomAccessFile().length());
                 //update file name
-                String oldFullFileName = logEntryDir + File.separator + segment.getFileName();
-                String newFileName = String.format("%d-%d",newSegment.getStartIndex(), newSegment.getEndIndex());
+                String oldFullFileName = logEntryDir + File.separator + newSegment.getFileName();
+                String newFileName = String.format("%d-%d.rl",newSegment.getStartIndex(), newSegment.getEndIndex());
                 newSegment.setFileName(newFileName);
                 String newFullFileName = logEntryDir + File.separator + newFileName;
                 new File(oldFullFileName).renameTo(new File(newFullFileName));
