@@ -1,7 +1,9 @@
 package raft.demo.storage;
 
+import constants.Globle;
 import raft.constants.RaftOptions;
 import raft.protocol.RaftLog;
+import raft.protocol.Segment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +37,24 @@ public class RaftLogTest {
         raftLog.append(entries);
     }
 
+    public void getEntry () {
+        RaftLog.LogEntry logEntry = raftLog.getEntry(2);
+        System.out.println(logEntry.toString());
+    }
+    public void getEntries () {
+        List<Segment.Record> records = raftLog.getEntries(0);
+        for (Segment.Record record : records) {
+            System.out.println(record.logEntry.toString());
+        }
+    }
+
+    public void getGlobleMetaInfo () {
+        RaftLog.GlobleMetaData globleMetaData = raftLog.getGlobleMetaData();
+        System.out.println(globleMetaData.toString());
+    }
+
     public static void main(String[] args) {
         RaftLogTest raftLogTest = new RaftLogTest();
-        raftLogTest.appendEntries();
+        raftLogTest.getGlobleMetaInfo();
     }
 }

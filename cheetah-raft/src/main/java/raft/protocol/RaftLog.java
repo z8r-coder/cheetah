@@ -390,6 +390,10 @@ public class RaftLog {
         return logEntry.getTerm();
     }
 
+    public List<Segment.Record> getEntries (long logIndex) {
+        return logDataRoute.findLogEntriesByIndex(logIndex, logMetaDataMap);
+    }
+
     public LogEntry getEntry(long logIndex) {
         if (logIndex < globleMetaData.startIndex ||
                 logIndex > globleMetaData.lastIndex) {
@@ -424,6 +428,15 @@ public class RaftLog {
         public void setLastSegmentLogName (String lastSegmentLogName) {
             this.lastSegmentLogName = lastSegmentLogName;
             this.nameLength = lastSegmentLogName.getBytes().length;
+        }
+
+        @Override
+        public String toString() {
+            return "startIndex=" + startIndex +
+                    " ,lastIndex=" + lastIndex +
+                    " ,lastSegmentLogName=" + lastSegmentLogName +
+                    " ,nameLength=" + nameLength +
+                    " ,segmentInfoMap Size=" + segmentInfoMap.size();
         }
     }
 
@@ -557,6 +570,13 @@ public class RaftLog {
         public void setSegment(Segment segment) {
             this.segment = segment;
         }
+
+        @Override
+        public String toString() {
+            String str = new String(data);
+            return "term=" + term + ", index=" + index +
+                    " ,data=" + str;
+        }
     }
 
     public long getCommitIndex() {
@@ -589,6 +609,86 @@ public class RaftLog {
 
     public void setLastLogIndex(long lastLogIndex) {
         this.lastLogIndex = lastLogIndex;
+    }
+
+    public int getMaxFileLogSize() {
+        return maxFileLogSize;
+    }
+
+    public void setMaxFileLogSize(int maxFileLogSize) {
+        this.maxFileLogSize = maxFileLogSize;
+    }
+
+    public String getLogEntryDir() {
+        return logEntryDir;
+    }
+
+    public void setLogEntryDir(String logEntryDir) {
+        this.logEntryDir = logEntryDir;
+    }
+
+    public String getMetaDataDir() {
+        return metaDataDir;
+    }
+
+    public void setMetaDataDir(String metaDataDir) {
+        this.metaDataDir = metaDataDir;
+    }
+
+    public long getTotalSize() {
+        return totalSize;
+    }
+
+    public void setTotalSize(long totalSize) {
+        this.totalSize = totalSize;
+    }
+
+    public RaftLogDataRoute getLogDataRoute() {
+        return logDataRoute;
+    }
+
+    public void setLogDataRoute(RaftLogDataRoute logDataRoute) {
+        this.logDataRoute = logDataRoute;
+    }
+
+    public String getMetaFileName() {
+        return metaFileName;
+    }
+
+    public void setMetaFileName(String metaFileName) {
+        this.metaFileName = metaFileName;
+    }
+
+    public String getMetaFileFullName() {
+        return metaFileFullName;
+    }
+
+    public void setMetaFileFullName(String metaFileFullName) {
+        this.metaFileFullName = metaFileFullName;
+    }
+
+    public TreeMap<Long, SegmentMetaData> getLogMetaDataMap() {
+        return logMetaDataMap;
+    }
+
+    public void setLogMetaDataMap(TreeMap<Long, SegmentMetaData> logMetaDataMap) {
+        this.logMetaDataMap = logMetaDataMap;
+    }
+
+    public LRUCache<Long, Segment> getSegmentCache() {
+        return segmentCache;
+    }
+
+    public void setSegmentCache(LRUCache<Long, Segment> segmentCache) {
+        this.segmentCache = segmentCache;
+    }
+
+    public GlobleMetaData getGlobleMetaData() {
+        return globleMetaData;
+    }
+
+    public void setGlobleMetaData(GlobleMetaData globleMetaData) {
+        this.globleMetaData = globleMetaData;
     }
 
     public static void main(String[] args) {

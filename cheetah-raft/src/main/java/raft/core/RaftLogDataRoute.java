@@ -32,6 +32,12 @@ public class RaftLogDataRoute {
         return segment.getEntry(index);
     }
 
+    public List<Segment.Record> findLogEntriesByIndex (long index,
+                                                       Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap) {
+        Segment segment = findSegmentByIndex(index, segmentMetaDataMap);
+        return segment.getEntries();
+    }
+
     public Segment findSegmentByIndex(long index, Map<Long, RaftLog.SegmentMetaData> segmentMetaDataMap) {
         long realIndex = 0;
         for (long startIndex : segmentMetaDataMap.keySet()) {
