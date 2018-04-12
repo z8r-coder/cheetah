@@ -110,7 +110,7 @@ public class RaftLog {
         }
     }
 
-    private void loadLastSegment(String lastSegmentName) {
+    public void loadLastSegment(String lastSegmentName) {
         RaftIndexInfo raftIndexInfo = ParseUtils.parseIndexInfoByFileName(lastSegmentName);
         lastLogIndex = raftIndexInfo.getEndIndex();
         Segment segment = loadSegment(raftIndexInfo.getStartIndex());
@@ -437,6 +437,16 @@ public class RaftLog {
                     " ,lastSegmentLogName=" + lastSegmentLogName +
                     " ,nameLength=" + nameLength +
                     " ,segmentInfoMap Size=" + segmentInfoMap.size();
+        }
+
+        public String segmentInfoToString () {
+            StringBuilder sb = new StringBuilder();
+            for (Long index : segmentInfoMap.keySet()) {
+                sb.append("startIndex=" + index +
+                " ,segment data num=" + segmentInfoMap.get(index).dataNum +
+                " ,segment canWrite=" + segmentInfoMap.get(index).isCanWrite);
+            }
+            return sb.toString();
         }
     }
 

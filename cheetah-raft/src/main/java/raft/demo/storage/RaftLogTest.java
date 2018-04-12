@@ -19,7 +19,7 @@ public class RaftLogTest {
     private static final String LOGPATH = "/Users/ruanxin/IdeaProjects/cheetah/raft";
 
     public RaftLogTest () {
-        raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), LOGPATH, "raft_meta");
+        raftLog = new RaftLog(256, LOGPATH, "raft_meta");
     }
 
     public void appendEntries() {
@@ -53,8 +53,18 @@ public class RaftLogTest {
         System.out.println(globleMetaData.toString());
     }
 
+    public void getGlobleSegmentInfo () {
+        RaftLog.GlobleMetaData globleMetaData = raftLog.getGlobleMetaData();
+        System.out.println(globleMetaData.segmentInfoToString());
+    }
+
+    public void getSegmentInfo () {
+        Segment segment = raftLog.loadSegment(0);
+        System.out.println(segment.toString());
+    }
+
     public static void main(String[] args) {
         RaftLogTest raftLogTest = new RaftLogTest();
-        raftLogTest.getGlobleMetaInfo();
+        raftLogTest.appendEntries();
     }
 }

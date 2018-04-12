@@ -45,6 +45,15 @@ public class Segment {
         return entries.get(myIndex).logEntry;
     }
 
+    @Override
+    public String toString() {
+        return "fileName=" + fileName +
+                " ,startIndex=" + startIndex +
+                " ,endIndex=" + endIndex +
+                " ,canWrite=" + canWrite +
+                " ,fileSize=" + fileSize;
+    }
+
     public boolean isCanWrite() {
         return canWrite;
     }
