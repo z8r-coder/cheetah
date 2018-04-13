@@ -444,7 +444,8 @@ public class RaftLog {
             for (Long index : segmentInfoMap.keySet()) {
                 sb.append("startIndex=" + index +
                 " ,segment data num=" + segmentInfoMap.get(index).dataNum +
-                " ,segment canWrite=" + segmentInfoMap.get(index).isCanWrite);
+                " ,segment canWrite=" + segmentInfoMap.get(index).isCanWrite +
+                "\n");
             }
             return sb.toString();
         }
