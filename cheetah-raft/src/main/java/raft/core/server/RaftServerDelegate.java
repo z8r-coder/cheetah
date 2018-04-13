@@ -2,8 +2,10 @@ package raft.core.server;
 
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
+import raft.core.RaftAsyncConsensusService;
 import raft.core.RaftConsensusService;
 import raft.core.RaftCore;
+import raft.core.imp.RaftAsyncConsensusServiceImpl;
 import raft.core.imp.RaftConsensusServiceImpl;
 import raft.model.BaseRequest;
 import raft.protocol.RaftLog;
@@ -23,6 +25,7 @@ public class RaftServerDelegate implements Service {
     private Logger logger = Logger.getLogger(RaftServer.class);
 
     private RaftConsensusService raftConsensusService;
+    private RaftAsyncConsensusService raftAsyncConsensusService;
     private static final String LOGPATH = "/Users/ruanxin/IdeaProjects/cheetah/raft";
     private BaseRequest request;
 
@@ -40,6 +43,7 @@ public class RaftServerDelegate implements Service {
         RaftNode raftNode = new RaftNode(raftLog, raftServer);
         RaftCore raftCore = new RaftCore(raftOptions, raftNode, delegateServer.getCacheServerList());
         raftConsensusService = new RaftConsensusServiceImpl(raftNode, raftCore);
+        raftAsyncConsensusService = new RaftAsyncConsensusServiceImpl(raftNode, raftCore);
     }
 
     public void startService() {
@@ -52,6 +56,7 @@ public class RaftServerDelegate implements Service {
         SimpleServerRemoteExecutor remoteExecutor = new SimpleServerRemoteExecutor();
         RpcServiceProvider provider = new RpcServiceProvider(remoteExecutor);
         remoteExecutor.registerRemote(RaftConsensusService.class, raftConsensusService);
+        remoteExecutor.registerRemote(RaftAsyncConsensusService.class, raftAsyncConsensusService);
 
         delegateServer.addRpcCallListener(provider);
         delegateServer.startService();
