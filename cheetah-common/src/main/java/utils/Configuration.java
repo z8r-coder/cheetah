@@ -18,6 +18,8 @@ public class Configuration {
     private int registerPort;
     private String cheetahSignal;
     private String raftLogPath;
+    private String raftMetaPath;
+    private String raftRootPath;
 
     private Properties properties;
 
@@ -64,6 +66,14 @@ public class Configuration {
         if (!StringUtils.isBlank(raftLogPath)) {
             this.raftLogPath = raftLogPath;
         }
+        String raftMetaPath = properties.getProperty("raft.meta.path");
+        if (!StringUtils.isBlank(raftMetaPath)) {
+            this.raftMetaPath = raftMetaPath;
+        }
+        String raftRootPath = properties.getProperty("raft.root.path");
+        if (!StringUtils.isBlank(raftRootPath)) {
+            this.raftRootPath = raftRootPath;
+        }
     }
 
     public String getRegisterHost() {
@@ -98,9 +108,25 @@ public class Configuration {
         this.raftLogPath = raftLogPath;
     }
 
+    public String getRaftMetaPath() {
+        return raftMetaPath;
+    }
+
+    public void setRaftMetaPath(String raftMetaPath) {
+        this.raftMetaPath = raftMetaPath;
+    }
+
+    public String getRaftRootPath() {
+        return raftRootPath;
+    }
+
+    public void setRaftRootPath(String raftRootPath) {
+        this.raftRootPath = raftRootPath;
+    }
+
     public static void main(String[] args) {
         Configuration config = new Configuration();
         config.loadPropertiesFromSrc();
-        System.out.println(config.getCheetahSignal());
+        System.out.println(config.getRaftMetaPath());
     }
 }

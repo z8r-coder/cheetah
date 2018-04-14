@@ -18,6 +18,21 @@ public class ParseUtils {
     private Logger logger = Logger.getLogger(ParseUtils.class);
 
     /**
+     * parse address like 127.0.0.1:8080,127.0.0.1:8081
+     * @param servers
+     * @return
+     */
+    public static List<CheetahAddress> parseCommandAddress(String servers) {
+        String[] serverArr = servers.split("\\,");
+        List<CheetahAddress> serverList = new ArrayList<>();
+        for (int i = 0; i < serverArr.length;i++) {
+            CheetahAddress cheetahAddress = parseAddress(serverArr[i]);
+            serverList.add(cheetahAddress);
+        }
+        return serverList;
+    }
+
+    /**
      * parse address like 127.0.0.1:8080
      * @param address
      */
@@ -75,6 +90,10 @@ public class ParseUtils {
     public static void main(String[] args) {
 //        CheetahAddress cheetahAddress = parseAddress("127.0.0.1:8080");
 //        System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
-        System.out.println(ParseUtils.parseByPoint("test.tt")[1]);
+//        System.out.println(ParseUtils.parseByPoint("test.tt")[1]);
+        List<CheetahAddress> cheetahAddresses = parseCommandAddress("127.0.0.1:8080,127.0.0.1:9090");
+        for (CheetahAddress cheetahAddress:cheetahAddresses) {
+            System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());
+        }
     }
 }

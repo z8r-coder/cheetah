@@ -14,6 +14,7 @@ import rpc.Service;
 import rpc.registry.AbstractServerProxy;
 import rpc.server.RpcServiceProvider;
 import rpc.server.SimpleServerRemoteExecutor;
+import utils.Configuration;
 
 /**
  * @author ruanxin
@@ -26,20 +27,19 @@ public class RaftServerDelegate implements Service {
 
     private RaftConsensusService raftConsensusService;
     private RaftAsyncConsensusService raftAsyncConsensusService;
-    private static final String LOGPATH = "/Users/ruanxin/IdeaProjects/cheetah/raft";
-    private BaseRequest request;
+    private Configuration configuration;
 
     private AbstractServerProxy delegateServer;
 
-    public RaftServerDelegate(BaseRequest request, AbstractServerProxy delegateServer) {
-        this.request = request;
+    public RaftServerDelegate(AbstractServerProxy delegateServer) {
+        this.configuration = new Configuration();
         this.delegateServer = delegateServer;
     }
 
     public void init() {
         RaftOptions raftOptions = new RaftOptions();
         RaftServer raftServer = new RaftServer(delegateServer.getHost(), delegateServer.getPort());
-        RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), LOGPATH, "raft_meta");
+        RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), configuration.getRaftRootPath(), "raft_meta");
         RaftNode raftNode = new RaftNode(raftLog, raftServer);
         RaftCore raftCore = new RaftCore(raftOptions, raftNode, delegateServer.getCacheServerList());
         raftConsensusService = new RaftConsensusServiceImpl(raftNode, raftCore);

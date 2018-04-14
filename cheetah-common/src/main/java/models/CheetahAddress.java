@@ -32,4 +32,14 @@ public class CheetahAddress implements Serializable {
     public void setPort(int port) {
         this.port = port;
     }
+
+    @Override
+    public String toString() {
+        return host + ":" + port;
+    }
+
+    public static void main(String[] args) {
+        CheetahAddress address = new CheetahAddress("127.0.0.1", 8080);
+        System.out.println(address.toString());
+    }
 }

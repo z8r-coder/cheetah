@@ -1,6 +1,7 @@
 package rpc.registry;
 
 import constants.Globle;
+import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import rpc.client.SimpleClientRemoteProxy;
 import rpc.client.SyncClientRemoteExecutor;
@@ -10,7 +11,9 @@ import rpc.nio.RpcNioAcceptor;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
 import utils.Configuration;
+import utils.ParseUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -86,5 +89,13 @@ public abstract class AbstractServerProxy extends RpcNioAcceptor{
 
     public Map<Integer, String> getCacheServerList() {
         return cacheServerList;
+    }
+
+    public void setCacheServerList (List<CheetahAddress> addresses) {
+        this.cacheServerList = new ConcurrentHashMap<>();
+        for (CheetahAddress cheetahAddress : addresses) {
+            Integer serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
+            cacheServerList.put(serverId, cheetahAddress.toString());
+        }
     }
 }

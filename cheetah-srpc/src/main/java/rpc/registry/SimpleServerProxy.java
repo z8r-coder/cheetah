@@ -13,6 +13,10 @@ public class SimpleServerProxy extends AbstractServerProxy {
     public SimpleServerProxy() {
         super();
     }
+    public SimpleServerProxy (String host, int port) {
+        this.setHost(host);
+        this.setPort(port);
+    }
     public SimpleServerProxy(AbstractRpcNioSelector selector, Configuration configuration) {
         super(selector, configuration);
     }
