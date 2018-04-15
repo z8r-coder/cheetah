@@ -7,11 +7,12 @@ import java.util.Scanner;
  */
 public class AdminApp {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print(">");
-        while (scanner.hasNext()) {
-            System.out.print(">");
-            System.out.println(scanner.nextLine());
-        }
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.print(">");
+//        while (scanner.hasNext()) {
+//            System.out.print(">");
+//            System.out.println(scanner.nextLine());
+//        }
+        CommonApp.test();
     }
 }
