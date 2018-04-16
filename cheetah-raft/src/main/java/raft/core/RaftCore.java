@@ -24,7 +24,6 @@ public class RaftCore {
     private Logger logger = Logger.getLogger(RaftCore.class);
 
     private Lock lock = new ReentrantLock();
-    private Configuration configuration;
 
     RaftNode raftNode;
     int asyncVoteNum;
@@ -42,7 +41,6 @@ public class RaftCore {
         this.raftOptions = raftOptions;
         this.raftNode = raftNode;
         this.serverList = serverList;
-        this.configuration = new Configuration();
         this.asyncVoteNum = 0;
         init();
     }
@@ -73,7 +71,7 @@ public class RaftCore {
         raftServer.setServerState(RaftServer.NodeState.LEADER);
         raftNode.setLeaderId(raftServer.getServerId());
 
-        logger.info("serverId:" + raftServer.getServerId() + "in term:" + raftNode.getCurrentTerm());
+        logger.info("become leader: serverId:" + raftServer.getServerId() + "in term:" + raftNode.getCurrentTerm());
 
         //stop election
         if (electionScheduledFuture != null && !electionScheduledFuture.isDone()) {
@@ -307,6 +305,7 @@ public class RaftCore {
 
         public void success(VotedResponse resp) {
             lock.lock();
+            logger.info("from serverId=" + resp.getServerId());
             try {
                 RaftServer raftServer = raftNode.getRaftServer();
 
@@ -327,7 +326,7 @@ public class RaftCore {
                         logger.info("Got vote from server:" + raftServer.getServerId() +
                                 " for term {}" + raftNode.getCurrentTerm());
                         logger.info("voteGrantedNum= + voteGrantedNum");
-                        if (asyncVoteNum > serverList.size() / 2) {
+                        if (asyncVoteNum >= serverList.size() / 2) {
                             logger.info("Got majority vote, serverId={}" + raftNode.getRaftServer().getServerId() +
                                     " become leader");
                             becomeLeader();

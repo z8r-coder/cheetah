@@ -33,11 +33,11 @@ public class SimpleRegisterServer extends RpcNioAcceptor {
                 registerInfo.updateList();
 
                 // TODO: 2018/2/22 test
-                Map<Integer,String> serverList = registerInfo.getServerListCache();
-                for (Integer serverId : serverList.keySet()) {
-                    System.out.println("serverId:" + serverId + " ----- "
-                            + "server address:" + serverList.get(serverId));
-                }
+//                Map<Integer,String> serverList = registerInfo.getServerListCache();
+//                for (Integer serverId : serverList.keySet()) {
+//                    System.out.println("serverId:" + serverId + " ----- "
+//                            + "server address:" + serverList.get(serverId));
+//                }
             }
         }, 0, Globle.REG_UPDATE_SERVER_LIST_TEST, TimeUnit.SECONDS);
     }

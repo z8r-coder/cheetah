@@ -32,7 +32,7 @@ public class AddRequest extends BaseRequest implements Serializable {
         this.prevLogIndex = prevLogIndex;
         this.prevLogTerm = prevLogTerm;
         this.leaderCommit = leaderCommit;
-        logEntries = new ArrayList<RaftLog.LogEntry>();
+        logEntries = new ArrayList<>();
     }
     public AddRequest (int term, int leaderId, long prevLogIndex,
                        int prevLogTerm, long leaderCommit, List<RaftLog.LogEntry> logEntries) {
