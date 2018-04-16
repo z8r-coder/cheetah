@@ -20,6 +20,16 @@ public class RaftClusterServer {
 
     public Map<Integer, RaftServerDelegate> cacheRaftServer = new HashMap<>();
 
+    private final static RaftClusterServer raftClusterServer = new RaftClusterServer();
+
+    private RaftClusterServer () {
+
+    }
+
+    public static RaftClusterServer getRaftClusterServer() {
+        return raftClusterServer;
+    }
+
     public void startRegister () {
         SimpleRegisterServerProxy registerServerProxy = new SimpleRegisterServerProxy();
         registerServerProxy.startService();

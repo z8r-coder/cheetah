@@ -7,10 +7,10 @@ import raft.core.server.RaftClusterServer;
  * @create 2018-04-14
  * @desc 单点
  */
-public class RaftServerSingleNodeDemo {
+public class RaftServerSingleNodeStartDemo {
     public static void main(String[] args) {
         String servers = args[0];
-        RaftClusterServer clusterServer = new RaftClusterServer();
+        RaftClusterServer clusterServer = RaftClusterServer.getRaftClusterServer();
         clusterServer.startServerNode(servers);
     }
 }
