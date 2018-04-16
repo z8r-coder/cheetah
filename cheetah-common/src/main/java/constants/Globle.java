@@ -17,4 +17,7 @@ public class Globle {
     public final static int REG_HEART_BEAT_INIT_TEST = 3;
     public final static int REG_HEART_BEAT_INTERVAL_TEST = 3;
     public final static int REG_UPDATE_SERVER_LIST_TEST = 5;
+    public final static String localHost = "127.0.0.1";
+    public final static int localPortTest1 = 4332;
+    public final static int localPortTest2 = 4333;
 }
