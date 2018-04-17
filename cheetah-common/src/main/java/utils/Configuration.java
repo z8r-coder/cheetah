@@ -20,6 +20,7 @@ public class Configuration {
     private String raftLogPath;
     private String raftMetaPath;
     private String raftRootPath;
+    private String raftInitServer;
 
     private Properties properties;
 
@@ -74,6 +75,10 @@ public class Configuration {
         if (!StringUtils.isBlank(raftRootPath)) {
             this.raftRootPath = raftRootPath;
         }
+        String raftInitServer = properties.getProperty("raft.init.server");
+        if (!StringUtils.isBlank(raftInitServer)) {
+            this.raftInitServer = raftInitServer;
+        }
     }
 
     public String getRegisterHost() {
@@ -124,9 +129,17 @@ public class Configuration {
         this.raftRootPath = raftRootPath;
     }
 
+    public String getRaftInitServer() {
+        return raftInitServer;
+    }
+
+    public void setRaftInitServer(String raftInitServer) {
+        this.raftInitServer = raftInitServer;
+    }
+
     public static void main(String[] args) {
         Configuration config = new Configuration();
         config.loadPropertiesFromSrc();
-        System.out.println(config.getRaftMetaPath());
+        System.out.println(config.getRaftInitServer());
     }
 }

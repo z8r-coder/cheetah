@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author ruanxin
  * @create 2018-02-10
- * @desc start the service to register
+ * @desc start the service to register,带注册中心的SERVER
  */
 public abstract class AbstractServerProxy extends RpcNioAcceptor{
 

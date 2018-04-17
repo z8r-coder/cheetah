@@ -8,7 +8,7 @@ import rpc.wrapper.RpcAcceptorWrapper;
 /**
  * @author ruanxin
  * @create 2018-04-16
- * @desc rpc 单点多线程
+ * @desc
  */
 public class RpcServerAcceptor extends RpcAcceptorWrapper {
 

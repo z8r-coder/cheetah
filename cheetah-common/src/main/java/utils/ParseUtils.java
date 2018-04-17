@@ -87,6 +87,10 @@ public class ParseUtils {
         return serverId;
     }
 
+    public static String generateServerIp(String host, int port) {
+        return host + ":" + port;
+    }
+
     public static void main(String[] args) {
 //        CheetahAddress cheetahAddress = parseAddress("127.0.0.1:8080");
 //        System.out.println(cheetahAddress.getHost() + ":" + cheetahAddress.getPort());

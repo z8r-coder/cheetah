@@ -1,10 +1,12 @@
 package raft.core.server;
 
 import models.CheetahAddress;
+import raft.core.rpc.RaftRpcServerAcceptor;
 import rpc.registry.AbstractServerProxy;
 import rpc.registry.SimpleRegisterServer;
 import rpc.registry.SimpleRegisterServerProxy;
 import rpc.registry.SimpleServerProxy;
+import utils.Configuration;
 import utils.ParseUtils;
 
 import java.util.HashMap;
@@ -18,7 +20,7 @@ import java.util.Map;
  */
 public class RaftClusterServer {
 
-    public Map<Integer, RaftServerDelegate> cacheRaftServer = new HashMap<>();
+    public Map<Integer, RaftRpcServerAcceptor> cacheRaftServer = new HashMap<>();
 
     private final static RaftClusterServer raftClusterServer = new RaftClusterServer();
 
@@ -30,29 +32,24 @@ public class RaftClusterServer {
         return raftClusterServer;
     }
 
-    public void startRegister () {
-        SimpleRegisterServerProxy registerServerProxy = new SimpleRegisterServerProxy();
-        registerServerProxy.startService();
-    }
-
-    public void startServerNode(String servers) {
-        startRegister();
+    public void startServerNode() {
+        Configuration configuration = new Configuration();
+        String servers = configuration.getRaftInitServer();
         List<CheetahAddress> addresses = ParseUtils.parseCommandAddress(servers);
         for (CheetahAddress cheetahAddress : addresses) {
-            AbstractServerProxy serverProxy = new SimpleServerProxy(cheetahAddress.getHost(), cheetahAddress.getPort());
-            serverProxy.setCacheServerList(addresses);
-            RaftServerDelegate raftServerDelegate = new RaftServerDelegate(serverProxy);
-            raftServerDelegate.startService();
+            RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(cheetahAddress.getHost(),
+                    cheetahAddress.getPort());
+            acceptor.startService();
             cacheRaftServer.put(ParseUtils.generateServerId(cheetahAddress.getHost(),
-                    cheetahAddress.getPort()), raftServerDelegate);
+                    cheetahAddress.getPort()), acceptor);
         }
     }
 
     public void stopServerNode() {
-        for (Map.Entry<Integer, RaftServerDelegate> entry : cacheRaftServer.entrySet()) {
-            RaftServerDelegate raftServerDelegate = entry.getValue();
-            if (raftServerDelegate != null) {
-                raftServerDelegate.stopService();
+        for (Map.Entry<Integer, RaftRpcServerAcceptor> entry : cacheRaftServer.entrySet()) {
+            RaftRpcServerAcceptor acceptor = entry.getValue();
+            if (acceptor != null) {
+                acceptor.stopService();
             }
         }
     }
