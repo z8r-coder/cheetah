@@ -29,6 +29,6 @@ public class RpcServerSyncConnector extends RpcConnectorWrapper {
         connector.startService();
         SimpleClientRemoteProxy proxy = connector.getProxy();
         HelloRpcService helloRpcService = proxy.registerRemote(HelloRpcService.class);
-        helloRpcService.sayHello("hello world", 11);
+        helloRpcService.getHello();
     }
 }

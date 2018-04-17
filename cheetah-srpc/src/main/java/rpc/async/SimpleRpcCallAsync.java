@@ -34,13 +34,20 @@ public class SimpleRpcCallAsync implements RpcCallAsync{
     public void callBack() {
         executorService.submit(new Runnable() {
             public void run() {
-                if (resp != null && rpcAsync.getRequest().getThreadId() == resp.getThreadId()) {
-                    Object result = serializer.deserialize(resp.getData());
-                    rpcCallback.success(result);
-                } else {
+                try {
+                    if (resp != null && rpcAsync.getRequest().getThreadId() == resp.getThreadId()) {
+                        Object result = serializer.deserialize(resp.getData());
+                        rpcCallback.success(result);
+                    } else {
+                        rpcCallback.fail(new RpcException("resp=" + resp + " request threadId=" +
+                                rpcAsync.getRequest().getThreadId() + " resp threadId=" +
+                                resp.getThreadId()));
+                    }
+                } catch (Exception ex) {
+                    logger.error("rpc async call back occurs ex:",ex);
                     rpcCallback.fail(new RpcException("resp=" + resp + " request threadId=" +
-                    rpcAsync.getRequest().getThreadId() + " resp threadId=" +
-                    resp.getThreadId()));
+                            rpcAsync.getRequest().getThreadId() + " resp threadId=" +
+                            resp.getThreadId()));
                 }
             }
         });
