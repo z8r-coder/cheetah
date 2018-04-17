@@ -1,5 +1,6 @@
 package raft.core;
 
+import mock.RaftMock;
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
@@ -127,17 +128,17 @@ public class RaftCore {
         resetElectionTimer();
     }
 
+    // TODO: 2018/4/17 raft mock
     public void resetElectionTimer() {
         if (electionScheduledFuture != null && !electionScheduledFuture.isDone()) {
             electionScheduledFuture.cancel(true);
         }
-
         //timeout
         electionScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             public void run() {
                 startNewElection();
             }
-        }, getElectionTimeOutMs(), getElectionTimeOutMs(), TimeUnit.MILLISECONDS);
+        }, RaftMock.getElectionTimeOutMs(), RaftMock.getElectionTimeOutMs(), RaftMock.getRaftMockTimeUnit());
     }
 
     private int getElectionTimeOutMs() {
@@ -175,8 +176,6 @@ public class RaftCore {
             executorService.submit(new Runnable() {
                 public void run() {
                     //async req
-//                    int i = 1;
-//                    System.out.println(i);
                     requestVoteFor(serverNode);
                 }
             });
