@@ -49,8 +49,8 @@ public class RaftClusterServer {
     }
 
     public void stopServerNode() {
-        for (Integer serverId : cacheRaftServer.keySet()) {
-            RaftServerDelegate raftServerDelegate = cacheRaftServer.get(serverId);
+        for (Map.Entry<Integer, RaftServerDelegate> entry : cacheRaftServer.entrySet()) {
+            RaftServerDelegate raftServerDelegate = entry.getValue();
             if (raftServerDelegate != null) {
                 raftServerDelegate.stopService();
             }

@@ -16,6 +16,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -170,8 +171,8 @@ public class RaftLog {
             randomAccessFile.writeLong(lastApplied);
             randomAccessFile.writeInt(globleMetaData.nameLength);
             randomAccessFile.write(globleMetaData.lastSegmentLogName.getBytes());
-            for (Long index : globleMetaData.segmentInfoMap.keySet()) {
-                SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(index);
+            for (Map.Entry<Long, SegmentInfo> entry : globleMetaData.segmentInfoMap.entrySet()) {
+                SegmentInfo segmentInfo = entry.getValue();
                 randomAccessFile.writeBoolean(segmentInfo.isCanWrite);
                 randomAccessFile.writeLong(segmentInfo.dataNum);
             }
@@ -441,10 +442,10 @@ public class RaftLog {
 
         public String segmentInfoToString () {
             StringBuilder sb = new StringBuilder();
-            for (Long index : segmentInfoMap.keySet()) {
-                sb.append("startIndex=" + index +
-                " ,segment data num=" + segmentInfoMap.get(index).dataNum +
-                " ,segment canWrite=" + segmentInfoMap.get(index).isCanWrite +
+            for (Map.Entry<Long, SegmentInfo> entry : segmentInfoMap.entrySet()) {
+                sb.append("startIndex=" + entry.getKey() +
+                " ,segment data num=" + entry.getValue().dataNum +
+                " ,segment canWrite=" + entry.getValue().isCanWrite +
                 "\n");
             }
             return sb.toString();
