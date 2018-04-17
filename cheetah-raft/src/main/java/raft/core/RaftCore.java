@@ -46,7 +46,7 @@ public class RaftCore {
     }
     public void init() {
         for (Map.Entry<Integer, String> entry : serverList.entrySet()) {
-            if (entry.getValue() == null &&
+            if (!serverNodeCache.containsKey(entry.getKey()) &&
                      !entry.getKey().equals(raftNode.getRaftServer().getServerId())) {
                 RaftVoteAsyncCallBack  asyncCallBack = new RaftVoteAsyncCallBack();
                 String serverInfo = entry.getValue();
@@ -175,6 +175,8 @@ public class RaftCore {
             executorService.submit(new Runnable() {
                 public void run() {
                     //async req
+//                    int i = 1;
+//                    System.out.println(i);
                     requestVoteFor(serverNode);
                 }
             });
@@ -239,25 +241,30 @@ public class RaftCore {
     }
 
     /**
+     * todo need to handler exception
      * rpc call, async
      * @param serverNode
      */
     private void requestVoteFor(ServerNode serverNode) {
-        logger.info("begin request vote for!");
-        RaftServer remoteRaftServer = serverNode.getRaftServer();
-        RaftServer localRaftServer = raftNode.getRaftServer();
-        VotedRequest request = new VotedRequest(raftNode.getCurrentTerm(),
-                raftNode.getRaftServer().getServerId(),
-                raftNode.getRaftLog().getLastLogIndex(),
-                raftNode.getRaftLog().getLastLogTerm());
-        request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
-                remoteRaftServer.getHost(), remoteRaftServer.getPort(),
-                localRaftServer.getServerId());
-        RaftVoteAsyncCallBack voteAsyncCallBack = (RaftVoteAsyncCallBack) serverNode.getRpcCallback();
-        voteAsyncCallBack.setRequest(request);
+        try {
+            logger.info("begin request vote for!");
+            RaftServer remoteRaftServer = serverNode.getRaftServer();
+            RaftServer localRaftServer = raftNode.getRaftServer();
+            VotedRequest request = new VotedRequest(raftNode.getCurrentTerm(),
+                    raftNode.getRaftServer().getServerId(),
+                    raftNode.getRaftLog().getLastLogIndex(),
+                    raftNode.getRaftLog().getLastLogTerm());
+            request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
+                    remoteRaftServer.getHost(), remoteRaftServer.getPort(),
+                    localRaftServer.getServerId());
+            RaftVoteAsyncCallBack voteAsyncCallBack = (RaftVoteAsyncCallBack) serverNode.getRpcCallback();
+            voteAsyncCallBack.setRequest(request);
 
-        //async rpc call
-        serverNode.getRaftAsyncConsensusService().leaderElection(request);
+            //async rpc call
+            serverNode.getRaftAsyncConsensusService().leaderElection(request);
+        } catch (Exception ex) {
+            logger.error("request vote for occurs ex:", ex);
+        }
     }
 
     /**
