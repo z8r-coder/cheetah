@@ -18,15 +18,15 @@ public class RpcSingleNodeMutilThreadDemo {
         RpcServerAcceptor acceptor = new RpcServerAcceptor(Globle.localHost, Globle.localPortTest1);
         acceptor.startService();
         //sync
-//        RpcServerSyncConnector connector = new RpcServerSyncConnector(Globle.localHost, Globle.localPortTest1);
-//        connector.startService();
-        //async
-        RpcServerAsyncConnector connector = new RpcServerAsyncConnector(Globle.localHost, Globle.localPortTest1);
+        RpcServerSyncConnector connector = new RpcServerSyncConnector(Globle.localHost, Globle.localPortTest1);
         connector.startService();
+        //async
+//        RpcServerAsyncConnector connector = new RpcServerAsyncConnector(Globle.localHost, Globle.localPortTest1);
+//        connector.startService();
         SimpleClientRemoteProxy proxy = connector.getProxy();
         HelloRpcService helloRpcService = proxy.registerRemote(HelloRpcService.class);
 
-        helloRpcService.getHello();
+        System.out.println(helloRpcService.getHello());
 
     }
 }

@@ -1,12 +1,16 @@
 package raft.core.server;
 
+import constants.Globle;
+import org.apache.log4j.Logger;
 import raft.core.RaftAsyncConsensusService;
 import raft.core.RaftConsensusService;
+import raft.core.rpc.RaftRpcServerAcceptor;
 import raft.protocol.VotedResponse;
 import rpc.async.RpcCallback;
 import rpc.client.AsyncClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
 import rpc.client.SyncClientRemoteExecutor;
+import rpc.demo.rpc.provider.HelloRpcService;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
@@ -17,6 +21,9 @@ import rpc.utils.RpcUtils;
  * @desc raft in server info in leader
  */
 public class ServerNode {
+
+    private Logger logger = Logger.getLogger(ServerNode.class);
+
     private RaftServer raftServer;
     private SimpleClientRemoteProxy syncProxy;
     private SimpleClientRemoteProxy asyncProxy;
@@ -31,20 +38,41 @@ public class ServerNode {
     private volatile boolean voteGranted;
 
     public ServerNode (RaftServer raftServer, RpcCallback<VotedResponse> rpcCallback) {
-        this.raftServer = raftServer;
-        this.rpcCallback = rpcCallback;
-        //def client connect
+        try {
+            this.raftServer = raftServer;
+            this.rpcCallback = rpcCallback;
+            //def client connect
+            AbstractRpcConnector connector = new RpcNioConnector(null);
+            RpcUtils.setAddress(raftServer.getHost(), raftServer.getPort(), connector);
+            //def sync proxy
+            SyncClientRemoteExecutor syncClientRemoteExecutor = new SyncClientRemoteExecutor(connector);
+            syncProxy = new SimpleClientRemoteProxy(syncClientRemoteExecutor);
+
+            AsyncClientRemoteExecutor asyncClientRemoteExecutor = new AsyncClientRemoteExecutor(connector, rpcCallback);
+            asyncProxy = new SimpleClientRemoteProxy(asyncClientRemoteExecutor);
+
+            raftConsensusService = syncProxy.registerRemote(RaftConsensusService.class);
+            raftAsyncConsensusService = asyncProxy.registerRemote(RaftAsyncConsensusService.class);
+        } catch (Exception ex) {
+            logger.error("occurs ex:",ex);
+        }
+
+    }
+
+    public static void main(String[] args) {
+        RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(Globle.localHost, Globle.localPortTest1);
+        acceptor.startService();
+
         AbstractRpcConnector connector = new RpcNioConnector(null);
-        RpcUtils.setAddress(raftServer.getHost(), raftServer.getPort(), connector);
-        //def sync proxy
+        RpcUtils.setAddress(Globle.localHost, Globle.localPortTest1, connector);
         SyncClientRemoteExecutor syncClientRemoteExecutor = new SyncClientRemoteExecutor(connector);
-        syncProxy = new SimpleClientRemoteProxy(syncClientRemoteExecutor);
+        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(syncClientRemoteExecutor);
+        proxy.startService();
+        RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
+        raftConsensusService.leaderElection(null);
+//        HelloRpcService helloRpcService = proxy.registerRemote(HelloRpcService.class);
+//        System.out.println(helloRpcService.getHello());
 
-        AsyncClientRemoteExecutor asyncClientRemoteExecutor = new AsyncClientRemoteExecutor(connector, rpcCallback);
-        asyncProxy = new SimpleClientRemoteProxy(asyncClientRemoteExecutor);
-
-       raftConsensusService = syncProxy.registerRemote(RaftConsensusService.class);
-       raftAsyncConsensusService = asyncProxy.registerRemote(RaftAsyncConsensusService.class);
     }
 
     public RaftServer getRaftServer() {

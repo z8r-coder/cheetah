@@ -28,6 +28,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
     public VotedResponse leaderElection(VotedRequest request) {
         // -> async
+        System.out.println("test leader election!");
         return null;
     }
 

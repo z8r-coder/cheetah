@@ -10,6 +10,8 @@ import raft.core.imp.RaftConsensusServiceImpl;
 import raft.core.server.RaftServer;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
+import rpc.demo.rpc.provider.HelloRpcService;
+import rpc.demo.rpc.provider.impl.HelloRpcServiceImpl;
 import rpc.wrapper.RpcAcceptorWrapper;
 import utils.Configuration;
 import utils.ParseUtils;
@@ -38,10 +40,14 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
         RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), configuration.getRaftRootPath(), "raft_meta");
         RaftNode raftNode = new RaftNode(raftLog, raftServer);
         RaftCore raftCore = new RaftCore(raftOptions, raftNode, getCacheServerList());
-        RaftConsensusService raftConsensusService = new RaftConsensusServiceImpl(raftNode, raftCore);
-        RaftAsyncConsensusService raftAsyncConsensusService = new RaftAsyncConsensusServiceImpl(raftNode, raftCore);
+        RaftConsensusServiceImpl raftConsensusService = new RaftConsensusServiceImpl(raftNode, raftCore);
+        RaftAsyncConsensusServiceImpl raftAsyncConsensusService = new RaftAsyncConsensusServiceImpl(raftNode, raftCore);
         remoteExecutor.registerRemote(RaftConsensusService.class, raftConsensusService);
         remoteExecutor.registerRemote(RaftAsyncConsensusService.class, raftAsyncConsensusService);
+
+        //todo test
+        HelloRpcServiceImpl helloRpcService = new HelloRpcServiceImpl();
+        remoteExecutor.registerRemote(HelloRpcService.class, helloRpcService);
     }
 
     /**
