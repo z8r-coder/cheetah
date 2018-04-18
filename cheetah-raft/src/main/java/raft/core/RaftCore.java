@@ -341,9 +341,9 @@ public class RaftCore {
                             becomeLeader();
                         }
                     } else {
-                        logger.info("Vote denied by server {}" + raftServer.getServerId() +
-                                " with term {}" + resp.getTerm() +
-                                ", this server's term is {}" + raftNode.getCurrentTerm());
+                        logger.info("Vote denied by server=" + raftServer.getServerId() +
+                                " with term=" + resp.getTerm() +
+                                ", this server's term is=" + raftNode.getCurrentTerm());
                     }
                 }
             }finally{
