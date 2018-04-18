@@ -321,11 +321,14 @@ public class RaftCore {
         private VotedRequest request;
 
         public void success(VotedResponse resp) {
-            lock.lock();
             logger.info("from serverId=" + resp.getServerId());
+            lock.lock();
             try {
                 RaftServer raftServer = raftNode.getRaftServer();
-
+                if (raftServer.getServerState() == RaftServer.NodeState.LEADER) {
+                    logger.info("ServerId=" + raftServer.getServerId() + "have been leader!");
+                    return;
+                }
                 if (raftNode.getCurrentTerm() != request.getTerm() ||
                         raftServer.getServerState() != RaftServer.NodeState.CANDIDATE ||
                         resp == null) {
