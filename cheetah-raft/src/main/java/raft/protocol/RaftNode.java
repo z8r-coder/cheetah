@@ -32,11 +32,10 @@ public class RaftNode implements RaftListener{
 
     private RaftServer raftServer;
 
-    private Executor heartBeatThread;
-
-    public RaftNode (RaftLog raftLog, RaftServer raftServer) {
+    public RaftNode (RaftLog raftLog, RaftServer raftServer, StateMachine stateMachine) {
         this.raftLog = raftLog;
         this.raftServer = raftServer;
+        this.stateMachine = stateMachine;
     }
     private Lock lock = new ReentrantLock();
 
@@ -78,14 +77,6 @@ public class RaftNode implements RaftListener{
 
     public void setRaftServer(RaftServer raftServer) {
         this.raftServer = raftServer;
-    }
-
-    public Executor getHeartBeatThread() {
-        return heartBeatThread;
-    }
-
-    public void setHeartBeatThread(Executor heartBeatThread) {
-        this.heartBeatThread = heartBeatThread;
     }
 
     public void setLock(Lock lock) {

@@ -240,7 +240,6 @@ public class RaftCore {
     }
 
     /**
-     * todo need to handler exception
      * rpc call, async
      * @param serverNode
      */
@@ -260,6 +259,10 @@ public class RaftCore {
             voteAsyncCallBack.setRequest(request);
 
             //async rpc call
+            if (serverNode.getAsyncProxy().getRemoteProxyStatus() ==
+                    serverNode.getAsyncProxy().STOP) {
+                serverNode.getAsyncProxy().startService();
+            }
             serverNode.getRaftAsyncConsensusService().leaderElection(request);
         } catch (Exception ex) {
             logger.error("request vote for occurs ex:", ex);
@@ -329,11 +332,11 @@ public class RaftCore {
                     if (resp.isGranted()) {
                         //success
                         asyncVoteNum += 1;
-                        logger.info("Got vote from server:" + raftServer.getServerId() +
-                                " for term {}" + raftNode.getCurrentTerm());
+                        logger.info("Got vote from server=" + raftServer.getServerId() +
+                                " for term=" + raftNode.getCurrentTerm());
                         logger.info("voteGrantedNum= + voteGrantedNum");
                         if (asyncVoteNum >= serverList.size() / 2) {
-                            logger.info("Got majority vote, serverId={}" + raftNode.getRaftServer().getServerId() +
+                            logger.info("Got majority vote, serverId=" + raftNode.getRaftServer().getServerId() +
                                     " become leader");
                             becomeLeader();
                         }

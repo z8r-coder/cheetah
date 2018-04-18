@@ -2,10 +2,6 @@ package raft.core.server;
 
 import models.CheetahAddress;
 import raft.core.rpc.RaftRpcServerAcceptor;
-import rpc.registry.AbstractServerProxy;
-import rpc.registry.SimpleRegisterServer;
-import rpc.registry.SimpleRegisterServerProxy;
-import rpc.registry.SimpleServerProxy;
 import utils.Configuration;
 import utils.ParseUtils;
 
