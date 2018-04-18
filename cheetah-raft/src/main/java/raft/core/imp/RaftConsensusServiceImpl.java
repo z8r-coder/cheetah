@@ -37,7 +37,6 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     }
 
     public AddResponse appendEntries(AddRequest request) {
-
         raftNode.getLock().lock();
         try {
             RaftServer raftServer = raftNode.getRaftServer();
@@ -46,7 +45,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                     false);
             if (request == null) {
                 // TODO: 2018/4/18 need to change it to debug
-                logger.info("appendEntries, but request=null");
+                logger.debug("appendEntries, but request=null");
                 return response;
             }
             logger.info("begin appendEntries from server=" + request.getServerId());

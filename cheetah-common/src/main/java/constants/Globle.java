@@ -24,7 +24,7 @@ public class Globle {
     public final static int localPortTest2 = 4333;
 
     public final static int electionTimeOut = 1;
-    public final static int electionTimeOutRandom = 2;
+    public final static int electionTimeOutRandom = 4;
 
     public final static TimeUnit testTimeUnit = TimeUnit.SECONDS;
 

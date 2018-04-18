@@ -1,12 +1,9 @@
 package raft.protocol;
 
 import org.apache.log4j.Logger;
-import raft.core.RaftCore;
-import raft.core.RaftListener;
 import raft.core.StateMachine;
 import raft.core.server.RaftServer;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -15,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @create 2018-02-06
  * @desc
  */
-public class RaftNode implements RaftListener{
+public class RaftNode {
 
     private static final Logger log = Logger.getLogger(RaftNode.class);
 
@@ -38,10 +35,6 @@ public class RaftNode implements RaftListener{
         this.stateMachine = stateMachine;
     }
     private Lock lock = new ReentrantLock();
-
-    public void onListen() {
-
-    }
 
     public Lock getLock() {
         return lock;

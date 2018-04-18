@@ -72,7 +72,7 @@ public class RaftCore {
         raftServer.setServerState(RaftServer.NodeState.LEADER);
         raftNode.setLeaderId(raftServer.getServerId());
 
-        logger.info("become leader: serverId:" + raftServer.getServerId() + "in term:" + raftNode.getCurrentTerm());
+        logger.info("become leader: serverId:" + raftServer.getServerId() + " in term:" + raftNode.getCurrentTerm());
 
         //stop election
         if (electionScheduledFuture != null && !electionScheduledFuture.isDone()) {
