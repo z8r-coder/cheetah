@@ -199,6 +199,10 @@ public class RaftCore {
                 raftNode.getRaftServer().getServerId());
 
         //sync rpc call
+        if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
+                serverNode.getSyncProxy().STOP) {
+            serverNode.getSyncProxy().startService();
+        }
         AddResponse response = serverNode.getRaftConsensusService().appendEntries(request);
         lock.lock();
         try {
@@ -245,7 +249,8 @@ public class RaftCore {
      */
     private void requestVoteFor(ServerNode serverNode) {
         try {
-            logger.info("begin request vote for!");
+            logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
+                    " begin request vote for!");
             RaftServer remoteRaftServer = serverNode.getRaftServer();
             RaftServer localRaftServer = raftNode.getRaftServer();
             VotedRequest request = new VotedRequest(raftNode.getCurrentTerm(),
@@ -321,7 +326,8 @@ public class RaftCore {
                 if (raftNode.getCurrentTerm() != request.getTerm() ||
                         raftServer.getServerState() != RaftServer.NodeState.CANDIDATE ||
                         resp == null) {
-                    logger.info("ignore,the state or term is wrong");
+                    logger.info("ignore,the state or term is wrong, local term=" + raftNode.getCurrentTerm() +
+                    " ,remote term=" + request.getTerm() + " ,local server state=" + raftServer.getServerState());
                     return;
                 }
                 if (resp.getTerm() > raftNode.getCurrentTerm()) {
@@ -334,7 +340,7 @@ public class RaftCore {
                         asyncVoteNum += 1;
                         logger.info("Got vote from server=" + raftServer.getServerId() +
                                 " for term=" + raftNode.getCurrentTerm());
-                        logger.info("voteGrantedNum= + voteGrantedNum");
+                        logger.info("voteGrantedNum=" + asyncVoteNum);
                         if (asyncVoteNum >= serverList.size() / 2) {
                             logger.info("Got majority vote, serverId=" + raftNode.getRaftServer().getServerId() +
                                     " become leader");
