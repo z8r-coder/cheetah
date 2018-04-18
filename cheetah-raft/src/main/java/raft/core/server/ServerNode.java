@@ -42,22 +42,30 @@ public class ServerNode {
         try {
             this.raftServer = raftServer;
             this.rpcCallback = rpcCallback;
-            //def client connect
-            AbstractRpcConnector connector = new RpcNioConnector(null);
-            RpcUtils.setAddress(raftServer.getHost(), raftServer.getPort(), connector);
+            //def sync client connect
+            AbstractRpcConnector syncConnector = new RpcNioConnector(null);
+            RpcUtils.setAddress(raftServer.getHost(), raftServer.getPort(), syncConnector);
+            //def async client connect
+            AbstractRpcConnector asyncConnector = new RpcNioConnector(null);
+            RpcUtils.setAddress(raftServer.getHost(), raftServer.getPort(), asyncConnector);
             //def sync proxy
-            SyncClientRemoteExecutor syncClientRemoteExecutor = new SyncClientRemoteExecutor(connector);
+            SyncClientRemoteExecutor syncClientRemoteExecutor = new SyncClientRemoteExecutor(syncConnector);
             syncProxy = new SimpleClientRemoteProxy(syncClientRemoteExecutor);
 
-            AsyncClientRemoteExecutor asyncClientRemoteExecutor = new AsyncClientRemoteExecutor(connector, rpcCallback);
+            AsyncClientRemoteExecutor asyncClientRemoteExecutor = new AsyncClientRemoteExecutor(asyncConnector, rpcCallback);
             asyncProxy = new SimpleClientRemoteProxy(asyncClientRemoteExecutor);
 
             raftConsensusService = syncProxy.registerRemote(RaftConsensusService.class);
             raftAsyncConsensusService = asyncProxy.registerRemote(RaftAsyncConsensusService.class);
         } catch (Exception ex) {
-            logger.error("occurs ex:",ex);
+            logger.error("occurs ex:", ex);
         }
 
+    }
+
+    public void startService() {
+        syncProxy.startService();
+        asyncProxy.startService();
     }
 
     public static void main(String[] args) {
@@ -67,16 +75,18 @@ public class ServerNode {
         AbstractRpcConnector connector = new RpcNioConnector(null);
         RpcUtils.setAddress(Globle.localHost, Globle.localPortTest1, connector);
         // sync
-//        SyncClientRemoteExecutor syncClientRemoteExecutor = new SyncClientRemoteExecutor(connector);
+        SyncClientRemoteExecutor syncClientRemoteExecutor = new SyncClientRemoteExecutor(connector);
         //async
         TestCallBack testCallBack = new TestCallBack();
-        AsyncClientRemoteExecutor asyncClientRemoteExecutor = new AsyncClientRemoteExecutor(connector, testCallBack);
+//        AsyncClientRemoteExecutor asyncClientRemoteExecutor = new AsyncClientRemoteExecutor(connector, testCallBack);
         //proxy
-        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(asyncClientRemoteExecutor);
+        SimpleClientRemoteProxy proxy = new SimpleClientRemoteProxy(syncClientRemoteExecutor);
         proxy.startService();
-        RaftAsyncConsensusService raftAsyncConsensusService = proxy.registerRemote(RaftAsyncConsensusService.class);
-//        RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
-        raftAsyncConsensusService.leaderElection(null);
+
+//        RaftAsyncConsensusService raftAsyncConsensusService = proxy.registerRemote(RaftAsyncConsensusService.class);
+        RaftConsensusService raftConsensusService = proxy.registerRemote(RaftConsensusService.class);
+        raftConsensusService.appendEntries(null);
+//        raftAsyncConsensusService.leaderElection(null);
 //        HelloRpcService helloRpcService = proxy.registerRemote(HelloRpcService.class);
 //        System.out.println(helloRpcService.getHello());
 

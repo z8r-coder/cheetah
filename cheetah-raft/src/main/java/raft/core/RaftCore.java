@@ -188,24 +188,25 @@ public class RaftCore {
      * @param serverNode
      */
     public void appendEntries (ServerNode serverNode) {
-        RaftServer remoteRaftServer = serverNode.getRaftServer();
-        RaftServer localRaftServer = raftNode.getRaftServer();
-        AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
-                raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
-                raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
-                raftNode.getRaftLog().getCommitIndex());
-        request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
-                remoteRaftServer.getHost(), remoteRaftServer.getPort(),
-                raftNode.getRaftServer().getServerId());
-
-        //sync rpc call
-        if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
-                serverNode.getSyncProxy().STOP) {
-            serverNode.getSyncProxy().startService();
-        }
-        AddResponse response = serverNode.getRaftConsensusService().appendEntries(request);
         lock.lock();
         try {
+            RaftServer remoteRaftServer = serverNode.getRaftServer();
+            RaftServer localRaftServer = raftNode.getRaftServer();
+            AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
+                    raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
+                    raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
+                    raftNode.getRaftLog().getCommitIndex());
+            request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
+                    remoteRaftServer.getHost(), remoteRaftServer.getPort(),
+                    raftNode.getRaftServer().getServerId());
+
+            //sync rpc call
+            if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
+                    serverNode.getSyncProxy().STOP) {
+                serverNode.getSyncProxy().startService();
+            }
+            AddResponse response = serverNode.getRaftConsensusService().appendEntries(request);
+
             if (response == null) {
                 logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
                 " port=" + request.getRemotePort());
@@ -238,6 +239,8 @@ public class RaftCore {
                     serverNode.setNextIndex(response.getLastLogIndex() + 1);
                 }
             }
+        } catch (Exception ex) {
+            logger.info("appendEntries occurs ex!", ex);
         } finally {
             lock.unlock();
         }
