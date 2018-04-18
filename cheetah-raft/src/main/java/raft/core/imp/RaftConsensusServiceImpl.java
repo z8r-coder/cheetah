@@ -43,6 +43,9 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             AddResponse response = new AddResponse(raftServer.getServerId(),
                     raftNode.getCurrentTerm(),
                     false);
+            if (request == null) {
+                return response;
+            }
             if (request.getTerm() < raftNode.getCurrentTerm()) {
                 return response;
             }

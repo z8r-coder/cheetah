@@ -29,6 +29,9 @@ public class RaftAsyncConsensusServiceImpl implements RaftAsyncConsensusService 
             VotedResponse votedResponse = new VotedResponse(raftNode.getCurrentTerm(),
                     false,
                     raftNode.getRaftServer().getServerId());
+            if (request == null) {
+                return votedResponse;
+            }
             if (request.getTerm() < raftNode.getCurrentTerm()) {
                 return votedResponse;
             }
