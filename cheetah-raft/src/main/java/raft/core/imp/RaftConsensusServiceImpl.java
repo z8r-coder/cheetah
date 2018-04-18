@@ -58,8 +58,8 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
             if (raftNode.getLeaderId() != request.getLeaderId()) {
                 logger.warn("another server declare it is leader:" + raftNode.getLeaderId() +
-                "at term:" + raftNode.getCurrentTerm() + "now real leader is " + request.getLeaderId() +
-                "and the term will plus one!");
+                " at term:" + raftNode.getCurrentTerm() + " ,now real leader is " + request.getLeaderId() +
+                " and the term will plus one!");
                 raftNode.setLeaderId(request.getLeaderId());
                 raftCore.updateMore(request.getTerm() + 1);
                 response.setSuccess(false);
@@ -82,7 +82,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
             if (request.getLogEntries().size() == 0) {
                 logger.info("heart beat request at term:" + request.getTerm() +
-                "local host term:" + raftNode.getCurrentTerm());
+                " ,local host term:" + raftNode.getCurrentTerm());
                 response.setTerm(raftNode.getCurrentTerm());
                 response.setServerId(raftServer.getServerId());
                 response.setSuccess(true);
