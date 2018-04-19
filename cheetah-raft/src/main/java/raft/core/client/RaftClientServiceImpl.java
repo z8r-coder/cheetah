@@ -2,18 +2,25 @@ package raft.core.client;
 
 import org.apache.log4j.Logger;
 import raft.core.RaftClientService;
+import raft.core.RaftConsensusService;
+import raft.model.BaseRequest;
 import raft.protocol.request.CommandExecuteRequest;
 import raft.protocol.request.GetLeaderRequest;
 import raft.protocol.request.GetServerListRequest;
 import raft.protocol.response.CommandExecuteResponse;
 import raft.protocol.response.GetLeaderResponse;
 import raft.protocol.response.GetServerListResponse;
+import rpc.client.SimpleClientRemoteProxy;
 import rpc.wrapper.RpcConnectorWrapper;
 import rpc.wrapper.connector.RpcServerSyncConnector;
 import utils.Configuration;
+import utils.NetUtils;
+import utils.ParseUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author ruanxin
@@ -24,27 +31,77 @@ public class RaftClientServiceImpl implements RaftClientService {
 
     private final static Logger logger = Logger.getLogger(RaftClientServiceImpl.class);
 
-    private Configuration configuration = new Configuration();
+    private String localHost;
 
-    @Override
-    public GetLeaderResponse getLeader(GetLeaderRequest request) {
-        logger.info("getLeader request, remote host=" + request.getRemoteHost() +
-        " ,remote port=" + request.getRemotePort());
-        RpcConnectorWrapper connector = new RpcServerSyncConnector(configuration.getRaftClusterHost(),
-                Integer.parseInt(configuration.getRaftClusterPort()));
-        connector.startService();
-//        GetLeaderResponse response =   new GetLeaderResponse()
-        return null;
+    private Configuration configuration;
+
+    private Map<Integer, RpcConnectorWrapper> connectorCache;
+
+    public RaftClientServiceImpl () {
+        localHost = NetUtils.getLocalHost();
+        configuration = new Configuration();
+        connectorCache = new HashMap<>();
     }
 
     @Override
-    public GetServerListResponse getServerList(GetServerListRequest request) {
-        return null;
+    public GetLeaderResponse getLeader() {
+        //generate request
+        GetLeaderRequest request = new GetLeaderRequest();
+        setAddress(request);
+
+        logger.info("client getLeader request ,remote host=" + request.getRemoteHost() +
+        " ,remote port=" + request.getRemotePort());
+
+        RaftConsensusService raftConsensusService = getRaftConsensusService(request);
+        return raftConsensusService.getLeader(request);
+    }
+
+    @Override
+    public GetServerListResponse getServerList() {
+        //generate request
+        GetServerListRequest request = new GetServerListRequest();
+        setAddress(request);
+
+        logger.info("client getServerList request ,remote host=" + request.getRemoteHost() +
+        " ,remote port=" + request.getRemotePort());
+
+        RaftConsensusService raftConsensusService = getRaftConsensusService(request);
+        return raftConsensusService.getServerList(request);
     }
 
     @Override
     public CommandExecuteResponse commandExec(CommandExecuteRequest request) {
-        return null;
+        setAddress(request);
+
+        logger.info("client commandExec request ,remote host=" + request.getRemoteHost() +
+                " ,remote port=" + request.getRemotePort());
+
+        RaftConsensusService raftConsensusService = getRaftConsensusService(request);
+        return raftConsensusService.commandExec(request);
+    }
+
+    private RaftConsensusService getRaftConsensusService(BaseRequest request) {
+        int remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(), request.getRemotePort());
+        RpcConnectorWrapper connector = null;
+
+        if ((connector = connectorCache.get(remoteServerId)) == null) {
+            //exist
+            connector = new RpcServerSyncConnector(request.getRemoteHost(),
+                    request.getRemotePort());
+            connectorCache.put(remoteServerId, connector);
+        }
+
+        connector.startService();
+        SimpleClientRemoteProxy proxy = connector.getProxy();
+        return proxy.registerRemote(RaftConsensusService.class);
+    }
+    /**
+     * set address
+     * @param request
+     */
+    private void setAddress(BaseRequest request) {
+        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
+                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
     }
 
     public static void main(String[] args) {

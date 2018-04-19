@@ -14,9 +14,9 @@ import raft.protocol.response.GetServerListResponse;
  */
 public interface RaftClientService {
 
-    public GetLeaderResponse getLeader(GetLeaderRequest request);
+    public GetLeaderResponse getLeader();
 
-    public GetServerListResponse getServerList(GetServerListRequest request);
+    public GetServerListResponse getServerList();
 
     public CommandExecuteResponse commandExec (CommandExecuteRequest request);
 }

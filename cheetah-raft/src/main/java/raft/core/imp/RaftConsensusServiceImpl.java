@@ -5,10 +5,8 @@ import raft.core.RaftConsensusService;
 import raft.core.RaftCore;
 import raft.core.server.RaftServer;
 import raft.protocol.*;
-import raft.protocol.request.AddRequest;
-import raft.protocol.request.VotedRequest;
-import raft.protocol.response.AddResponse;
-import raft.protocol.response.VotedResponse;
+import raft.protocol.request.*;
+import raft.protocol.response.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,6 +133,28 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         } finally {
             raftNode.getLock().unlock();
         }
+    }
+
+    @Override
+    public GetLeaderResponse getLeader(GetLeaderRequest request) {
+        logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
+        " ,remote host=" + request.getRemoteHost());
+        GetLeaderResponse response = new GetLeaderResponse(raftNode.getRaftServer().getServerId(),
+                raftNode.getLeaderId());
+        return response;
+    }
+
+    @Override
+    public GetServerListResponse getServerList(GetServerListRequest request) {
+        logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
+        " ,remote host=" + request.getRemoteHost());
+        GetServerListResponse response = new GetServerListResponse(raftCore.getServerList(), raftNode.getRaftServer().getServerId());
+        return response;
+    }
+
+    @Override
+    public CommandExecuteResponse commandExec(CommandExecuteRequest request) {
+        return null;
     }
 
     //apply on state machine

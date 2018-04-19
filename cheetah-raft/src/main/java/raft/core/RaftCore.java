@@ -380,6 +380,14 @@ public class RaftCore {
         }
     }
 
+    public Map<Integer, String> getServerList() {
+        return serverList;
+    }
+
+    public void setServerList(Map<Integer, String> serverList) {
+        this.serverList = serverList;
+    }
+
     public static void main(String[] args) {
         ExecutorService executorService = new ThreadPoolExecutor(20,
                 20,

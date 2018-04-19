@@ -1,9 +1,7 @@
 package raft.core;
 
-import raft.protocol.request.AddRequest;
-import raft.protocol.request.VotedRequest;
-import raft.protocol.response.AddResponse;
-import raft.protocol.response.VotedResponse;
+import raft.protocol.request.*;
+import raft.protocol.response.*;
 
 /**
  * @author ruanxin
@@ -27,5 +25,18 @@ public interface RaftConsensusService {
      */
     public AddResponse appendEntries (AddRequest request);
 
+    /**
+     * get leader
+     */
+    public GetLeaderResponse getLeader (GetLeaderRequest request);
 
+    /**
+     * get server list
+     */
+    public GetServerListResponse getServerList (GetServerListRequest request);
+
+    /**
+     * command exec
+     */
+    public CommandExecuteResponse commandExec (CommandExecuteRequest request);
 }
