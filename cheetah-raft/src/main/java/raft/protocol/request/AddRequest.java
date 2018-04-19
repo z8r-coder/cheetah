@@ -1,6 +1,7 @@
-package raft.protocol;
+package raft.protocol.request;
 
 import raft.model.BaseRequest;
+import raft.protocol.RaftLog;
 
 import java.io.Serializable;
 import java.util.ArrayList;

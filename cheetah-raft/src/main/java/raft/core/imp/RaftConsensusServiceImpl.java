@@ -5,6 +5,10 @@ import raft.core.RaftConsensusService;
 import raft.core.RaftCore;
 import raft.core.server.RaftServer;
 import raft.protocol.*;
+import raft.protocol.request.AddRequest;
+import raft.protocol.request.VotedRequest;
+import raft.protocol.response.AddResponse;
+import raft.protocol.response.VotedResponse;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,8 +4,8 @@ import org.apache.log4j.Logger;
 import raft.core.RaftAsyncConsensusService;
 import raft.core.RaftCore;
 import raft.protocol.RaftNode;
-import raft.protocol.VotedRequest;
-import raft.protocol.VotedResponse;
+import raft.protocol.request.VotedRequest;
+import raft.protocol.response.VotedResponse;
 
 /**
  * @author ruanxin

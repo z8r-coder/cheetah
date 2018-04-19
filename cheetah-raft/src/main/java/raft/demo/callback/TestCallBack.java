@@ -1,6 +1,6 @@
 package raft.demo.callback;
 
-import raft.protocol.VotedResponse;
+import raft.protocol.response.VotedResponse;
 import rpc.async.RpcCallback;
 
 /**

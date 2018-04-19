@@ -7,8 +7,11 @@ import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
 import raft.core.server.ServerNode;
 import raft.protocol.*;
+import raft.protocol.request.AddRequest;
+import raft.protocol.request.VotedRequest;
+import raft.protocol.response.AddResponse;
+import raft.protocol.response.VotedResponse;
 import rpc.async.RpcCallback;
-import utils.Configuration;
 import utils.ParseUtils;
 
 import java.util.*;

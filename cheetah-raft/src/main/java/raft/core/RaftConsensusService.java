@@ -1,6 +1,10 @@
 package raft.core;
 
-import raft.protocol.*;
+import raft.protocol.request.AddRequest;
+import raft.protocol.request.VotedRequest;
+import raft.protocol.response.AddResponse;
+import raft.protocol.response.VotedResponse;
+
 /**
  * @author ruanxin
  * @create 2018-02-08

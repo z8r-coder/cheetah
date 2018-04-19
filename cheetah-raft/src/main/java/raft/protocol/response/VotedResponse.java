@@ -1,4 +1,6 @@
-package raft.protocol;
+package raft.protocol.response;
+
+import raft.protocol.response.RaftResponse;
 
 /**
  * @author ruanxin

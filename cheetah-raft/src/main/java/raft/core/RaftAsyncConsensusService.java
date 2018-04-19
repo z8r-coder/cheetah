@@ -1,7 +1,7 @@
 package raft.core;
 
-import raft.protocol.VotedRequest;
-import raft.protocol.VotedResponse;
+import raft.protocol.request.VotedRequest;
+import raft.protocol.response.VotedResponse;
 
 /**
  * @author ruanxin

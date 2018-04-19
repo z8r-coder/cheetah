@@ -1,4 +1,4 @@
-package raft.protocol;
+package raft.protocol.response;
 
 import java.io.Serializable;
 

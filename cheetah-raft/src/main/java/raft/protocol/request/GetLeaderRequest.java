@@ -1,4 +1,4 @@
-package raft.protocol;
+package raft.protocol.request;
 
 import raft.model.BaseRequest;
 
