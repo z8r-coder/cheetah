@@ -21,6 +21,8 @@ public class Configuration {
     private String raftMetaPath;
     private String raftRootPath;
     private String raftInitServer;
+    private String raftClusterHost;
+    private String raftClusterPort;
 
     private Properties properties;
 
@@ -79,6 +81,14 @@ public class Configuration {
         if (!StringUtils.isBlank(raftInitServer)) {
             this.raftInitServer = raftInitServer;
         }
+        String raftClusterHost = properties.getProperty("raft.cluster.host");
+        if (!StringUtils.isBlank(raftClusterHost)) {
+            this.raftClusterHost = raftClusterHost;
+        }
+        String raftClusterPort = properties.getProperty("raft.cluster.port");
+        if (!StringUtils.isBlank(raftClusterPort)) {
+            this.raftClusterPort = raftClusterPort;
+        }
     }
 
     public String getRegisterHost() {
@@ -135,6 +145,22 @@ public class Configuration {
 
     public void setRaftInitServer(String raftInitServer) {
         this.raftInitServer = raftInitServer;
+    }
+
+    public String getRaftClusterHost() {
+        return raftClusterHost;
+    }
+
+    public void setRaftClusterHost(String raftClusterHost) {
+        this.raftClusterHost = raftClusterHost;
+    }
+
+    public String getRaftClusterPort() {
+        return raftClusterPort;
+    }
+
+    public void setRaftClusterPort(String raftClusterPort) {
+        this.raftClusterPort = raftClusterPort;
     }
 
     public static void main(String[] args) {

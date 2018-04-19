@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 /**
  * @author ruanxin
  * @create 2018-04-11
- * @desc raft client connection
+ * @desc raft client connection local method, don't need to register
  */
 public class RaftClientServiceImpl implements RaftClientService {
 
@@ -20,7 +20,7 @@ public class RaftClientServiceImpl implements RaftClientService {
     public GetLeaderResponse getLeader(GetLeaderRequest request) {
         logger.info("getLeader request, remote host=" + request.getRemoteHost() +
         " ,remote port=" + request.getRemotePort());
-        
+
 //        GetLeaderResponse response =   new GetLeaderResponse()
         return null;
     }
