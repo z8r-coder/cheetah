@@ -50,9 +50,15 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
             logger.info("begin appendEntries from server=" + request.getServerId());
             if (request.getTerm() < raftNode.getCurrentTerm()) {
+                logger.info("remote server term=" + request.getTerm() +
+                " ,local server term=" + raftNode.getCurrentTerm() +
+                " ,so return!");
                 return response;
             }
             if (request.getTerm() > raftNode.getCurrentTerm()) {
+                logger.info("remote server term=" + request.getTerm() +
+                " ,local server term=" + raftNode.getCurrentTerm() +
+                " ,so update more!");
                 raftCore.updateMore(request.getTerm());
             }
             if (raftNode.getLeaderId() == 0) {
