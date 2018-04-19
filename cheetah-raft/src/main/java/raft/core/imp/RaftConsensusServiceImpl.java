@@ -48,7 +48,8 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 logger.debug("appendEntries, but request=null");
                 return response;
             }
-            logger.info("begin appendEntries from server=" + request.getServerId());
+            logger.info("begin appendEntries from server=" + request.getServerId() +
+            " ,local server=" + raftNode.getRaftServer().getServerId());
             if (request.getTerm() < raftNode.getCurrentTerm()) {
                 logger.info("remote server term=" + request.getTerm() +
                 " ,local server term=" + raftNode.getCurrentTerm() +
@@ -82,7 +83,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 return response;
             }
             if (request.getPrevLogTerm() != raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogTerm())) {
-                logger.warn("LogEntry tern is wrong, leader prevLogIndex=" + request.getPrevLogIndex() +
+                logger.warn("LogEntry term is wrong, leader prevLogIndex=" + request.getPrevLogIndex() +
                 ",prevLogTerm=" + request.getPrevLogTerm() + "but local server prevLogIndex=" + request.getPrevLogIndex() +
                 ",prevLogTerm=" + raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogIndex()));
                 //找到最初不一致的地方，然后覆盖掉
@@ -91,13 +92,16 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
             if (request.getLogEntries().size() == 0) {
                 logger.info("heart beat request at term:" + request.getTerm() +
-                " ,local host term:" + raftNode.getCurrentTerm());
+                " ,local host term:" + raftNode.getCurrentTerm() +
+                " ,local serverId=" + raftServer.getServerId());
                 response.setTerm(raftNode.getCurrentTerm());
                 response.setServerId(raftServer.getServerId());
                 response.setSuccess(true);
                 response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
                 //sync
                 applyLogOnStateMachine(request);
+                //reset election
+                raftCore.resetElectionTimer();
                 return response;
             }
 
@@ -122,7 +126,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             applyLogOnStateMachine(request);
             logger.info("Append entries request from server:" + request.getServerId() + " in term:" +
             request.getTerm() + " (my term is " + raftNode.getCurrentTerm() + ") " +
-            ", entryCount=" + request.getLogEntries().size() + " result:" + response.isSuccess());
+            " ,entryCount=" + request.getLogEntries().size() + " result:" + response.isSuccess());
             return response;
         } finally {
             raftNode.getLock().unlock();
@@ -131,6 +135,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
     //apply on state machine
     private void applyLogOnStateMachine(AddRequest request) {
+        logger.info("begin to apply log on state machine, local server=" + raftNode.getRaftServer().getServerId());
         //can't longer than leader
         long newCommitIndex = Math.min(request.getLeaderCommit(),
                 request.getPrevLogIndex() + request.getLogEntries().size());
