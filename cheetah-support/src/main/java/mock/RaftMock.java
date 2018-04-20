@@ -1,7 +1,6 @@
 package mock;
 
 import constants.Globle;
-import jdk.nashorn.internal.objects.Global;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;

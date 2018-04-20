@@ -80,12 +80,12 @@ public class RaftClientServiceImpl implements RaftClientService {
                 " ,remote port=" + request.getRemotePort());
 
         RaftConsensusService raftConsensusService = getRaftConsensusService(request);
-        return raftConsensusService.commandExec(request);
+        return raftConsensusService.clientCommandExec(request);
     }
 
     private RaftConsensusService getRaftConsensusService(BaseRequest request) {
         int remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(), request.getRemotePort());
-        RpcConnectorWrapper connector = null;
+        RpcConnectorWrapper connector;
 
         if ((connector = connectorCache.get(remoteServerId)) == null) {
             //exist

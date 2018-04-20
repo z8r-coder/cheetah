@@ -12,8 +12,6 @@ import raft.core.server.RaftServer;
 import raft.demo.statemachine.ExampleStateMachine;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
-import rpc.demo.rpc.provider.HelloRpcService;
-import rpc.demo.rpc.provider.impl.HelloRpcServiceImpl;
 import rpc.wrapper.RpcAcceptorWrapper;
 import utils.Configuration;
 import utils.ParseUtils;

@@ -1,8 +1,6 @@
 package raft.core;
 
 import raft.protocol.request.CommandExecuteRequest;
-import raft.protocol.request.GetLeaderRequest;
-import raft.protocol.request.GetServerListRequest;
 import raft.protocol.response.CommandExecuteResponse;
 import raft.protocol.response.GetLeaderResponse;
 import raft.protocol.response.GetServerListResponse;

@@ -1,5 +1,3 @@
-import java.util.Scanner;
-
 /**
  * @author ruanxin
  * @create 2018-04-14

@@ -1,6 +1,5 @@
 package raft.core.server;
 
-import raft.utils.RaftUtils;
 import utils.ParseUtils;
 
 /**

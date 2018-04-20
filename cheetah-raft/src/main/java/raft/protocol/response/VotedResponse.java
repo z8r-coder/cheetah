@@ -1,7 +1,5 @@
 package raft.protocol.response;
 
-import raft.protocol.response.RaftResponse;
-
 /**
  * @author ruanxin
  * @create 2018-03-30

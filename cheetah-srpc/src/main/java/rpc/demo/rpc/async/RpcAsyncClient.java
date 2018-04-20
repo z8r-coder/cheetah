@@ -1,7 +1,6 @@
 package rpc.demo.rpc.async;
 
 import org.apache.log4j.Logger;
-import rpc.async.RpcCallback;
 import rpc.client.AsyncClientRemoteExecutor;
 import rpc.client.SimpleClientRemoteProxy;
 import rpc.demo.rpc.provider.HelloRpcService;

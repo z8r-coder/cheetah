@@ -3,7 +3,6 @@ package rpc;
 import rpc.async.RpcCallback;
 import rpc.client.AbstractClientRemoteExecutor;
 import rpc.client.AsyncClientRemoteExecutor;
-import rpc.demo.rpc.provider.HelloRpcService;
 import rpc.wrapper.RpcConnectorWrapper;
 
 /**

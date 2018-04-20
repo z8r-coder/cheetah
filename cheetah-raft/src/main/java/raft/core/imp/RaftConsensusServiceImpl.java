@@ -4,7 +4,8 @@ import org.apache.log4j.Logger;
 import raft.core.RaftConsensusService;
 import raft.core.RaftCore;
 import raft.core.server.RaftServer;
-import raft.protocol.*;
+import raft.protocol.RaftLog;
+import raft.protocol.RaftNode;
 import raft.protocol.request.*;
 import raft.protocol.response.*;
 

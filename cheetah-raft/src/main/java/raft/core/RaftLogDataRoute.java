@@ -1,10 +1,7 @@
 package raft.core;
 
-import models.RaftIndexInfo;
 import raft.protocol.RaftLog;
 import raft.protocol.Segment;
-import raft.utils.RaftUtils;
-import utils.ParseUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;

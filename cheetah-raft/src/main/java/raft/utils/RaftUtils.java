@@ -1,7 +1,6 @@
 package raft.utils;
 
 import org.apache.log4j.Logger;
-import raft.core.RaftLogDataRoute;
 
 import java.io.File;
 import java.io.FileNotFoundException;
