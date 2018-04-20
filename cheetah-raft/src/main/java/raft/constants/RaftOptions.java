@@ -18,6 +18,8 @@ public class RaftOptions {
     private int raftFutureTimeOut = 5;
     //100M per log file
     private int maxLogSizePerFile = 1024 * 1024 * 100;
+    //log replication max time out await
+    private long maxAwaitTimeout = 500;
 
     public int getElectionTimeOutMilliSec() {
         return electionTimeOutMilliSec;
@@ -57,6 +59,14 @@ public class RaftOptions {
 
     public void setRaftConsensusThreadNum(int raftConsensusThreadNum) {
         this.raftConsensusThreadNum = raftConsensusThreadNum;
+    }
+
+    public long getMaxAwaitTimeout() {
+        return maxAwaitTimeout;
+    }
+
+    public void setMaxAwaitTimeout(long maxAwaitTimeout) {
+        this.maxAwaitTimeout = maxAwaitTimeout;
     }
 
     public int getMaxLogSizePerFile() {

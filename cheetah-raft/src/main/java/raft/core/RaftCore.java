@@ -8,14 +8,17 @@ import raft.core.server.RaftServer;
 import raft.core.server.ServerNode;
 import raft.protocol.*;
 import raft.protocol.request.AddRequest;
+import raft.protocol.request.CommandExecuteRequest;
 import raft.protocol.request.VotedRequest;
 import raft.protocol.response.AddResponse;
+import raft.protocol.response.CommandExecuteResponse;
 import raft.protocol.response.VotedResponse;
 import rpc.async.RpcCallback;
 import utils.ParseUtils;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -28,9 +31,10 @@ public class RaftCore {
     private Logger logger = Logger.getLogger(RaftCore.class);
 
     private Lock lock = new ReentrantLock();
+    private Condition commitIndexCondition = lock.newCondition();
 
-    RaftNode raftNode;
-    int asyncVoteNum;
+    private RaftNode raftNode;
+    private int asyncVoteNum;
     private RaftOptions raftOptions;
     private Map<Integer, String> serverList;
     private Map<Integer, ServerNode> serverNodeCache = new ConcurrentHashMap<>();
@@ -186,6 +190,73 @@ public class RaftCore {
         resetElectionTimer();
     }
 
+    /**
+     * redirect leader
+     * @param request
+     * @return
+     */
+    public CommandExecuteResponse redirectLeader (CommandExecuteRequest request) {
+        int leaderId = raftNode.getLeaderId();
+        ServerNode serverNode = serverNodeCache.get(leaderId);
+        //sync rpc call
+        if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
+                serverNode.getSyncProxy().STOP) {
+            logger.debug("serverId=" + serverNode.getRaftServer().getServerId() + " need to start sync proxy!");
+            serverNode.getSyncProxy().startService();
+        }
+        CommandExecuteResponse response = serverNode.getRaftConsensusService().clientCommandExec(request);
+        logger.info("local serverId=" + raftNode.getRaftServer().getServerId() + " return response!");
+        return response;
+    }
+
+    /**
+     * log replication
+     */
+    public boolean logReplication (byte[] data) {
+        lock.lock();
+        long newLastLogIndex = 0;
+        try {
+            if (raftNode.getRaftServer().getServerState() !=
+                    RaftServer.NodeState.LEADER) {
+                logger.debug("local serverId=" + raftNode.getRaftServer().getServerId() + " not leader!");
+                return false;
+            }
+            RaftLog.LogEntry logEntry = new RaftLog.LogEntry(raftNode.getCurrentTerm(),
+                    raftNode.getRaftLog().getLastLogIndex() + 1, data);
+            List<RaftLog.LogEntry> entries = new ArrayList<>();
+            entries.add(logEntry);
+            newLastLogIndex = raftNode.getRaftLog().append(entries);
+
+            for (Integer serverId : serverList.keySet()) {
+                final ServerNode serverNode = serverNodeCache.get(serverId);
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        appendEntries(serverNode);
+                    }
+                });
+            }
+
+            //sync commitIndex >= newLastLogIndex
+            long startTime = System.currentTimeMillis();
+            while (raftNode.getRaftLog().getLastApplied() < newLastLogIndex) {
+                if (System.currentTimeMillis() - startTime >= raftOptions.getMaxAwaitTimeout()) {
+                    break;
+                }
+                commitIndexCondition.await(raftOptions.getMaxAwaitTimeout(), TimeUnit.MILLISECONDS);
+            }
+        } catch (Exception ex) {
+            logger.info("logReplication occurs ex!",ex);
+        } finally {
+            lock.unlock();
+        }
+        logger.info("lastAppliedIndex=" + raftNode.getRaftLog().getLastApplied() +
+        " ,newLastLogIndex=" + newLastLogIndex);
+        if (raftNode.getRaftLog().getLastApplied() < newLastLogIndex) {
+            return false;
+        }
+        return true;
+    }
     /**
      * rpc call
      * @param serverNode

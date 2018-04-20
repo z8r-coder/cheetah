@@ -152,8 +152,32 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     }
 
     @Override
-    public CommandExecuteResponse commandExec(CommandExecuteRequest request) {
-        return null;
+    public CommandExecuteResponse clientCommandExec(CommandExecuteRequest request) {
+        logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
+        " ,remote host=" + request.getRemoteHost());
+        CommandExecuteResponse response = new CommandExecuteResponse(raftNode.getRaftServer().getServerId());
+        if (raftNode.getLeaderId() <= 0) {
+            //have not election leader
+            logger.info("there is no leader, local serverId=" + raftNode.getRaftServer().getServerId());
+            response.setCommandRtr("no leader!");
+            return response;
+        } else if (raftNode.getRaftServer().getServerState() != RaftServer.NodeState.LEADER) {
+            //重定向给leader
+            logger.info("redirect to leader=" + raftNode.getLeaderId());
+            CommandExecuteResponse resp = raftCore.redirectLeader(request);
+            return resp;
+        } else {
+            //leader, do log Replication
+            logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
+            " begin do log replication");
+            boolean result = raftCore.logReplication(request.getCommand().getBytes());
+            if (result) {
+                response.setCommandRtr("command execute successful!");
+            } else {
+                response.setCommandRtr("command execute fail!");
+            }
+            return response;
+        }
     }
 
     //apply on state machine

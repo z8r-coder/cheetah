@@ -9,6 +9,10 @@ public class CommandExecuteResponse extends RaftResponse {
 
     private String commandRtr;
 
+    public CommandExecuteResponse (int serverId) {
+        super(serverId);
+    }
+
     public CommandExecuteResponse(int serverId, String commandRtr) {
         super(serverId);
         this.commandRtr = commandRtr;

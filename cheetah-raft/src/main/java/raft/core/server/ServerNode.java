@@ -62,11 +62,6 @@ public class ServerNode {
 
     }
 
-    public void startService() {
-        syncProxy.startService();
-        asyncProxy.startService();
-    }
-
     public static void main(String[] args) {
         RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(Globle.localHost, Globle.localPortTest1);
         acceptor.startService();
