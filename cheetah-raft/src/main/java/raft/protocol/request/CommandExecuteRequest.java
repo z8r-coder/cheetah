@@ -2,12 +2,14 @@ package raft.protocol.request;
 
 import raft.model.BaseRequest;
 
+import java.io.Serializable;
+
 /**
  * @author ruanxin
  * @create 2018-04-19
  * @desc
  */
-public class CommandExecuteRequest extends BaseRequest {
+public class CommandExecuteRequest extends BaseRequest implements Serializable {
 
     private String command;
     private int serverId;

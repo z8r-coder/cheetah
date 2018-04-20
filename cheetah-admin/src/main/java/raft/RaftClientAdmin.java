@@ -1,5 +1,11 @@
 package raft;
 
+import raft.core.RaftClientService;
+import raft.core.client.RaftClientServiceImpl;
+import raft.protocol.response.GetLeaderResponse;
+import raft.protocol.response.GetServerListResponse;
+
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -9,27 +15,69 @@ import java.util.Scanner;
  */
 public class RaftClientAdmin {
 
-    public static void main(String[] args) {
+    private RaftClientService raftClientService;
+
+    public RaftClientAdmin (RaftClientService raftClientService) {
+        this.raftClientService = raftClientService;
+    }
+
+    public void scanInputAndParse () {
         Scanner scanner = new Scanner(System.in);
         System.out.print(">");
-        String str;
         while (true) {
             String line = scanner.nextLine().trim();
             if (line.length() == 0) {
                 System.out.print(">");
                 continue;
             }
-//            System.out.println(line.trim());
             String[] lineArr = line.split("\\ ");
             if (lineArr[0].equals("get")) {
+                if (lineArr[1].equals("leader")) {
+                    if (lineArr.length > 2) {
+                        System.out.println("wrong syntax!");
+                    } else {
+                        //execute command
+                        GetLeaderResponse response = raftClientService.getLeader();
+                        if (response == null) {
+                            System.out.println("request time out!");
+                        } else {
+                            System.out.println(response.getLeaderId());
+                        }
+                    }
+                } else if (lineArr[1].equals("servers")) {
+                    if (lineArr.length > 2) {
+                        System.out.println("wrong syntax!");
+                    } else {
+                        //execute command
+                        GetServerListResponse response = raftClientService.getServerList();
+                        if (response == null) {
+                            System.out.println("request time out!");
+                        } else {
+                            Map<Integer, String> serverList = response.getServerList();
+                            for (String value : serverList.values()) {
+                                System.out.println(value);
+                            }
+                        }
+                    }
+                } else {
+                    //get value from kv system
 
+                }
+            } else if (lineArr[0].equals("set")) {
+                //set value from kv system
             } else if (lineArr[0].equals("exit")) {
                 break;
             } else {
-                System.out.println(line);
                 System.out.println("wrong syntax!");
             }
             System.out.print(">");
+
         }
+
+    }
+    public static void main(String[] args) {
+        RaftClientService raftClientService = new RaftClientServiceImpl();
+        RaftClientAdmin raftClientAdmin = new RaftClientAdmin(raftClientService);
+        raftClientAdmin.scanInputAndParse();
     }
 }

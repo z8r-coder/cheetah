@@ -7,7 +7,7 @@ package raft.protocol.response;
  */
 public class GetLeaderResponse extends RaftResponse {
 
-    public int leaderId;
+    private int leaderId;
 
     public GetLeaderResponse(int serverId, int leaderId) {
         super(serverId);

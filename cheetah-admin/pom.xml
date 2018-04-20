@@ -52,6 +52,11 @@
             <artifactId>cheetah-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.roy.cheetah</groupId>
+            <artifactId>cheetah-raft</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>
