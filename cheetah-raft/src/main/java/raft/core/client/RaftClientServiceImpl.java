@@ -47,7 +47,8 @@ public class RaftClientServiceImpl implements RaftClientService {
     public GetLeaderResponse getLeader() {
         //generate request
         GetLeaderRequest request = new GetLeaderRequest();
-        setAddress(request);
+        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
+                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
 
         logger.info("client getLeader request ,remote host=" + request.getRemoteHost() +
         " ,remote port=" + request.getRemotePort());
@@ -60,7 +61,8 @@ public class RaftClientServiceImpl implements RaftClientService {
     public GetServerListResponse getServerList() {
         //generate request
         GetServerListRequest request = new GetServerListRequest();
-        setAddress(request);
+        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
+                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
 
         logger.info("client getServerList request ,remote host=" + request.getRemoteHost() +
         " ,remote port=" + request.getRemotePort());
@@ -71,7 +73,8 @@ public class RaftClientServiceImpl implements RaftClientService {
 
     @Override
     public CommandExecuteResponse commandExec(CommandExecuteRequest request) {
-        setAddress(request);
+        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
+                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
 
         logger.info("client commandExec request ,remote host=" + request.getRemoteHost() +
                 " ,remote port=" + request.getRemotePort());
@@ -94,14 +97,6 @@ public class RaftClientServiceImpl implements RaftClientService {
         connector.startService();
         SimpleClientRemoteProxy proxy = connector.getProxy();
         return proxy.registerRemote(RaftConsensusService.class);
-    }
-    /**
-     * set address
-     * @param request
-     */
-    private void setAddress(BaseRequest request) {
-        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
-                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
     }
 
     public static void main(String[] args) {

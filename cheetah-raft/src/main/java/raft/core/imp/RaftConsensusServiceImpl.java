@@ -46,7 +46,6 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                     raftNode.getCurrentTerm(),
                     false);
             if (request == null) {
-                // TODO: 2018/4/18 need to change it to debug
                 logger.debug("appendEntries, but request=null");
                 return response;
             }

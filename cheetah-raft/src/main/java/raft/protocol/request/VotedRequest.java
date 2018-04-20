@@ -28,6 +28,15 @@ public class VotedRequest extends BaseRequest implements Serializable {
         this.lastLogTerm = lastLogTerm;
     }
 
+    public void setAddress(String localHost, int localPort,
+                           String remoteHost, int remotePort, int serverId) {
+        this.localHost = localHost;
+        this.localPort = localPort;
+        this.remoteHost = remoteHost;
+        this.remotePort = remotePort;
+        this.serverId = serverId;
+    }
+
     public int getTerm() {
         return term;
     }

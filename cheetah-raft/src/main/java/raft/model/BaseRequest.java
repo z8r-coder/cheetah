@@ -6,20 +6,11 @@ package raft.model;
  * @desc
  */
 public class BaseRequest {
-    private String localHost;
-    private int localPort;
-    private String remoteHost;
-    private int remotePort;
-    private int serverId;
+    protected String localHost;
+    protected int localPort;
+    protected String remoteHost;
+    protected int remotePort;
 
-    public void setAddress(String localHost, int localPort,
-                           String remoteHost, int remotePort, int serverId) {
-        this.localHost = localHost;
-        this.localPort = localPort;
-        this.remoteHost = remoteHost;
-        this.remotePort = remotePort;
-        this.serverId = serverId;
-    }
     public String getLocalHost() {
         return localHost;
     }
@@ -50,13 +41,5 @@ public class BaseRequest {
 
     public void setRemotePort(int remotePort) {
         this.remotePort = remotePort;
-    }
-
-    public int getServerId() {
-        return serverId;
-    }
-
-    public void setServerId(int serverId) {
-        this.serverId = serverId;
     }
 }
