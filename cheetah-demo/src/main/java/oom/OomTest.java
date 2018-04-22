@@ -12,11 +12,9 @@ public class OomTest {
 
     public static void main(String[] args) {
         int limit = 1000000000;
-        String value = "abcadsadsadsadsadsadsadsadsadsadsadsadsadas";
-        Map<Integer, String> map = new HashMap<>(1000000000);
-        for (int i = 0; i < 2;i++) {
-            System.out.println(i);
-            map.put(i, value);
+        Map<Integer, Integer> map = new HashMap<>(100000000);
+        for (int i = 0; i < limit;i++) {
+            map.put(i, i);
         }
     }
 }
