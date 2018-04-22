@@ -239,11 +239,11 @@ public class DateUtil {
 
     public static boolean compareTime(String time) {
         return compareTime(time, getCurrDateStrWithDefaultLongTimeFormat(),
-            DTF_DEFAULT_LONG_TIME_FORMAT);
+            DEFAULT_PAY_FORMAT);
     }
 
     public static boolean compareTime(String time1, String time2) {
-        return compareTime(time1, time2, DTF_DEFAULT_LONG_TIME_FORMAT);
+        return compareTime(time1, time2, DEFAULT_PAY_FORMAT);
     }
 
     public static boolean compareTime(String time1, String time2, String dateFormat) {
@@ -348,7 +348,7 @@ public class DateUtil {
     }
 
     public static String getCurrDateStrWithDefaultLongTimeFormat() {
-        return getCurrDateStr(DEFAULT_LONG_TIME_FORMAT);
+        return getCurrDateStr(DEFAULT_PAY_FORMAT);
     }
 
     /**

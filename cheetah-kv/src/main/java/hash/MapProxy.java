@@ -3,7 +3,6 @@ package hash;
 import org.apache.log4j.Logger;
 import utils.DateUtil;
 
-import java.util.Map;
 
 /**
  * @author ruanxin
@@ -124,6 +123,17 @@ public class MapProxy {
     public static void main(String[] args) {
         MapProxy proxy = new MapProxy();
         proxy.set("test", "test".getBytes(), 5, DateUtil.TimeUnit.ss);
-        System.out.println(proxy.get("test"));
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        byte[] data = proxy.get("test");
+        if (data == null) {
+            System.out.println("null");
+        } else {
+            String str = new String(data);
+            System.out.println(str);
+        }
     }
 }
