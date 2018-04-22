@@ -64,7 +64,7 @@ public class DateUtil {
     public final static String JAVA_MIN_LONG_DATE_STR         = "1970-01-01 00:00:00:00";
 
     /**
-     * 支付传输默认时间格式
+     * 默认时间格式
      */
     public final static String DEFAULT_PAY_FORMAT             = "yyyyMMddHHmmss";
 
@@ -492,6 +492,6 @@ public class DateUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(add(TimeUnit.mm, 5));
+        System.out.println(convertDateToStr(add(TimeUnit.mm, 5), DEFAULT_PAY_FORMAT));
     }
 }

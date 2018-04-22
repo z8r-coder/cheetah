@@ -10,10 +10,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * @create 2018-04-22
  * @desc on heap
  */
-public class CheetahMap implements Map<String, byte[]> {
+public class CheetahMap implements Map<String, ExpEntryValue> {
 
     private int byteSize;
-    private Map<String, byte[]> map;
+    private Map<String, ExpEntryValue> map;
+
+    public CheetahMap () {
+        byteSize = 0;
+        map = new ConcurrentHashMap<>();
+    }
 
     public CheetahMap (int initCap) {
         byteSize = 0;
@@ -41,18 +46,17 @@ public class CheetahMap implements Map<String, byte[]> {
     }
 
     @Override
-    public byte[] get(Object key) {
+    public ExpEntryValue get(Object key) {
         return map.get(key);
     }
 
     @Override
-    public byte[] put(String key, byte[] value) {
-        byteSize += value.length;
+    public ExpEntryValue put(String key, ExpEntryValue value) {
         return map.put(key, value);
     }
 
     @Override
-    public byte[] remove(Object key) {
+    public ExpEntryValue remove(Object key) {
         return map.remove(key);
     }
 
@@ -78,9 +82,10 @@ public class CheetahMap implements Map<String, byte[]> {
     }
 
     @Override
-    public Set<Entry<String, byte[]>> entrySet() {
+    public Set<Entry<String, ExpEntryValue>> entrySet() {
         return map.entrySet();
     }
+
 
     public int getByteSize() {
         return byteSize;
