@@ -17,6 +17,7 @@
         <module>cheetah-common</module>
         <module>cheetah-demo</module>
         <module>cheetah-admin</module>
+        <module>cheetah-cluster</module>
     </modules>
 
     <dependencies>
