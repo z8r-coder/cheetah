@@ -3,6 +3,10 @@ package hash;
 import org.apache.log4j.Logger;
 import utils.DateUtil;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * @author ruanxin
@@ -120,20 +124,42 @@ public class MapProxy {
         return delegateMap.getByteSize();
     }
 
+    public Collection values() {
+        return delegateMap.values();
+    }
+
+    public Set<String> keySet () {
+        return delegateMap.keySet();
+    }
+    public Set<Map.Entry<String, ExpEntryValue>> entrySet() {
+        return delegateMap.entrySet();
+    }
+
     public static void main(String[] args) {
         MapProxy proxy = new MapProxy();
         proxy.set("test", "test".getBytes(), 5, DateUtil.TimeUnit.ss);
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        for (int i = 0; i < 10;i++) {
+            proxy.set(i + "t", "test".getBytes());
         }
-        byte[] data = proxy.get("test");
-        if (data == null) {
-            System.out.println("null");
-        } else {
-            String str = new String(data);
-            System.out.println(str);
+        for (String key : proxy.keySet()) {
+            if (key.equals("5t") || key.equals("6t")) {
+                proxy.remove(key);
+            }
         }
+        for (String key : proxy.keySet()) {
+            System.out.println(key);
+        }
+//        try {
+//            Thread.sleep(4000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        byte[] data = proxy.get("test");
+//        if (data == null) {
+//            System.out.println("null");
+//        } else {
+//            String str = new String(data);
+//            System.out.println(str);
+//        }
     }
 }

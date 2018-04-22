@@ -72,7 +72,7 @@ public class CheetahMap implements Map<String, ExpEntryValue> {
     }
 
     @Override
-    public Set keySet() {
+    public Set<String> keySet() {
         return map.keySet();
     }
 
