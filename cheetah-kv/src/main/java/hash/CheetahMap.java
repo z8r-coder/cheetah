@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @create 2018-04-22
  * @desc on heap
  */
-public class CheetahMap implements Map {
+public class CheetahMap implements Map<String, byte[]> {
 
     private Map<String, byte[]> map;
 
@@ -20,61 +20,62 @@ public class CheetahMap implements Map {
 
     @Override
     public int size() {
-        return 0;
+        return map.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return map.isEmpty();
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return false;
+        return map.containsKey(key);
     }
 
     @Override
     public boolean containsValue(Object value) {
-        return false;
+        return map.containsKey(value);
     }
 
     @Override
-    public Object get(Object key) {
-        return null;
+    public byte[] get(Object key) {
+        return map.get(key);
     }
 
     @Override
-    public Object put(Object key, Object value) {
-        return null;
+    public byte[] put(String key, byte[] value) {
+        return map.put(key, value);
     }
 
     @Override
-    public Object remove(Object key) {
-        return null;
+    public byte[] remove(Object key) {
+        return map.remove(key);
     }
+
 
     @Override
     public void putAll(Map m) {
-
+        map.putAll(m);
     }
 
     @Override
     public void clear() {
-
+        map.clear();
     }
 
     @Override
     public Set keySet() {
-        return null;
+        return map.keySet();
     }
 
     @Override
     public Collection values() {
-        return null;
+        return map.values();
     }
 
     @Override
-    public Set<Entry> entrySet() {
-        return null;
+    public Set<Entry<String, byte[]>> entrySet() {
+        return map.entrySet();
     }
 }
