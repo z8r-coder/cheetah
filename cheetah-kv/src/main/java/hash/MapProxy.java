@@ -77,6 +77,11 @@ public class MapProxy {
         }
     }
 
+    /**
+     * get and clear exp data
+     * @param key
+     * @return
+     */
     public byte[] get(String key) {
         ExpEntryValue value = delegateMap.get(key);
         if (value == null) {
@@ -92,6 +97,11 @@ public class MapProxy {
         return value.getData();
     }
 
+    /**
+     * get exp time
+     * @param key
+     * @return
+     */
     public String getKvExpTime (String key) {
         ExpEntryValue value = delegateMap.get(key);
         if (value == null) {
