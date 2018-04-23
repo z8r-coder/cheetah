@@ -27,23 +27,12 @@ public interface RaftClientService {
 
     /**
      * kv get value by key
-     * @param key
-     * @return
+
      */
     public String getValue(String key);
 
     /**
-     * set kv without exp time
+     * set kv
      */
-    public boolean set(String key, String value);
-
-    /**
-     * set kv with exp time time unit:default mm
-     */
-    public boolean set(String key, String value, int expTime);
-
-    /**
-     * set kv with exp time and time unit
-     */
-    public boolean set(String key, String value, int expTime, DateUtil.TimeUnit timeUnit);
+    public String set(String command);
 }

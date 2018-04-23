@@ -9,6 +9,10 @@ public class GetValueResponse extends RaftResponse {
 
     private String value;
 
+    public GetValueResponse(int serverId) {
+        super(serverId);
+    }
+
     public GetValueResponse(int serverId, String value) {
         super(serverId);
         this.value = value;

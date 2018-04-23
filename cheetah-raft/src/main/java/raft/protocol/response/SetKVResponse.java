@@ -9,6 +9,10 @@ public class SetKVResponse extends RaftResponse{
 
     private String respMessage;
 
+    public SetKVResponse(int serverId) {
+        super(serverId);
+    }
+
     public SetKVResponse(int serverId, String respMessage) {
         super(serverId);
         this.respMessage = respMessage;

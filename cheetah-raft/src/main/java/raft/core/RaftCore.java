@@ -8,12 +8,8 @@ import raft.core.server.RaftServer;
 import raft.core.server.ServerNode;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
-import raft.protocol.request.AddRequest;
-import raft.protocol.request.CommandExecuteRequest;
-import raft.protocol.request.VotedRequest;
-import raft.protocol.response.AddResponse;
-import raft.protocol.response.CommandExecuteResponse;
-import raft.protocol.response.VotedResponse;
+import raft.protocol.request.*;
+import raft.protocol.response.*;
 import rpc.async.RpcCallback;
 import utils.ParseUtils;
 
@@ -192,22 +188,40 @@ public class RaftCore {
     }
 
     /**
-     * redirect leader
-     * @param request
+     * set redirect leader
+     */
+    public SetKVResponse setRedirectLeader (SetKVRequest request) {
+        ServerNode serverNode = getServerNodeById(raftNode.getLeaderId());
+        return serverNode.getRaftConsensusService().setKV(request);
+    }
+
+    public GetValueResponse getRedirectLeader (GetValueRequest request) {
+        ServerNode serverNode = getServerNodeById(raftNode.getLeaderId());
+        return serverNode.getRaftConsensusService().getValue(request);
+    }
+
+    /**
+     * get serverNode by server node cache
+     * @param serverId
      * @return
      */
-    public CommandExecuteResponse redirectLeader (CommandExecuteRequest request) {
-        int leaderId = raftNode.getLeaderId();
-        ServerNode serverNode = serverNodeCache.get(leaderId);
+    private ServerNode getServerNodeById(int serverId) {
+        ServerNode serverNode = serverNodeCache.get(serverId);
         //sync rpc call
         if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
                 serverNode.getSyncProxy().STOP) {
-            logger.debug("serverId=" + serverNode.getRaftServer().getServerId() + " need to start sync proxy!");
+            logger.debug("serverId=" + serverNode.getRaftServer().getServerId() + "" +
+                    " need to start sync proxy!");
             serverNode.getSyncProxy().startService();
         }
-        CommandExecuteResponse response = serverNode.getRaftConsensusService().clientCommandExec(request);
-        logger.info("local serverId=" + raftNode.getRaftServer().getServerId() + " return response!");
-        return response;
+        return serverNode;
+    }
+
+    /**
+     * get value
+     */
+    public byte[] getValue (String key) {
+        return raftNode.getStateMachine().get(key);
     }
 
     /**

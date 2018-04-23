@@ -16,11 +16,6 @@ public interface RaftConsensusService {
     public VotedResponse leaderElection(VotedRequest request);
 
     /**
-     * reset timeout
-     */
-    public void resetTimeOut();
-
-    /**
      * append entry
      */
     public AddResponse appendEntries (AddRequest request);
@@ -36,9 +31,12 @@ public interface RaftConsensusService {
     public GetServerListResponse getServerList (GetServerListRequest request);
 
     /**
-     * command exec
+     * get value
      */
-    public CommandExecuteResponse clientCommandExec (CommandExecuteRequest request);
+    public GetValueResponse getValue(GetValueRequest request);
 
-
+    /**
+     * set key value
+     */
+    public SetKVResponse setKV(SetKVRequest request);
 }

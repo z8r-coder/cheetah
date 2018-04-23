@@ -12,9 +12,8 @@ public class GetValueRequest extends BaseRequest {
     //direct log
     private int serverId;
 
-    public GetValueRequest (String key, int serverId) {
+    public GetValueRequest (String key) {
         this.key = key;
-        this.serverId = serverId;
     }
 
     public void setAddress(String localHost, int localPort,

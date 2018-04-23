@@ -3,6 +3,7 @@ import raft.core.RaftClientService;
 import raft.core.StateMachine;
 import raft.core.client.RaftClientServiceImpl;
 import raft.protocol.response.GetLeaderResponse;
+import utils.TimeUnitMap;
 
 /**
  * @author ruanxin
@@ -28,5 +29,25 @@ public class CheetahStateMachine implements StateMachine {
     public void submit(byte[] data) {
         String command = new String(data);
         String[] commandArr = command.split("\\ ");
+        boolean result;
+        //set key value 5 mm
+        if (commandArr.length == 3) {
+            result = mapProxy.set(commandArr[1], commandArr[2].getBytes());
+        } else if (commandArr.length == 4) {
+            result = mapProxy.set(commandArr[1], commandArr[2].getBytes(),
+                    Integer.parseInt(commandArr[3]));
+        } else if (commandArr.length == 5) {
+            result = mapProxy.set(commandArr[1], commandArr[2].getBytes(),
+                    Integer.parseInt(commandArr[3]), TimeUnitMap.tuMap.get(commandArr[4]).getTimeUnit());
+        } else {
+            result = false;
+        }
     }
+
+    @Override
+    public byte[] get(String key) {
+        return mapProxy.get(key);
+    }
+
+
 }

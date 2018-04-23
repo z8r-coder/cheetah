@@ -4,12 +4,8 @@ import org.apache.log4j.Logger;
 import raft.core.RaftClientService;
 import raft.core.RaftConsensusService;
 import raft.model.BaseRequest;
-import raft.protocol.request.CommandExecuteRequest;
-import raft.protocol.request.GetLeaderRequest;
-import raft.protocol.request.GetServerListRequest;
-import raft.protocol.response.CommandExecuteResponse;
-import raft.protocol.response.GetLeaderResponse;
-import raft.protocol.response.GetServerListResponse;
+import raft.protocol.request.*;
+import raft.protocol.response.*;
 import rpc.client.SimpleClientRemoteProxy;
 import rpc.wrapper.RpcConnectorWrapper;
 import rpc.wrapper.connector.RpcServerSyncConnector;
@@ -74,24 +70,31 @@ public class RaftClientServiceImpl implements RaftClientService {
 
     @Override
     public String getValue(String key) {
-        return null;
+        //generate request
+        GetValueRequest request = new GetValueRequest(key);
+        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
+                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
+        logger.info("client get value request ,remote host=" + request.getRemoteHost() +
+                " ,remote port=" + request.getRemotePort());
+
+        RaftConsensusService raftConsensusService = getRaftConsensusService(request);
+        GetValueResponse response = raftConsensusService.getValue(request);
+        return response.getValue();
     }
 
     @Override
-    public boolean set(String key, String value) {
-        return false;
-    }
+    public String set(String command) {
+        //generate request
+        SetKVRequest request = new SetKVRequest(command);
+        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
+                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
+        logger.info("client set kv request ,remote host=" + request.getRemoteHost() +
+                " ,remote port=" + request.getRemotePort());
 
-    @Override
-    public boolean set(String key, String value, int expTime) {
-        return false;
+        RaftConsensusService raftConsensusService = getRaftConsensusService(request);
+        SetKVResponse response = raftConsensusService.setKV(request);
+        return response.getRespMessage();
     }
-
-    @Override
-    public boolean set(String key, String value, int expTime, DateUtil.TimeUnit timeUnit) {
-        return false;
-    }
-
 
     private RaftConsensusService getRaftConsensusService(BaseRequest request) {
         int remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(), request.getRemotePort());

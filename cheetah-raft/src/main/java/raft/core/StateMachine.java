@@ -8,7 +8,9 @@ package raft.core;
 public interface StateMachine {
 
     /**
-     * submit the log entries to state machine
+     * submit the log entries to state machine, only write
      */
     public void submit(byte[] data);
+
+    public byte[] get(String key);
 }

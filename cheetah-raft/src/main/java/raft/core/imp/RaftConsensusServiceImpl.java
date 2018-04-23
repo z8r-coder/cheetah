@@ -35,10 +35,6 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         return null;
     }
 
-    public void resetTimeOut() {
-        raftCore.resetElectionTimer();
-    }
-
     public AddResponse appendEntries(AddRequest request) {
         raftNode.getLock().lock();
         try {
@@ -152,39 +148,53 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         return response;
     }
 
-
-    /**
-     * only write
-     * @param request
-     * @return
-     */
     @Override
-    public CommandExecuteResponse clientCommandExec(CommandExecuteRequest request) {
+    public GetValueResponse getValue(GetValueRequest request) {
         logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
         " ,remote host=" + request.getRemoteHost());
-        CommandExecuteResponse response = new CommandExecuteResponse(raftNode.getRaftServer().getServerId());
+        GetValueResponse response = new GetValueResponse(raftNode.getRaftServer().getServerId());
         if (raftNode.getLeaderId() <= 0) {
             //have not election leader
             logger.info("there is no leader, local serverId=" + raftNode.getRaftServer().getServerId());
-            response.setCommandRtr("no leader!");
-            return response;
+            response.setValue(null);
         } else if (raftNode.getRaftServer().getServerState() != RaftServer.NodeState.LEADER) {
-            //重定向给leader
+            //redirect to leader
             logger.info("redirect to leader=" + raftNode.getLeaderId());
-            CommandExecuteResponse resp = raftCore.redirectLeader(request);
-            return resp;
+            response = raftCore.getRedirectLeader(request);
         } else {
-            //leader, do log Replication
-            logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
-            " begin do log replication");
-            boolean result = raftCore.logReplication(request.getCommand().getBytes());
-            if (result) {
-                response.setCommandRtr("command execute successful!");
+            byte[] result = raftCore.getValue(request.getKey());
+            if (result == null || result.length == 0) {
+                response.setValue(null);
             } else {
-                response.setCommandRtr("command execute fail!");
+                String resStr = new String(result);
+                response.setValue(resStr);
             }
-            return response;
         }
+        return response;
+    }
+
+    @Override
+    public SetKVResponse setKV(SetKVRequest request) {
+        logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
+                " ,remote host=" + request.getRemoteHost());
+        SetKVResponse response = new SetKVResponse(raftNode.getRaftServer().getServerId());
+        if (raftNode.getLeaderId() <= 0) {
+            //have not election leader
+            logger.info("there is no leader, local serverId=" + raftNode.getRaftServer().getServerId());
+            response.setRespMessage("set fail!there is no leader!");
+        } else if (raftNode.getRaftServer().getServerState() != RaftServer.NodeState.LEADER) {
+            //redirect to leader
+            logger.info("redirect to leader=" + raftNode.getLeaderId());
+            response = raftCore.setRedirectLeader(request);
+        } else {
+            boolean result = raftCore.logReplication(request.getSetCommand().getBytes());
+            if (result) {
+                response.setRespMessage("successful!");
+            } else {
+                response.setRespMessage("set fail!");
+            }
+        }
+        return response;
     }
 
     //apply on state machine
