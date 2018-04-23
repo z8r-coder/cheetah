@@ -66,8 +66,4 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
         }
         return cacheServerList;
     }
-
-    public static void main(String[] args) {
-
-    }
 }

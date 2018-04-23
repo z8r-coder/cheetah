@@ -152,6 +152,12 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         return response;
     }
 
+
+    /**
+     * only write
+     * @param request
+     * @return
+     */
     @Override
     public CommandExecuteResponse clientCommandExec(CommandExecuteRequest request) {
         logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +

@@ -248,6 +248,7 @@ public class RaftCore {
             }
         } catch (Exception ex) {
             logger.info("logReplication occurs ex!",ex);
+            return false;
         } finally {
             lock.unlock();
         }

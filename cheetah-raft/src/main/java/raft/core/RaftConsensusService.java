@@ -39,4 +39,6 @@ public interface RaftConsensusService {
      * command exec
      */
     public CommandExecuteResponse clientCommandExec (CommandExecuteRequest request);
+
+
 }
