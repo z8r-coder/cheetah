@@ -2,7 +2,6 @@ package raft.core.imp;
 
 import raft.core.ParserGateWayService;
 import raft.core.RaftClientService;
-import raft.protocol.request.CommandExecuteRequest;
 import raft.protocol.request.CommandParseRequest;
 import raft.protocol.response.CommandParseResponse;
 import raft.protocol.response.GetLeaderResponse;
@@ -60,8 +59,17 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
                 if (commandArr.length > 2) {
                     return response;
                 }
+                String value = raftClientService.getValue(commandArr[1]);
+                response.setResult(value);
             }
+        } else if (commandArr[0].equals("set")) {
+            if (commandArr.length >= 3 && commandArr.length <= 5) {
+                String result = raftClientService.set(command);
+                response.setResult(result);
+                return response;
+            }
+            response.setResult(WRONG);
         }
-        return null;
+        return response;
     }
 }
