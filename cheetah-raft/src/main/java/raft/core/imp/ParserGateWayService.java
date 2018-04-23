@@ -5,5 +5,10 @@ package raft.core.imp;
  * @create 2018-04-23
  * @desc
  */
-public class ParserGateWayService {
+public class ParserGateWayService implements raft.core.ParserGateWayService{
+
+    @Override
+    public void parse(String command) {
+
+    }
 }
