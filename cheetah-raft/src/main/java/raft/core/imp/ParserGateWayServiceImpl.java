@@ -17,11 +17,9 @@ import java.util.Map;
 public class ParserGateWayServiceImpl implements ParserGateWayService {
 
     private final static String WRONG = "wrong syntax!";
-    private int serverId;
     private RaftClientService raftClientService;
 
-    public ParserGateWayServiceImpl (int serverId, RaftClientService raftClientService) {
-        this.serverId = serverId;
+    public ParserGateWayServiceImpl (RaftClientService raftClientService) {
         this.raftClientService = raftClientService;
     }
 
@@ -29,7 +27,7 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
     public CommandParseResponse parse(CommandParseRequest request) {
         String command = request.getCommand();
         String[] commandArr = command.split("\\ ");
-        CommandParseResponse response = new CommandParseResponse(serverId, WRONG);
+        CommandParseResponse response = new CommandParseResponse(WRONG);
         if (commandArr.length < 2) {
             return response;
         }

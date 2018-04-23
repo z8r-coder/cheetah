@@ -5,12 +5,11 @@ package raft.protocol.response;
  * @create 2018-04-23
  * @desc
  */
-public class CommandParseResponse extends RaftResponse{
+public class CommandParseResponse{
 
     private String result;
 
-    public CommandParseResponse(int serverId, String result) {
-        super(serverId);
+    public CommandParseResponse(String result) {
         this.result = result;
     }
 
