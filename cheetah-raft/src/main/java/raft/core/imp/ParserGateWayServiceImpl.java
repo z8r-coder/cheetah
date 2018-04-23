@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author ruanxin
  * @create 2018-04-23
- * @desc
+ * @desc client
  */
 public class ParserGateWayServiceImpl implements ParserGateWayService {
 

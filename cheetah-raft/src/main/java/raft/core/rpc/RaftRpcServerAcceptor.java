@@ -37,12 +37,15 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
     public void register() {
         RaftOptions raftOptions = new RaftOptions();
         RaftServer raftServer = new RaftServer(getHost(), getPort());
+
         RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), configuration.getRaftRootPath(), "raft_meta");
         StateMachine stateMachine = new ExampleStateMachine();
         RaftNode raftNode = new RaftNode(raftLog, raftServer, stateMachine);
         RaftCore raftCore = new RaftCore(raftOptions, raftNode, getCacheServerList());
+
         RaftConsensusServiceImpl raftConsensusService = new RaftConsensusServiceImpl(raftNode, raftCore);
         RaftAsyncConsensusServiceImpl raftAsyncConsensusService = new RaftAsyncConsensusServiceImpl(raftNode, raftCore);
+
         remoteExecutor.registerRemote(RaftConsensusService.class, raftConsensusService);
         remoteExecutor.registerRemote(RaftAsyncConsensusService.class, raftAsyncConsensusService);
 
