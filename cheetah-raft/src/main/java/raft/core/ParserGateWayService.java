@@ -1,4 +1,4 @@
-package server.gateway;
+package raft.core;
 
 /**
  * @author ruanxin
