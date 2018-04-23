@@ -14,6 +14,7 @@ import rpc.client.SimpleClientRemoteProxy;
 import rpc.wrapper.RpcConnectorWrapper;
 import rpc.wrapper.connector.RpcServerSyncConnector;
 import utils.Configuration;
+import utils.DateUtil;
 import utils.NetUtils;
 import utils.ParseUtils;
 
@@ -72,16 +73,25 @@ public class RaftClientServiceImpl implements RaftClientService {
     }
 
     @Override
-    public CommandExecuteResponse commandExec(CommandExecuteRequest request) {
-        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
-                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
-
-        logger.info("client commandExec request ,remote host=" + request.getRemoteHost() +
-                " ,remote port=" + request.getRemotePort());
-
-        RaftConsensusService raftConsensusService = getRaftConsensusService(request);
-        return raftConsensusService.clientCommandExec(request);
+    public String getValue(String key) {
+        return null;
     }
+
+    @Override
+    public boolean set(String key, String value) {
+        return false;
+    }
+
+    @Override
+    public boolean set(String key, String value, int expTime) {
+        return false;
+    }
+
+    @Override
+    public boolean set(String key, String value, int expTime, DateUtil.TimeUnit timeUnit) {
+        return false;
+    }
+
 
     private RaftConsensusService getRaftConsensusService(BaseRequest request) {
         int remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(), request.getRemotePort());

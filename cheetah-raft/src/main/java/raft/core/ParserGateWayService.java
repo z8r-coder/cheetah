@@ -1,5 +1,8 @@
 package raft.core;
 
+import raft.protocol.request.CommandParseRequest;
+import raft.protocol.response.CommandParseResponse;
+
 /**
  * @author ruanxin
  * @create 2018-04-23
@@ -9,7 +12,6 @@ public interface ParserGateWayService {
 
     /**
      * parse command
-     * @param command
      */
-    public void parse(String command);
+    public CommandParseResponse parse(CommandParseRequest request);
 }

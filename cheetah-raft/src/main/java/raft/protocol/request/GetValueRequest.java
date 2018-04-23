@@ -9,10 +9,20 @@ import raft.model.BaseRequest;
  */
 public class GetValueRequest extends BaseRequest {
     private String key;
+    //direct log
     private int serverId;
 
     public GetValueRequest (String key, int serverId) {
         this.key = key;
+        this.serverId = serverId;
+    }
+
+    public void setAddress(String localHost, int localPort,
+                           String remoteHost, int remotePort, int serverId) {
+        this.localHost = localHost;
+        this.localPort = localPort;
+        this.remoteHost = remoteHost;
+        this.remotePort = remotePort;
         this.serverId = serverId;
     }
 
