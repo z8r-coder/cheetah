@@ -1,7 +1,6 @@
 package raft.protocol.request;
 
 import raft.model.BaseRequest;
-import utils.DateUtil;
 
 /**
  * @author ruanxin

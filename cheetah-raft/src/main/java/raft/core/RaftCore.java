@@ -8,8 +8,14 @@ import raft.core.server.RaftServer;
 import raft.core.server.ServerNode;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
-import raft.protocol.request.*;
-import raft.protocol.response.*;
+import raft.protocol.request.AddRequest;
+import raft.protocol.request.GetValueRequest;
+import raft.protocol.request.SetKVRequest;
+import raft.protocol.request.VotedRequest;
+import raft.protocol.response.AddResponse;
+import raft.protocol.response.GetValueResponse;
+import raft.protocol.response.SetKVResponse;
+import raft.protocol.response.VotedResponse;
 import rpc.async.RpcCallback;
 import utils.ParseUtils;
 

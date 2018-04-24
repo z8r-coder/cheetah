@@ -2,7 +2,6 @@ import hash.MapProxy;
 import raft.core.RaftClientService;
 import raft.core.StateMachine;
 import raft.core.client.RaftClientServiceImpl;
-import raft.protocol.response.GetLeaderResponse;
 import utils.TimeUnitMap;
 
 /**
