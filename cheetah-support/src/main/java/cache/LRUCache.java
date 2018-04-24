@@ -32,7 +32,7 @@ public class LRUCache<K,V> extends LinkedHashMap<K,V> {
     }
 
     public static void main(String[] args) {
-        LRUCache<Integer, Integer> lruCache = new LRUCache<Integer, Integer>(16, 0.75f, true, 4);
+        LRUCache<Integer, Integer> lruCache = new LRUCache<>(16, 0.75f, true, 4);
         lruCache.put(1,1);
         lruCache.put(2,2);
         lruCache.put(3,3);

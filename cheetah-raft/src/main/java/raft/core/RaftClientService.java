@@ -1,10 +1,7 @@
 package raft.core;
 
-import raft.protocol.request.CommandExecuteRequest;
-import raft.protocol.response.CommandExecuteResponse;
 import raft.protocol.response.GetLeaderResponse;
 import raft.protocol.response.GetServerListResponse;
-import utils.DateUtil;
 
 /**
  * @author ruanxin
