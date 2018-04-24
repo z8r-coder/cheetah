@@ -13,4 +13,9 @@ public class ExampleStateMachine implements StateMachine {
         String test = new String(data);
         System.out.println(test);
     }
+
+    @Override
+    public byte[] get(String key) {
+        return new byte[0];
+    }
 }

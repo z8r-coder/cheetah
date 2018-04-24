@@ -88,6 +88,13 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
                 System.out.print(">");
                 continue;
             }
-
-        } }
+            String result = parserGateWayService.parse(line);
+            if ("exit".equals(result)) {
+                break;
+            } else {
+                System.out.println(result);
+            }
+            System.out.print(">");
+        }
+    }
 }
