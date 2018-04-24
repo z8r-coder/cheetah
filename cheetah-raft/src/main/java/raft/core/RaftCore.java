@@ -235,7 +235,7 @@ public class RaftCore {
      */
     public boolean logReplication (byte[] data) {
         lock.lock();
-        long newLastLogIndex = 0;
+        long newLastLogIndex;
         try {
             if (raftNode.getRaftServer().getServerState() !=
                     RaftServer.NodeState.LEADER) {

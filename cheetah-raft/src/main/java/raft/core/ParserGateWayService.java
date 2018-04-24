@@ -13,5 +13,5 @@ public interface ParserGateWayService {
     /**
      * parse command
      */
-    public CommandParseResponse parse(CommandParseRequest request);
+    public String parse(String command);
 }

@@ -2,12 +2,13 @@ package raft.core.imp;
 
 import raft.core.ParserGateWayService;
 import raft.core.RaftClientService;
-import raft.protocol.request.CommandParseRequest;
+import raft.core.client.RaftClientServiceImpl;
 import raft.protocol.response.CommandParseResponse;
 import raft.protocol.response.GetLeaderResponse;
 import raft.protocol.response.GetServerListResponse;
 
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * @author ruanxin
@@ -17,6 +18,7 @@ import java.util.Map;
 public class ParserGateWayServiceImpl implements ParserGateWayService {
 
     private final static String WRONG = "wrong syntax!";
+    private final static String EXIT = "exit";
     private RaftClientService raftClientService;
 
     public ParserGateWayServiceImpl (RaftClientService raftClientService) {
@@ -24,27 +26,26 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
     }
 
     @Override
-    public CommandParseResponse parse(CommandParseRequest request) {
-        String command = request.getCommand();
+    public String parse(String command) {
         String[] commandArr = command.split("\\ ");
+        String result = WRONG;
         CommandParseResponse response = new CommandParseResponse(WRONG);
         if (commandArr.length < 2) {
-            return response;
+            return WRONG;
         }
         if (commandArr[0].equals("get")) {
             if (commandArr[1].equals("leader")) {
                 //command get leader
                 if (commandArr.length > 2) {
-                    return response;
+                    return WRONG;
                 }
                 GetLeaderResponse getLeaderResponse = raftClientService.getLeader();
                 int leaderId = getLeaderResponse.getLeaderId();
-                response.setResult(String.valueOf(leaderId));
-                return response;
+                result = String.valueOf(leaderId);
             } else if (commandArr[1].equals("servers")) {
                 //command get servers
                 if (commandArr.length > 2) {
-                    return response;
+                    return WRONG;
                 }
                 GetServerListResponse getServerListResponse = raftClientService.getServerList();
                 Map<Integer, String> serverList = getServerListResponse.getServerList();
@@ -52,22 +53,41 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
                 for (String value : serverList.values()) {
                     sb.append(value + ",");
                 }
-                response.setResult(sb.toString());
+                result = sb.toString();
             } else {
+                // command get value
                 if (commandArr.length > 2) {
-                    return response;
+                    return WRONG;
                 }
                 String value = raftClientService.getValue(commandArr[1]);
-                response.setResult(value);
+                result = value;
             }
         } else if (commandArr[0].equals("set")) {
             if (commandArr.length >= 3 && commandArr.length <= 5) {
-                String result = raftClientService.set(command);
-                response.setResult(result);
-                return response;
+                String setRes = raftClientService.set(command);
+                return setRes;
             }
             response.setResult(WRONG);
+        } else if (commandArr[0].equals("exit")) {
+            if (commandArr.length >= 2) {
+                return WRONG;
+            }
+            result = EXIT;
         }
-        return response;
+        return result;
     }
+
+    public static void main(String[] args) {
+        RaftClientService raftClientService = new RaftClientServiceImpl();
+        ParserGateWayService parserGateWayService = new ParserGateWayServiceImpl(raftClientService);
+        Scanner scanner = new Scanner(System.in);
+        System.out.print(">");
+        while (true) {
+            String line = scanner.nextLine().trim();
+            if (line.length() == 0) {
+                System.out.print(">");
+                continue;
+            }
+
+        } }
 }
