@@ -19,11 +19,11 @@ public class RaftNode {
     //服务器最后一次知道的任期号
     private int currentTerm = 0;
     //在当前获得选票的候选人的 Id (default 0)
-    private int votedFor = 0;
+    private long votedFor = 0;
     //日志条目
     private RaftLog raftLog;
     //用于附加乳RPC时的重定向
-    private int leaderId;
+    private long leaderId;
 
     private StateMachine stateMachine;
 
@@ -48,11 +48,11 @@ public class RaftNode {
         this.currentTerm = currentTerm;
     }
 
-    public int getVotedFor() {
+    public long getVotedFor() {
         return votedFor;
     }
 
-    public void setVotedFor(int votedFor) {
+    public void setVotedFor(long votedFor) {
         this.votedFor = votedFor;
     }
 
@@ -76,11 +76,11 @@ public class RaftNode {
         this.lock = lock;
     }
 
-    public int getLeaderId() {
+    public long getLeaderId() {
         return leaderId;
     }
 
-    public void setLeaderId(int leaderId) {
+    public void setLeaderId(long leaderId) {
         this.leaderId = leaderId;
     }
 

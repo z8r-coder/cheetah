@@ -11,17 +11,17 @@ import java.io.Serializable;
  */
 public class VotedRequest extends BaseRequest implements Serializable {
     //机器id
-    private int serverId;
+    private long serverId;
     //候选人的任期号
     private int term;
     //请求选票的候选人的 Id
-    private int candidateId;
+    private long candidateId;
     //候选人的最后日志条目的索引值
     private long lastLogIndex;
     //候选人最后日志条目的任期号
     private int lastLogTerm;
 
-    public VotedRequest (int term, int candidateId, long lastLogIndex, int lastLogTerm) {
+    public VotedRequest (int term, long candidateId, long lastLogIndex, int lastLogTerm) {
         this.term = term;
         this.candidateId = candidateId;
         this.lastLogIndex = lastLogIndex;
@@ -29,7 +29,7 @@ public class VotedRequest extends BaseRequest implements Serializable {
     }
 
     public void setAddress(String localHost, int localPort,
-                           String remoteHost, int remotePort, int serverId) {
+                           String remoteHost, int remotePort, long serverId) {
         this.localHost = localHost;
         this.localPort = localPort;
         this.remoteHost = remoteHost;
@@ -45,11 +45,11 @@ public class VotedRequest extends BaseRequest implements Serializable {
         this.term = term;
     }
 
-    public int getCandidateId() {
+    public long getCandidateId() {
         return candidateId;
     }
 
-    public void setCandidateId(int candidateId) {
+    public void setCandidateId(long candidateId) {
         this.candidateId = candidateId;
     }
 
@@ -68,11 +68,11 @@ public class VotedRequest extends BaseRequest implements Serializable {
     public void setLastLogTerm(int lastLogTerm) {
         this.lastLogTerm = lastLogTerm;
     }
-    public int getServerId() {
+    public long getServerId() {
         return serverId;
     }
 
-    public void setServerId(int serverId) {
+    public void setServerId(long serverId) {
         this.serverId = serverId;
     }
 }

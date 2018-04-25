@@ -40,7 +40,7 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
                     return WRONG;
                 }
                 GetLeaderResponse getLeaderResponse = raftClientService.getLeader();
-                int leaderId = getLeaderResponse.getLeaderId();
+                long leaderId = getLeaderResponse.getLeaderId();
                 result = String.valueOf(leaderId);
             } else if (commandArr[1].equals("servers")) {
                 //command get servers
@@ -48,7 +48,7 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
                     return WRONG;
                 }
                 GetServerListResponse getServerListResponse = raftClientService.getServerList();
-                Map<Integer, String> serverList = getServerListResponse.getServerList();
+                Map<Long, String> serverList = getServerListResponse.getServerList();
                 StringBuilder sb = new StringBuilder();
                 for (String value : serverList.values()) {
                     sb.append(value + ",");

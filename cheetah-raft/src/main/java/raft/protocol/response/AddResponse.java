@@ -13,7 +13,7 @@ public class AddResponse extends RaftResponse {
     //用于leader和follower日志不一致时，找到最近一条不一致的日志
     private long lastLogIndex;
 
-    public AddResponse(int serverId, int term, boolean success) {
+    public AddResponse(long serverId, int term, boolean success) {
         super(serverId);
         this.term = term;
         this.success = success;

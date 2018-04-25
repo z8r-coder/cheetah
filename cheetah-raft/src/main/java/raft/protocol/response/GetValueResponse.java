@@ -9,11 +9,11 @@ public class GetValueResponse extends RaftResponse {
 
     private String value;
 
-    public GetValueResponse(int serverId) {
+    public GetValueResponse(long serverId) {
         super(serverId);
     }
 
-    public GetValueResponse(int serverId, String value) {
+    public GetValueResponse(long serverId, String value) {
         super(serverId);
         this.value = value;
     }

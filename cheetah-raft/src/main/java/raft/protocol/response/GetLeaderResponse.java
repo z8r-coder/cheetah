@@ -7,18 +7,18 @@ package raft.protocol.response;
  */
 public class GetLeaderResponse extends RaftResponse {
 
-    private int leaderId;
+    private long leaderId;
 
-    public GetLeaderResponse(int serverId, int leaderId) {
+    public GetLeaderResponse(long serverId, long leaderId) {
         super(serverId);
         this.leaderId = leaderId;
     }
 
-    public int getLeaderId() {
+    public long getLeaderId() {
         return leaderId;
     }
 
-    public void setLeaderId(int leaderId) {
+    public void setLeaderId(long leaderId) {
         this.leaderId = leaderId;
     }
 }

@@ -12,14 +12,14 @@ import java.io.Serializable;
 public class CommandExecuteRequest extends BaseRequest implements Serializable {
 
     private String command;
-    private int serverId;
+    private long serverId;
 
     public CommandExecuteRequest (String command) {
         this.command = command;
     }
 
     public void setAddress(String localHost, int localPort,
-                           String remoteHost, int remotePort, int serverId) {
+                           String remoteHost, int remotePort, long serverId) {
         this.localHost = localHost;
         this.localPort = localPort;
         this.remoteHost = remoteHost;
@@ -35,11 +35,11 @@ public class CommandExecuteRequest extends BaseRequest implements Serializable {
         this.command = command;
     }
 
-    public int getServerId() {
+    public long getServerId() {
         return serverId;
     }
 
-    public void setServerId(int serverId) {
+    public void setServerId(long serverId) {
         this.serverId = serverId;
     }
 }

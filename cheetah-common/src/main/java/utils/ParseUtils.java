@@ -80,10 +80,10 @@ public class ParseUtils {
         return raftIndexInfo;
     }
 
-    public static int generateServerId(String host, int port) {
+    public static long generateServerId(String host, int port) {
         String preServerId = host.replaceAll("\\.", "");
         String strServerId = preServerId + port;
-        int serverId = Integer.parseInt(strServerId);
+        long serverId = Long.parseLong(strServerId);
         return serverId;
     }
 

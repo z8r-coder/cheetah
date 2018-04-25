@@ -35,7 +35,7 @@ public abstract class AbstractServerProxy extends RpcNioAcceptor{
     private IServerRegisterInfo registerInfo;
 
     //every node needs to cache serverList
-    protected Map<Integer, String> cacheServerList = new ConcurrentHashMap<Integer, String>();
+    protected Map<Long, String> cacheServerList = new ConcurrentHashMap<>();
 
     protected SimpleClientRemoteProxy proxy;
 
@@ -87,14 +87,14 @@ public abstract class AbstractServerProxy extends RpcNioAcceptor{
         registerInfo.unRegister(address);
     }
 
-    public Map<Integer, String> getCacheServerList() {
+    public Map<Long, String> getCacheServerList() {
         return cacheServerList;
     }
 
     public void setCacheServerList (List<CheetahAddress> addresses) {
         this.cacheServerList = new ConcurrentHashMap<>();
         for (CheetahAddress cheetahAddress : addresses) {
-            Integer serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
+            Long serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
             cacheServerList.put(serverId, cheetahAddress.toString());
         }
     }

@@ -39,8 +39,8 @@ public class RaftCore {
     private RaftNode raftNode;
     private int asyncVoteNum;
     private RaftOptions raftOptions;
-    private Map<Integer, String> serverList;
-    private Map<Integer, ServerNode> serverNodeCache = new ConcurrentHashMap<>();
+    private Map<Long, String> serverList;
+    private Map<Long, ServerNode> serverNodeCache = new ConcurrentHashMap<>();
 
     private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
@@ -48,7 +48,7 @@ public class RaftCore {
     private ScheduledFuture heartBeatScheduledFuture;
 
     public RaftCore (RaftOptions raftOptions,RaftNode raftNode,
-                     Map<Integer, String> serverList) {
+                     Map<Long, String> serverList) {
         this.raftOptions = raftOptions;
         this.raftNode = raftNode;
         this.serverList = serverList;
@@ -56,9 +56,9 @@ public class RaftCore {
         init();
     }
     public void init() {
-        for (Map.Entry<Integer, String> entry : serverList.entrySet()) {
+        for (Map.Entry<Long, String> entry : serverList.entrySet()) {
             if (!serverNodeCache.containsKey(entry.getKey()) &&
-                     !entry.getKey().equals(raftNode.getRaftServer().getServerId())) {
+                    entry.getKey() != raftNode.getRaftServer().getServerId()) {
                 RaftVoteAsyncCallBack  asyncCallBack = new RaftVoteAsyncCallBack();
                 String serverInfo = entry.getValue();
                 CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverInfo);
@@ -97,7 +97,7 @@ public class RaftCore {
      */
     private void startNewHeartBeat() {
         logger.info("begin start heart beat. leaderId:" + raftNode.getLeaderId());
-        for (Integer serverId : serverList.keySet()) {
+        for (Long serverId : serverList.keySet()) {
             if (serverId == raftNode.getRaftServer().getServerId()) {
                 continue;
             }
@@ -163,7 +163,7 @@ public class RaftCore {
         lock.lock();
         final RaftServer raftServer = raftNode.getRaftServer();
         try {
-            int serverId = raftServer.getServerId();
+            long serverId = raftServer.getServerId();
             if (serverList.get(serverId) == null) {
                 resetElectionTimer();
                 return;
@@ -177,7 +177,7 @@ public class RaftCore {
             lock.unlock();
         }
 
-        for (Integer serverId : serverList.keySet()) {
+        for (Long serverId : serverList.keySet()) {
             if (serverId == raftServer.getServerId()) {
                 continue;
             }
@@ -211,7 +211,7 @@ public class RaftCore {
      * @param serverId
      * @return
      */
-    private ServerNode getServerNodeById(int serverId) {
+    private ServerNode getServerNodeById(long serverId) {
         ServerNode serverNode = serverNodeCache.get(serverId);
         //sync rpc call
         if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
@@ -248,7 +248,7 @@ public class RaftCore {
             entries.add(logEntry);
             newLastLogIndex = raftNode.getRaftLog().append(entries);
 
-            for (Integer serverId : serverList.keySet()) {
+            for (Long serverId : serverList.keySet()) {
                 final ServerNode serverNode = serverNodeCache.get(serverId);
                 executorService.submit(new Runnable() {
                     @Override
@@ -380,7 +380,7 @@ public class RaftCore {
         int serverNodeNum = serverList.size();
         long[] matchIndexes = new long[serverNodeNum];
         int i = 0;
-        for (Integer serverId : serverList.keySet()) {
+        for (Long serverId : serverList.keySet()) {
             if (serverId != raftNode.getRaftServer().getServerId()) {
                 ServerNode serverNode = serverNodeCache.get(serverId);
                 matchIndexes[i++] = serverNode.getMatchIndex();
@@ -473,11 +473,11 @@ public class RaftCore {
         }
     }
 
-    public Map<Integer, String> getServerList() {
+    public Map<Long, String> getServerList() {
         return serverList;
     }
 
-    public void setServerList(Map<Integer, String> serverList) {
+    public void setServerList(Map<Long, String> serverList) {
         this.serverList = serverList;
     }
 

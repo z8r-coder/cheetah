@@ -14,9 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ServerRegisterInfo implements IServerRegisterInfo {
 
-    Map<Integer, String> serverCache = new ConcurrentHashMap<Integer, String>();
+    Map<Long, String> serverCache = new ConcurrentHashMap<>();
 
-    Map<Integer, String> heartBeatCache = new ConcurrentHashMap<Integer, String>();
+    Map<Long, String> heartBeatCache = new ConcurrentHashMap<>();
 
     public void updateList() {
         serverCache.clear();
@@ -24,8 +24,8 @@ public class ServerRegisterInfo implements IServerRegisterInfo {
         heartBeatCache.clear();
     }
 
-    public Map<Integer, String> register(String address) {
-        int serverId = getServerId(address);
+    public Map<Long, String> register(String address) {
+        long serverId = getServerId(address);
         serverCache.put(serverId,address);
         heartBeatCache.put(serverId, address);
         return getServerListCache();
@@ -34,27 +34,27 @@ public class ServerRegisterInfo implements IServerRegisterInfo {
     public void unRegister(String address) {
         heartBeatCache.remove(address);
         serverCache.remove(address);
-        int serverId = getServerId(address);
+        long serverId = getServerId(address);
         serverCache.remove(serverId);
     }
 
-    public Map<Integer, String> heartBeat(String address) {
-        int serverId = getServerId(address);
+    public Map<Long, String> heartBeat(String address) {
+        long serverId = getServerId(address);
         heartBeatCache.put(serverId, address);
         return getServerListCache();
     }
 
-    public Map<Integer, String> getServerListCache() {
-        Map<Integer, String> cloneCache = new HashMap<Integer, String>();
+    public Map<Long, String> getServerListCache() {
+        Map<Long, String> cloneCache = new HashMap<>();
         synchronized (serverCache) {
             cloneCache.putAll(serverCache);
         }
         return cloneCache;
     }
 
-    private int getServerId(String address) {
+    private long getServerId(String address) {
         CheetahAddress cheetahAddress = ParseUtils.parseAddress(address);
-        int serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
+        long serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
         return serverId;
     }
 }

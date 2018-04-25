@@ -58,12 +58,12 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
      * 解析数据
      * @return
      */
-    private Map<Integer, String> getCacheServerList () {
-        Map<Integer, String> cacheServerList = new ConcurrentHashMap<>();
+    private Map<Long, String> getCacheServerList () {
+        Map<Long, String> cacheServerList = new ConcurrentHashMap<>();
         String raftInitServers = configuration.getRaftInitServer();
         List<CheetahAddress> addresses = ParseUtils.parseCommandAddress(raftInitServers);
         for (CheetahAddress cheetahAddress : addresses) {
-            int serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
+            long serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
             String server = ParseUtils.generateServerIp(cheetahAddress.getHost(), cheetahAddress.getPort());
             cacheServerList.put(serverId, server);
         }

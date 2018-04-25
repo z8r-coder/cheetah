@@ -8,18 +8,18 @@ import java.util.Map;
  * @desc
  */
 public class GetServerListResponse extends RaftResponse {
-    private Map<Integer, String> serverList;
+    private Map<Long, String> serverList;
 
-    public GetServerListResponse(Map<Integer, String> serverList, int serverId) {
+    public GetServerListResponse(Map<Long, String> serverList, long serverId) {
         super(serverId);
         this.serverList = serverList;
     }
 
-    public Map<Integer, String> getServerList() {
+    public Map<Long, String> getServerList() {
         return serverList;
     }
 
-    public void setServerList(Map<Integer, String> serverList) {
+    public void setServerList(Map<Long, String> serverList) {
         this.serverList = serverList;
     }
 }

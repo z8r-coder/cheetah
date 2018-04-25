@@ -11,11 +11,11 @@ public interface IServerRegisterInfo {
 
     void updateList();
 
-    Map<Integer, String> register (String address);
+    Map<Long, String> register (String address);
 
     void unRegister (String address);
 
-    Map<Integer, String> heartBeat (String address);
+    Map<Long, String> heartBeat (String address);
 
-    Map<Integer, String> getServerListCache();
+    Map<Long, String> getServerListCache();
 }

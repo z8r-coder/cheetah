@@ -16,7 +16,7 @@ public class VotedResponse extends RaftResponse {
      */
     private boolean granted;
 
-    public VotedResponse(int term, boolean granted, int serverId) {
+    public VotedResponse(int term, boolean granted, long serverId) {
         super(serverId);
         this.granted = granted;
         this.term = term;

@@ -9,17 +9,17 @@ import java.io.Serializable;
  */
 public class RaftResponse implements Serializable{
     //标注来自哪台服务器
-    private int serverId;
+    private long serverId;
 
-    public RaftResponse (int serverId) {
+    public RaftResponse (long serverId) {
         this.serverId = serverId;
     }
 
-    public int getServerId() {
+    public long getServerId() {
         return serverId;
     }
 
-    public void setServerId(int serverId) {
+    public void setServerId(long serverId) {
         this.serverId = serverId;
     }
 }

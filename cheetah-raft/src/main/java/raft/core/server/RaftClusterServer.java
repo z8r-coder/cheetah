@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class RaftClusterServer {
 
-    public Map<Integer, RaftRpcServerAcceptor> cacheRaftServer = new HashMap<>();
+    public Map<Long, RaftRpcServerAcceptor> cacheRaftServer = new HashMap<>();
 
     private final static RaftClusterServer raftClusterServer = new RaftClusterServer();
 
@@ -42,7 +42,7 @@ public class RaftClusterServer {
     }
 
     public void stopServerNode() {
-        for (Map.Entry<Integer, RaftRpcServerAcceptor> entry : cacheRaftServer.entrySet()) {
+        for (Map.Entry<Long, RaftRpcServerAcceptor> entry : cacheRaftServer.entrySet()) {
             RaftRpcServerAcceptor acceptor = entry.getValue();
             if (acceptor != null) {
                 acceptor.stopService();

@@ -37,7 +37,7 @@ public class RaftClientServiceImpl implements RaftClientService {
 
     private Configuration configuration;
 
-    private Map<Integer, RpcConnectorWrapper> connectorCache;
+    private Map<Long, RpcConnectorWrapper> connectorCache;
 
     public RaftClientServiceImpl () {
         localHost = NetUtils.getLocalHost();
@@ -102,7 +102,7 @@ public class RaftClientServiceImpl implements RaftClientService {
     }
 
     private RaftConsensusService getRaftConsensusService(BaseRequest request) {
-        int remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(), request.getRemotePort());
+        long remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(), request.getRemotePort());
         RpcConnectorWrapper connector;
 
         if ((connector = connectorCache.get(remoteServerId)) == null) {
