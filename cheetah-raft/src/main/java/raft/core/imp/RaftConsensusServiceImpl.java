@@ -169,8 +169,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
     @Override
     public SetKVResponse setKV(SetKVRequest request) {
-        logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
-                " ,remote host=" + request.getRemoteHost());
+        logger.info("local serverId=" + raftNode.getRaftServer().getServerId());
         SetKVResponse response = new SetKVResponse(raftNode.getRaftServer().getServerId());
         if (raftNode.getLeaderId() <= 0) {
             //have not election leader
