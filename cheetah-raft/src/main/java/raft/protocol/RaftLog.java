@@ -13,6 +13,7 @@ import utils.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -493,7 +494,7 @@ public class RaftLog {
         }
     }
 
-    public static class LogEntry {
+    public static class LogEntry implements Serializable {
         private int term;
         private long index;
         private int dataLength;

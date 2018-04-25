@@ -105,7 +105,7 @@ public class RaftCore {
             final ServerNode serverNode = serverNodeCache.get(serverId);
             executorService.submit(new Runnable() {
                 public void run() {
-                    appendEntries(serverNode);
+                    appendEntries(serverNode, new ArrayList<RaftLog.LogEntry>());
                 }
             });
         }
@@ -244,7 +244,7 @@ public class RaftCore {
             }
             RaftLog.LogEntry logEntry = new RaftLog.LogEntry(raftNode.getCurrentTerm(),
                     raftNode.getRaftLog().getLastLogIndex() + 1, data);
-            List<RaftLog.LogEntry> entries = new ArrayList<>();
+            final List<RaftLog.LogEntry> entries = new ArrayList<>();
             entries.add(logEntry);
             newLastLogIndex = raftNode.getRaftLog().append(entries);
 
@@ -253,7 +253,7 @@ public class RaftCore {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        appendEntries(serverNode);
+                        appendEntries(serverNode, entries);
                     }
                 });
             }
@@ -283,7 +283,7 @@ public class RaftCore {
      * rpc call
      * @param serverNode
      */
-    public void appendEntries (ServerNode serverNode) {
+    public void appendEntries (ServerNode serverNode, List<RaftLog.LogEntry> entries) {
         lock.lock();
         try {
             RaftServer remoteRaftServer = serverNode.getRaftServer();
@@ -291,7 +291,8 @@ public class RaftCore {
             AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
                     raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
                     raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
-                    raftNode.getRaftLog().getCommitIndex());
+                    raftNode.getRaftLog().getCommitIndex(), entries);
+
             request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
                     remoteRaftServer.getHost(), remoteRaftServer.getPort(),
                     raftNode.getRaftServer().getServerId());
@@ -317,7 +318,7 @@ public class RaftCore {
 
             logger.info("Append Entries response:" + response.isSuccess() +
             " from server:" + request.getServerId() + " in term:" + response.getTerm() +
-            " (my term in " + raftNode.getCurrentTerm() + ")");
+            " (my term in " + raftNode.getCurrentTerm() + ")" + " ,entries size=" + entries.size());
 
             if (response.getTerm() > raftNode.getCurrentTerm()) {
                 updateMore(response.getTerm());
