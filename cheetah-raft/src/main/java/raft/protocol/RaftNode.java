@@ -13,9 +13,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * @desc
  */
 public class RaftNode {
-
-    private static final Logger log = Logger.getLogger(RaftNode.class);
-
     //服务器最后一次知道的任期号
     private int currentTerm = 0;
     //在当前获得选票的候选人的 Id (default 0)

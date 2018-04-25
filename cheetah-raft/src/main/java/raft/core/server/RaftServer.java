@@ -60,14 +60,4 @@ public class RaftServer {
     public long getServerId() {
         return serverId;
     }
-
-    public static void main(String[] args) {
-        String host = "192.0.0.1";
-        int port = 8854;
-        String preId = host.replaceAll("\\.","");
-        int predId = Integer.parseInt(preId);
-        String por = preId + port;
-        int serverId = Integer.parseInt(por);
-        System.out.println(serverId);
-    }
 }

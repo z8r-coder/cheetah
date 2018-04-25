@@ -480,33 +480,4 @@ public class RaftCore {
     public void setServerList(Map<Long, String> serverList) {
         this.serverList = serverList;
     }
-
-    public static void main(String[] args) {
-        ExecutorService executorService = new ThreadPoolExecutor(20,
-                20,
-                60,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>());
-        List<Future> list = new ArrayList<Future>();
-        for (int i = 0; i < 20 ; i++) {
-            Future<String> future = executorService.submit(new Callable<String>() {
-                public String call() {
-                    return "1";
-                }
-            });
-            list.add(future);
-        }
-        for (Future future : list) {
-            try {
-                System.out.println(future.get(5,TimeUnit.SECONDS));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (TimeoutException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
 }

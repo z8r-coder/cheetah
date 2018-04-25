@@ -48,10 +48,6 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
 
         remoteExecutor.registerRemote(RaftConsensusService.class, raftConsensusService);
         remoteExecutor.registerRemote(RaftAsyncConsensusService.class, raftAsyncConsensusService);
-
-        //todo test
-//        HelloRpcServiceImpl helloRpcService = new HelloRpcServiceImpl();
-//        remoteExecutor.registerRemote(HelloRpcService.class, helloRpcService);
     }
 
     /**

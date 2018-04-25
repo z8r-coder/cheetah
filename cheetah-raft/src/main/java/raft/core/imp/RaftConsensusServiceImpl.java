@@ -29,12 +29,6 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         this.raftCore = raftCore;
     }
 
-    public VotedResponse leaderElection(VotedRequest request) {
-        // -> async
-        System.out.println("test leader election!");
-        return null;
-    }
-
     public AddResponse appendEntries(AddRequest request) {
         raftNode.getLock().lock();
         try {

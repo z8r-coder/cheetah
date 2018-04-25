@@ -8,7 +8,7 @@ import rpc.wrapper.RpcConnectorWrapper;
 /**
  * @author ruanxin
  * @create 2018-04-17
- * @desc
+ * @desc async connector
  */
 public class RpcServerAsyncConnector extends RpcConnectorWrapper {
 

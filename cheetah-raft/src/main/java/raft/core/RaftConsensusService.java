@@ -11,11 +11,6 @@ import raft.protocol.response.*;
 public interface RaftConsensusService {
 
     /**
-     * leader election
-     */
-    public VotedResponse leaderElection(VotedRequest request);
-
-    /**
      * append entry
      */
     public AddResponse appendEntries (AddRequest request);

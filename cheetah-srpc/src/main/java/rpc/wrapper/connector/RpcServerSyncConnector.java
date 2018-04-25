@@ -7,7 +7,7 @@ import rpc.wrapper.RpcConnectorWrapper;
 /**
  * @author ruanxin
  * @create 2018-04-16
- * @desc
+ * @desc sync connector
  */
 public class RpcServerSyncConnector extends RpcConnectorWrapper {
 

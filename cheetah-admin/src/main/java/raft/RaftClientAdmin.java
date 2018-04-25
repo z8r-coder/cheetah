@@ -53,7 +53,7 @@ public class RaftClientAdmin {
                         if (response == null) {
                             System.out.println("request time out!");
                         } else {
-                            Map<Integer, String> serverList = response.getServerList();
+                            Map<Long, String> serverList = response.getServerList();
                             for (String value : serverList.values()) {
                                 System.out.println(value);
                             }
