@@ -84,6 +84,10 @@ public class RaftClientServiceImpl implements RaftClientService {
 
         RaftConsensusService raftConsensusService = getRaftConsensusService(request);
         GetValueResponse response = raftConsensusService.getValue(request);
+        if (response == null) {
+            logger.info("response == null");
+            return null;
+        }
         return response.getValue();
     }
 

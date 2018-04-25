@@ -76,25 +76,4 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
         }
         return result;
     }
-
-    public static void main(String[] args) {
-        RaftClientService raftClientService = new RaftClientServiceImpl();
-        ParserGateWayService parserGateWayService = new ParserGateWayServiceImpl(raftClientService);
-        Scanner scanner = new Scanner(System.in);
-        System.out.print(">");
-        while (true) {
-            String line = scanner.nextLine().trim();
-            if (line.length() == 0) {
-                System.out.print(">");
-                continue;
-            }
-            String result = parserGateWayService.parse(line);
-            if ("exit".equals(result)) {
-                break;
-            } else {
-                System.out.println(result);
-            }
-            System.out.print(">");
-        }
-    }
 }
