@@ -1,6 +1,7 @@
 package raft.protocol;
 
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,9 +10,9 @@ import java.util.List;
  * @create 2018-04-01
  * @desc log segment
  */
-public class Segment {
+public class Segment implements Serializable {
 
-    public static class Record {
+    public static class Record implements Serializable {
         public long offset;
         public RaftLog.LogEntry logEntry;
         public Record (long offset, RaftLog.LogEntry logEntry) {

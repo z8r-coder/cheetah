@@ -57,7 +57,7 @@ public class RaftLog {
     //meta data map
     private TreeMap<Long, SegmentMetaData> logMetaDataMap = new TreeMap<Long, SegmentMetaData>();
     //segment cache LRU
-    private LRUCache<Long, Segment> segmentCache = new LRUCache<Long, Segment>(16, 0.75f, true, 16);
+    private LRUCache<Long, Segment> segmentCache = new LRUCache<>(16, 0.75f, true, 16);
 
     private GlobleMetaData globleMetaData;
 
