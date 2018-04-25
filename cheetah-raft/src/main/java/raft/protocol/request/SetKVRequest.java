@@ -2,12 +2,14 @@ package raft.protocol.request;
 
 import raft.model.BaseRequest;
 
+import java.io.Serializable;
+
 /**
  * @author ruanxin
  * @create 2018-04-23
  * @desc
  */
-public class SetKVRequest extends BaseRequest {
+public class SetKVRequest extends BaseRequest implements Serializable {
 
     private String setCommand;
     private long serverId;
