@@ -10,9 +10,9 @@ import java.util.List;
  * @create 2018-04-01
  * @desc log segment
  */
-public class Segment implements Serializable {
+public class Segment {
 
-    public static class Record implements Serializable {
+    public static class Record {
         public long offset;
         public RaftLog.LogEntry logEntry;
         public Record (long offset, RaftLog.LogEntry logEntry) {

@@ -205,9 +205,8 @@ public class RaftLog {
             List<Segment.Record> entries = new ArrayList<Segment.Record>();
             for (long i = 0l; i < segmentInfo.dataNum;i++) {
                 LogEntry logEntry = new LogEntry();
-                logEntry.setSegment(segment);
                 Segment.Record record = new Segment.Record(randomAccessFile.getFilePointer(), logEntry);
-                logEntry.readFrom();
+                logEntry.readFrom(segment);
                 entries.add(record);
             }
             segment.setEntries(entries);
@@ -339,9 +338,8 @@ public class RaftLog {
                 newSegment.getEntries().add(new Segment.Record(newSegment.getRandomAccessFile().getFilePointer(),
                         logEntry));
                 newSegment.setEndIndex(newLastIndexLog);
-                logEntry.setSegment(newSegment);
                 //write protocol to
-                logEntry.writeTo();
+                logEntry.writeTo(newSegment);
                 newSegment.setFileSize(newSegment.getRandomAccessFile().length());
                 //update file name
                 String oldFullFileName = logEntryDir + File.separator + newSegment.getFileName();
@@ -498,7 +496,6 @@ public class RaftLog {
         private int term;
         private long index;
         private int dataLength;
-        private Segment segment;
         private byte[] data;
 
         public LogEntry() {
@@ -515,7 +512,7 @@ public class RaftLog {
             dataLength = data.length;
         }
 
-        public void writeTo() {
+        public void writeTo(Segment segment) {
             RandomAccessFile randomAccessFile = segment.getRandomAccessFile();
             try {
                 randomAccessFile.writeInt(term);
@@ -527,7 +524,7 @@ public class RaftLog {
             }
         }
 
-        public void readFrom() {
+        public void readFrom(Segment segment) {
             RandomAccessFile randomAccessFile = segment.getRandomAccessFile();
             try {
                 term = randomAccessFile.readInt();
@@ -574,14 +571,6 @@ public class RaftLog {
 
         public void setDataLength(int dataLength) {
             this.dataLength = dataLength;
-        }
-
-        public Segment getSegment() {
-            return segment;
-        }
-
-        public void setSegment(Segment segment) {
-            this.segment = segment;
         }
 
         @Override
