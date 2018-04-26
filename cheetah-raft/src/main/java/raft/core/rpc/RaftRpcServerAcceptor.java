@@ -2,10 +2,7 @@ package raft.core.rpc;
 
 import models.CheetahAddress;
 import raft.constants.RaftOptions;
-import raft.core.RaftAsyncConsensusService;
-import raft.core.RaftConsensusService;
-import raft.core.RaftCore;
-import raft.core.StateMachine;
+import raft.core.*;
 import raft.core.imp.RaftAsyncConsensusServiceImpl;
 import raft.core.imp.RaftConsensusServiceImpl;
 import raft.core.server.RaftServer;
@@ -39,7 +36,8 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
         RaftServer raftServer = new RaftServer(getHost(), getPort());
 
         RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), configuration.getRaftRootPath(), "raft_meta");
-        StateMachine stateMachine = new ExampleStateMachine();
+        //state machine
+        StateMachine stateMachine = new CheetahStateMachine();
         RaftNode raftNode = new RaftNode(raftLog, raftServer, stateMachine);
         RaftCore raftCore = new RaftCore(raftOptions, raftNode, getCacheServerList());
 
