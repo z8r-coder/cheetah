@@ -249,6 +249,9 @@ public class RaftCore {
             newLastLogIndex = raftNode.getRaftLog().append(entries);
 
             for (Long serverId : serverList.keySet()) {
+                if (serverId == raftNode.getRaftServer().getServerId()) {
+                    continue;
+                }
                 final ServerNode serverNode = serverNodeCache.get(serverId);
                 executorService.submit(new Runnable() {
                     @Override
@@ -286,8 +289,14 @@ public class RaftCore {
     public void appendEntries (ServerNode serverNode, List<RaftLog.LogEntry> entries) {
         lock.lock();
         try {
-            RaftServer remoteRaftServer = serverNode.getRaftServer();
             RaftServer localRaftServer = raftNode.getRaftServer();
+            if (serverNode == null) {
+                System.out.println("serverNode = null, serverNodeCache size=" +
+                        serverNodeCache.size() +
+                " ,local host=" + localRaftServer.getHost() + " ,local port=" + localRaftServer.getPort());
+            }
+            RaftServer remoteRaftServer = serverNode.getRaftServer();
+
             AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
                     raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
                     raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
