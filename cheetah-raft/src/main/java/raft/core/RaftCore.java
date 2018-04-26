@@ -16,6 +16,7 @@ import raft.protocol.response.AddResponse;
 import raft.protocol.response.GetValueResponse;
 import raft.protocol.response.SetKVResponse;
 import raft.protocol.response.VotedResponse;
+import raft.utils.RaftUtils;
 import rpc.async.RpcCallback;
 import utils.ParseUtils;
 
@@ -242,11 +243,21 @@ public class RaftCore {
                 logger.debug("local serverId=" + raftNode.getRaftServer().getServerId() + " not leader!");
                 return false;
             }
+            long logIndex;
+            if (RaftUtils.getFileNumInDir(raftNode.getRaftLog().getLogEntryDir(),
+                    raftNode.getRaftLog().getLogEntryDir()) != 0) {
+                logIndex = raftNode.getRaftLog().getLastLogIndex() + 1;
+            } else {
+                //there is no file
+                logIndex = raftNode.getRaftLog().getLastLogIndex();
+            }
+
+            logger.info("logReplication serverId=" + raftNode.getRaftServer().getServerId() +
+            " ,logIndex=" + logIndex);
             RaftLog.LogEntry logEntry = new RaftLog.LogEntry(raftNode.getCurrentTerm(),
-                    raftNode.getRaftLog().getLastLogIndex() + 1, data);
+                    logIndex, data);
             final List<RaftLog.LogEntry> entries = new ArrayList<>();
             entries.add(logEntry);
-            newLastLogIndex = raftNode.getRaftLog().append(entries);
 
             for (Long serverId : serverList.keySet()) {
                 if (serverId == raftNode.getRaftServer().getServerId()) {
@@ -260,6 +271,7 @@ public class RaftCore {
                     }
                 });
             }
+            newLastLogIndex = raftNode.getRaftLog().append(entries);
 
             //sync commitIndex >= newLastLogIndex
             long startTime = System.currentTimeMillis();
@@ -290,11 +302,6 @@ public class RaftCore {
         lock.lock();
         try {
             RaftServer localRaftServer = raftNode.getRaftServer();
-            if (serverNode == null) {
-                System.out.println("serverNode = null, serverNodeCache size=" +
-                        serverNodeCache.size() +
-                " ,local host=" + localRaftServer.getHost() + " ,local port=" + localRaftServer.getPort());
-            }
             RaftServer remoteRaftServer = serverNode.getRaftServer();
 
             AddRequest request = new AddRequest(raftNode.getCurrentTerm(),

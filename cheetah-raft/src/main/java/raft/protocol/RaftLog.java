@@ -34,7 +34,7 @@ public class RaftLog {
 
     //候选人最后日志条目的任期号
     private int lastLogTerm;
-    //候选人的最后日志条目的索引值
+    //候选人的最后日志条目的索引值,默认-1,第一次会+1,所以会默认为0
     private long lastLogIndex;
     //已知的最大的已经被提交的日志条目的索引值
     private long commitIndex = 0;
@@ -377,15 +377,16 @@ public class RaftLog {
 
 
     public void updateProtocolData (int lastLogTerm, long lastLogIndex, long commitIndex) {
-        this.commitIndex = commitIndex;
-        this.lastLogIndex = lastLogIndex;
         this.lastLogTerm = lastLogTerm;
+        this.lastLogIndex = lastLogIndex;
+        this.commitIndex = commitIndex;
     }
 
     public int getLogEntryTerm (long logIndex) {
         LogEntry logEntry = getEntry(logIndex);
         if (logEntry == null) {
-            return 0;
+            //todo 若还不存在日志条目，则默认是第一届
+            return 1;
         }
         return logEntry.getTerm();
     }
