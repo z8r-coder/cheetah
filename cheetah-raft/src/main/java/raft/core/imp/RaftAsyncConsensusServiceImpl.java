@@ -43,7 +43,6 @@ public class RaftAsyncConsensusServiceImpl implements RaftAsyncConsensusService 
             if ((raftNode.getVotedFor() == 0 || raftNode.getVotedFor() == request.getServerId()) &&
                     newLog) {
                 raftNode.setVotedFor(request.getServerId());
-                // TODO: 2018/3/29 need to update log
                 votedResponse.setGranted(true);
                 votedResponse.setTerm(raftNode.getCurrentTerm());
                 votedResponse.setServerId(raftNode.getRaftServer().getServerId());
