@@ -6,6 +6,7 @@ import raft.core.RaftAsyncConsensusService;
 import raft.core.RaftConsensusService;
 import raft.core.rpc.RaftRpcServerAcceptor;
 import raft.demo.callback.TestCallBack;
+import raft.protocol.RaftLog;
 import raft.protocol.response.VotedResponse;
 import rpc.async.RpcCallback;
 import rpc.client.AsyncClientRemoteExecutor;
@@ -14,6 +15,8 @@ import rpc.client.SyncClientRemoteExecutor;
 import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
+
+import java.util.List;
 
 /**
  * @author ruanxin
@@ -30,6 +33,10 @@ public class ServerNode {
     private RaftConsensusService raftConsensusService;
     private RaftAsyncConsensusService raftAsyncConsensusService;
     private RpcCallback<VotedResponse> rpcCallback;
+
+    private long prevLogIndex;
+    private long commitIndex;
+    private List<RaftLog.LogEntry> entries;
 
     // 需要发送给follower的下一个日志条目的索引值，只对leader有效
     private long nextIndex;
@@ -156,5 +163,29 @@ public class ServerNode {
 
     public void setRpcCallback(RpcCallback<VotedResponse> rpcCallback) {
         this.rpcCallback = rpcCallback;
+    }
+
+    public long getPrevLogIndex() {
+        return prevLogIndex;
+    }
+
+    public void setPrevLogIndex(long prevLogIndex) {
+        this.prevLogIndex = prevLogIndex;
+    }
+
+    public long getCommitIndex() {
+        return commitIndex;
+    }
+
+    public void setCommitIndex(long commitIndex) {
+        this.commitIndex = commitIndex;
+    }
+
+    public List<RaftLog.LogEntry> getEntries() {
+        return entries;
+    }
+
+    public void setEntries(List<RaftLog.LogEntry> entries) {
+        this.entries = entries;
     }
 }

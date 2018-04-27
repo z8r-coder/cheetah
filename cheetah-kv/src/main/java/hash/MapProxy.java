@@ -88,6 +88,9 @@ public class MapProxy {
             return null;
         }
         String expTime = value.getExpTime();
+        if (expTime == null) {
+            return value.getData();
+        }
         if (!DateUtil.compareTime(expTime)) {
             //exp
             delegateMap.remove(key);

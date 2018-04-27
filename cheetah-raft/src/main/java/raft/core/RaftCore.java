@@ -104,9 +104,12 @@ public class RaftCore {
             }
             // TODO: 2018/4/10 当有新机器加入时 可能为空
             final ServerNode serverNode = serverNodeCache.get(serverId);
+            serverNode.setEntries(new ArrayList<RaftLog.LogEntry>());
+            serverNode.setCommitIndex(raftNode.getRaftLog().getCommitIndex());
+            serverNode.setPrevLogIndex(raftNode.getRaftLog().getLastLogIndex());
             executorService.submit(new Runnable() {
                 public void run() {
-                    appendEntries(serverNode, new ArrayList<RaftLog.LogEntry>());
+                    appendEntries(serverNode);
                 }
             });
         }
@@ -237,12 +240,17 @@ public class RaftCore {
     public boolean logReplication (byte[] data) {
         lock.lock();
         long newLastLogIndex;
+        long prevLogIndex;
+        long commitIndex;
         try {
             if (raftNode.getRaftServer().getServerState() !=
                     RaftServer.NodeState.LEADER) {
                 logger.debug("local serverId=" + raftNode.getRaftServer().getServerId() + " not leader!");
                 return false;
             }
+            prevLogIndex = raftNode.getRaftLog().getLastLogIndex();
+            commitIndex = raftNode.getRaftLog().getCommitIndex();
+
             long logIndex;
             if (raftNode.getRaftLog().getLogMetaDataMap().size() != 0) {
                 logIndex = raftNode.getRaftLog().getLastLogIndex() + 1;
@@ -266,10 +274,13 @@ public class RaftCore {
                     continue;
                 }
                 final ServerNode serverNode = serverNodeCache.get(serverId);
+                serverNode.setPrevLogIndex(prevLogIndex);
+                serverNode.setCommitIndex(commitIndex);
+                serverNode.setEntries(entries);
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        appendEntries(serverNode, entries);
+                        appendEntries(serverNode);
                     }
                 });
             }
@@ -299,18 +310,19 @@ public class RaftCore {
      * rpc call
      * @param serverNode
      */
-    public void appendEntries (ServerNode serverNode, List<RaftLog.LogEntry> entries) {
+    public void appendEntries (ServerNode serverNode) {
         lock.lock();
         try {
             RaftServer localRaftServer = raftNode.getRaftServer();
             RaftServer remoteRaftServer = serverNode.getRaftServer();
 
+            int numCount = serverNode.getEntries().size();
             AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
-                    raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
-                    raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
+                    raftNode.getLeaderId(),serverNode.getPrevLogIndex(),
+                    raftNode.getRaftLog().getLogEntryTerm(serverNode.getPrevLogIndex()),
                     //truncateSuffix
-                    Math.min(raftNode.getRaftLog().getCommitIndex(),
-                            raftNode.getRaftLog().getLastLogIndex()) + entries.size(), entries);
+                    Math.min(serverNode.getPrevLogIndex(),
+                            serverNode.getCommitIndex()) + numCount, serverNode.getEntries());
 
             request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
                     remoteRaftServer.getHost(), remoteRaftServer.getPort(),
@@ -337,7 +349,7 @@ public class RaftCore {
 
             logger.info("Append Entries response:" + response.isSuccess() +
             " from server:" + request.getServerId() + " in term:" + response.getTerm() +
-            " (my term in " + raftNode.getCurrentTerm() + ")" + " ,entries size=" + entries.size());
+            " (my term in " + raftNode.getCurrentTerm() + ")" + " ,entries size=" + numCount);
 
             if (response.getTerm() > raftNode.getCurrentTerm()) {
                 updateMore(response.getTerm());
