@@ -37,7 +37,7 @@ public class RaftLog {
     //候选人的最后日志条目的索引值,默认-1,第一次会+1,所以会默认为0
     private long lastLogIndex;
     //已知的最大的已经被提交的日志条目的索引值
-    private long commitIndex = 0;
+    private long commitIndex;
     //最后被应用到状态机的日志条目索引值
     private long lastApplied = 0;
     //max log size per file
@@ -130,7 +130,7 @@ public class RaftLog {
             int segmentNameLength = randomAccessFile.readInt();
             if (segmentNameLength == 0) {
                 //init
-                commitIndex = 0;
+                commitIndex = -1;
                 lastLogIndex = 0;
                 lastLogTerm = 0;
                 lastApplied = 0;
@@ -240,7 +240,7 @@ public class RaftLog {
                 if (newEndIndex == segment.getEndIndex()) {
                     LogEntry logEntry = segment.getEntry(newEndIndex);
                     //update protocol data
-                    updateProtocolData(logEntry.getTerm(), newEndIndex, newEndIndex);
+                    updateProtocolData(logEntry.getTerm(), newEndIndex);
                     //update globle info
                     globleMetaData.setLastSegmentLogName(segment.getFileName());
                     globleMetaData.lastIndex = newEndIndex;
@@ -298,11 +298,9 @@ public class RaftLog {
     public long append (List<LogEntry> logEntries) {
         long newLastIndexLog = lastLogIndex;
         for (LogEntry logEntry : logEntries) {
-            if (RaftUtils.getFileNumInDir(logEntryDir, logEntryDir) != 0) {
-                //there is >0 file in the dir
+            if (logMetaDataMap.size() != 0) {
                 newLastIndexLog++;
             }
-
             int entrySize = logEntry.getSerializedSize();
             int segmentSize = logMetaDataMap.size();
             boolean isNeedNewSegmentFile = false;
@@ -348,7 +346,7 @@ public class RaftLog {
                 String newFullFileName = logEntryDir + File.separator + newFileName;
                 new File(oldFullFileName).renameTo(new File(newFullFileName));
                 //update protocol data
-                updateProtocolData(logEntry.getTerm(), logEntry.getIndex(), logEntry.getIndex());
+                updateProtocolData(logEntry.getTerm(), logEntry.getIndex());
                 if (logMetaDataMap.get(newSegment.getStartIndex()) == null) {
                     SegmentMetaData segmentMetaData = new SegmentMetaData(newSegment.getStartIndex(),
                             newSegment.getEndIndex(), newFileName);
@@ -376,10 +374,9 @@ public class RaftLog {
     }
 
 
-    public void updateProtocolData (int lastLogTerm, long lastLogIndex, long commitIndex) {
+    public void updateProtocolData (int lastLogTerm, long lastLogIndex) {
         this.lastLogTerm = lastLogTerm;
         this.lastLogIndex = lastLogIndex;
-        this.commitIndex = commitIndex;
     }
 
     public int getLogEntryTerm (long logIndex) {

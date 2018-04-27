@@ -99,9 +99,9 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
             response.setSuccess(true);
             List<RaftLog.LogEntry> entries = new ArrayList<>();
-            long index = request.getPrevLogIndex();
+
             for (RaftLog.LogEntry entry : request.getLogEntries()) {
-                index++;
+                long index = entry.getIndex();
                 if (raftNode.getRaftLog().getLastLogIndex() > index) {
                     if (raftNode.getRaftLog().getLogEntryTerm(index) == entry.getTerm()) {
                         continue;

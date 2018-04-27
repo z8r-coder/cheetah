@@ -244,8 +244,7 @@ public class RaftCore {
                 return false;
             }
             long logIndex;
-            if (RaftUtils.getFileNumInDir(raftNode.getRaftLog().getLogEntryDir(),
-                    raftNode.getRaftLog().getLogEntryDir()) != 0) {
+            if (raftNode.getRaftLog().getLogMetaDataMap().size() != 0) {
                 logIndex = raftNode.getRaftLog().getLastLogIndex() + 1;
             } else {
                 //there is no file
@@ -259,6 +258,9 @@ public class RaftCore {
             final List<RaftLog.LogEntry> entries = new ArrayList<>();
             entries.add(logEntry);
 
+            //set raft log protocol meta info
+            newLastLogIndex = raftNode.getRaftLog().append(entries);
+
             for (Long serverId : serverList.keySet()) {
                 if (serverId == raftNode.getRaftServer().getServerId()) {
                     continue;
@@ -271,7 +273,6 @@ public class RaftCore {
                     }
                 });
             }
-            newLastLogIndex = raftNode.getRaftLog().append(entries);
 
             //sync commitIndex >= newLastLogIndex
             long startTime = System.currentTimeMillis();
@@ -307,7 +308,9 @@ public class RaftCore {
             AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
                     raftNode.getLeaderId(), raftNode.getRaftLog().getLastLogIndex(),
                     raftNode.getRaftLog().getLogEntryTerm(raftNode.getRaftLog().getLastLogIndex()),
-                    raftNode.getRaftLog().getCommitIndex(), entries);
+                    //truncateSuffix
+                    Math.min(raftNode.getRaftLog().getCommitIndex(),
+                            raftNode.getRaftLog().getLastLogIndex()) + entries.size(), entries);
 
             request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
                     remoteRaftServer.getHost(), remoteRaftServer.getPort(),
@@ -341,7 +344,7 @@ public class RaftCore {
             } else {
                 if (response.isSuccess()) {
                     //success
-                    serverNode.setMatchIndex(request.getPrevLogIndex() + request.getLogEntries().size());
+                    serverNode.setMatchIndex(response.getLastLogIndex());
                     serverNode.setNextIndex(serverNode.getMatchIndex() + 1);
                     if (serverList.get(request.getServerId()) != null) {
                         applyLogOnStateMachine();
