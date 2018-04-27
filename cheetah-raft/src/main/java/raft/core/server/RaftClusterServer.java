@@ -49,4 +49,9 @@ public class RaftClusterServer {
             }
         }
     }
+
+    public void stopOneServerNode (String serverId) {
+        RaftRpcServerAcceptor acceptor = cacheRaftServer.get(serverId);
+        acceptor.stopService();
+    }
 }
