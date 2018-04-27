@@ -341,8 +341,7 @@ public class RaftCore {
                 if (serverList.get(request.getServerId()) == null) {
                     //down
                     serverNodeCache.remove(request.getServerId());
-                    serverNode.getAsyncProxy().stopService();
-                    serverNode.getSyncProxy().stopService();
+                    serverNode.stopSerivce();
                 }
                 return;
             }

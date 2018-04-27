@@ -66,7 +66,17 @@ public class ServerNode {
         } catch (Exception ex) {
             logger.error("occurs ex:", ex);
         }
+    }
 
+    public void stopSerivce() {
+        if (syncProxy != null && syncProxy.getRemoteProxyStatus() ==
+                SimpleClientRemoteProxy.STARTED) {
+            syncProxy.stopService();
+        }
+        if (asyncProxy != null && asyncProxy.getRemoteProxyStatus() ==
+                SimpleClientRemoteProxy.STARTED) {
+            asyncProxy.stopService();
+        }
     }
 
     public static void main(String[] args) {
