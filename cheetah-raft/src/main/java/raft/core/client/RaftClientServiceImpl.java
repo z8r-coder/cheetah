@@ -1,5 +1,6 @@
 package raft.core.client;
 
+import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.core.RaftClientService;
 import raft.core.RaftConsensusService;
@@ -39,6 +40,8 @@ public class RaftClientServiceImpl implements RaftClientService {
 
     private Map<Long, RpcConnectorWrapper> connectorCache;
 
+    private CheetahAddress leaderAddress;
+
     public RaftClientServiceImpl () {
         localHost = NetUtils.getLocalHost();
         configuration = new Configuration();
@@ -49,45 +52,47 @@ public class RaftClientServiceImpl implements RaftClientService {
     public GetLeaderResponse getLeader() {
         //generate request
         GetLeaderRequest request = new GetLeaderRequest();
-        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
-                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
+        setAddress(request);
 
         logger.info("client getLeader request ,remote host=" + request.getRemoteHost() +
         " ,remote port=" + request.getRemotePort());
 
         RaftConsensusService raftConsensusService = getRaftConsensusService(request);
-        return raftConsensusService.getLeader(request);
+        GetLeaderResponse response = raftConsensusService.getLeader(request);
+        leaderAddress = response.getCheetahAddress();
+        return response;
     }
 
     @Override
     public GetServerListResponse getServerList() {
         //generate request
         GetServerListRequest request = new GetServerListRequest();
-        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
-                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
+        setAddress(request);
 
         logger.info("client getServerList request ,remote host=" + request.getRemoteHost() +
         " ,remote port=" + request.getRemotePort());
 
         RaftConsensusService raftConsensusService = getRaftConsensusService(request);
-        return raftConsensusService.getServerList(request);
+        GetServerListResponse response = raftConsensusService.getServerList(request);
+        leaderAddress = response.getLeaderAddress();
+        return response;
     }
 
     @Override
     public String getValue(String key) {
         //generate request
         GetValueRequest request = new GetValueRequest(key);
-        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
-                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
+        setAddress(request);
         logger.info("client get value request ,remote host=" + request.getRemoteHost() +
                 " ,remote port=" + request.getRemotePort());
 
         RaftConsensusService raftConsensusService = getRaftConsensusService(request);
         GetValueResponse response = raftConsensusService.getValue(request);
         if (response == null) {
-            logger.info("response == null");
+            logger.warn("response == null");
             return null;
         }
+        leaderAddress = response.getLeaderAddress();
         return response.getValue();
     }
 
@@ -95,13 +100,13 @@ public class RaftClientServiceImpl implements RaftClientService {
     public String set(String command) {
         //generate request
         SetKVRequest request = new SetKVRequest(command);
-        request.setAddress(localHost,0,configuration.getRaftClusterHost(),
-                Integer.parseInt(configuration.getRaftClusterPort()), ParseUtils.generateServerId(localHost,0));
+        setAddress(request);
         logger.info("client set kv request ,remote host=" + request.getRemoteHost() +
                 " ,remote port=" + request.getRemotePort());
 
         RaftConsensusService raftConsensusService = getRaftConsensusService(request);
         SetKVResponse response = raftConsensusService.setKV(request);
+        leaderAddress = response.getLeaderAddress();
         return response.getRespMessage();
     }
 
@@ -119,5 +124,17 @@ public class RaftClientServiceImpl implements RaftClientService {
         connector.startService();
         SimpleClientRemoteProxy proxy = connector.getProxy();
         return proxy.registerRemote(RaftConsensusService.class);
+    }
+
+    private void setAddress(BaseRequest request) {
+        request.setLocalHost(localHost);
+        request.setLocalPort(0);
+        if (leaderAddress == null) {
+            request.setRemoteHost(configuration.getRaftClusterHost());
+            request.setRemotePort(Integer.parseInt(configuration.getRaftClusterPort()));
+        } else {
+            request.setRemoteHost(leaderAddress.getHost());
+            request.setRemotePort(leaderAddress.getPort());
+        }
     }
 }

@@ -1,5 +1,7 @@
 package raft.protocol.response;
 
+import models.CheetahAddress;
+
 import java.util.Map;
 
 /**
@@ -9,10 +11,12 @@ import java.util.Map;
  */
 public class GetServerListResponse extends RaftResponse {
     private Map<Long, String> serverList;
+    private CheetahAddress leaderAddress;
 
-    public GetServerListResponse(Map<Long, String> serverList, long serverId) {
+    public GetServerListResponse(Map<Long, String> serverList, long serverId, CheetahAddress leaderAddress) {
         super(serverId);
         this.serverList = serverList;
+        this.leaderAddress = leaderAddress;
     }
 
     public Map<Long, String> getServerList() {
@@ -21,5 +25,13 @@ public class GetServerListResponse extends RaftResponse {
 
     public void setServerList(Map<Long, String> serverList) {
         this.serverList = serverList;
+    }
+
+    public CheetahAddress getLeaderAddress() {
+        return leaderAddress;
+    }
+
+    public void setLeaderAddress(CheetahAddress leaderAddress) {
+        this.leaderAddress = leaderAddress;
     }
 }

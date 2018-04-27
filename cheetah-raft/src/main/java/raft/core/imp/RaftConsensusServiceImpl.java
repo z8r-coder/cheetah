@@ -1,5 +1,6 @@
 package raft.core.imp;
 
+import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.core.RaftConsensusService;
 import raft.core.RaftCore;
@@ -8,6 +9,7 @@ import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
 import raft.protocol.request.*;
 import raft.protocol.response.*;
+import utils.ParseUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,8 +131,11 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     public GetLeaderResponse getLeader(GetLeaderRequest request) {
         logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
         " ,remote host=" + request.getRemoteHost());
+        //get leader ip
+        CheetahAddress cheetahAddress = getLeaderAddress();
+
         GetLeaderResponse response = new GetLeaderResponse(raftNode.getRaftServer().getServerId(),
-                raftNode.getLeaderId());
+                raftNode.getLeaderId() ,cheetahAddress);
         return response;
     }
 
@@ -138,7 +143,10 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     public GetServerListResponse getServerList(GetServerListRequest request) {
         logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
         " ,remote host=" + request.getRemoteHost());
-        GetServerListResponse response = new GetServerListResponse(raftCore.getServerList(), raftNode.getRaftServer().getServerId());
+        //get leader ip
+        CheetahAddress cheetahAddress = getLeaderAddress();
+        GetServerListResponse response = new GetServerListResponse(raftCore.getServerList(),
+                raftNode.getRaftServer().getServerId(), cheetahAddress);
         return response;
     }
 
@@ -146,7 +154,10 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     public GetValueResponse getValue(GetValueRequest request) {
         logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
         " ,remote host=" + request.getRemoteHost());
-        GetValueResponse response = new GetValueResponse(raftNode.getRaftServer().getServerId());
+
+        //get leader ip
+        CheetahAddress cheetahAddress = getLeaderAddress();
+        GetValueResponse response = new GetValueResponse(raftNode.getRaftServer().getServerId(), cheetahAddress);
         if (raftNode.getLeaderId() <= 0) {
             //have not election leader
             logger.info("there is no leader, local serverId=" + raftNode.getRaftServer().getServerId());
@@ -170,7 +181,9 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     @Override
     public SetKVResponse setKV(SetKVRequest request) {
         logger.info("local serverId=" + raftNode.getRaftServer().getServerId());
-        SetKVResponse response = new SetKVResponse(raftNode.getRaftServer().getServerId());
+
+        CheetahAddress cheetahAddress = getLeaderAddress();
+        SetKVResponse response = new SetKVResponse(raftNode.getRaftServer().getServerId(), cheetahAddress);
         if (raftNode.getLeaderId() <= 0) {
             //have not election leader
             logger.info("there is no leader, local serverId=" + raftNode.getRaftServer().getServerId());
@@ -188,6 +201,12 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
         }
         return response;
+    }
+
+    private CheetahAddress getLeaderAddress() {
+        String address = raftCore.getServerList().get(raftNode.getLeaderId());
+        CheetahAddress cheetahAddress = ParseUtils.parseAddress(address);
+        return cheetahAddress;
     }
 
     //apply on state machine
