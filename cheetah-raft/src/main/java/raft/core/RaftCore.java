@@ -205,6 +205,9 @@ public class RaftCore {
         return serverNode.getRaftConsensusService().setKV(request);
     }
 
+    /**
+     * get redirect leader
+     */
     public GetValueResponse getRedirectLeader (GetValueRequest request) {
         ServerNode serverNode = getServerNodeById(raftNode.getLeaderId());
         return serverNode.getRaftConsensusService().getValue(request);
@@ -336,13 +339,13 @@ public class RaftCore {
             AddResponse response = serverNode.getRaftConsensusService().appendEntries(request);
 
             if (response == null) {
+                // TODO: 2018/4/28 here maybe not down, but some wrong with it ,we need the better strategy to sure the server
                 logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
-                " port=" + request.getRemotePort());
-                if (serverList.get(request.getServerId()) == null) {
-                    //down
-                    serverNodeCache.remove(request.getServerId());
-                    serverNode.stopSerivce();
-                }
+                " port=" + request.getRemotePort() + " may down, remove it!");
+                //down
+                serverList.remove(request.getServerId());
+                serverNodeCache.remove(request.getServerId());
+                serverNode.stopSerivce();
                 return;
             }
 
