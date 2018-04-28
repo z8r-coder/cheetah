@@ -6,6 +6,7 @@ import raft.protocol.RaftLog;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ruanxin
@@ -25,6 +26,7 @@ public class AddRequest extends BaseRequest implements Serializable {
     private long leaderCommit;
     //log entry
     private List<RaftLog.LogEntry> logEntries;
+    private Map<Long, String> serverList;
 
     private long serverId;
 
@@ -38,13 +40,15 @@ public class AddRequest extends BaseRequest implements Serializable {
         logEntries = new ArrayList<>();
     }
     public AddRequest (int term, long leaderId, long prevLogIndex,
-                       int prevLogTerm, long leaderCommit, List<RaftLog.LogEntry> logEntries) {
+                       int prevLogTerm, long leaderCommit, List<RaftLog.LogEntry> logEntries,
+                       Map<Long, String> serverList) {
         this.term = term;
         this.leaderId = leaderId;
         this.prevLogIndex = prevLogIndex;
         this.prevLogTerm = prevLogTerm;
         this.leaderCommit = leaderCommit;
         this.logEntries = logEntries;
+        this.serverList = serverList;
     }
 
     public void setAddress(String localHost, int localPort,
@@ -111,5 +115,13 @@ public class AddRequest extends BaseRequest implements Serializable {
 
     public void setServerId(long serverId) {
         this.serverId = serverId;
+    }
+
+    public Map<Long, String> getServerList() {
+        return serverList;
+    }
+
+    public void setServerList(Map<Long, String> serverList) {
+        this.serverList = serverList;
     }
 }

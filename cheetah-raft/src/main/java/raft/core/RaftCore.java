@@ -325,7 +325,8 @@ public class RaftCore {
                     raftNode.getRaftLog().getLogEntryTerm(serverNode.getPrevLogIndex()),
                     //truncateSuffix
                     Math.min(serverNode.getPrevLogIndex(),
-                            serverNode.getCommitIndex()) + numCount, serverNode.getEntries());
+                            serverNode.getCommitIndex()) + numCount, serverNode.getEntries(),
+                    serverList);
 
             request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
                     remoteRaftServer.getHost(), remoteRaftServer.getPort(),
@@ -339,7 +340,7 @@ public class RaftCore {
             AddResponse response = serverNode.getRaftConsensusService().appendEntries(request);
 
             if (response == null) {
-                // TODO: 2018/4/28 here maybe not down, but some wrong with it ,we need the better strategy to sure the server
+                // TODO: 2018/4/28 here maybe not down, but some wrong with it ,we need the better strategy to sure if the server down
                 logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
                 " port=" + request.getRemotePort() + " may down, remove it!");
                 //down
