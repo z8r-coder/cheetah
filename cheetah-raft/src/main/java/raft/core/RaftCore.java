@@ -344,8 +344,10 @@ public class RaftCore {
                 logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
                 " port=" + request.getRemotePort() + " may down, remove it!");
                 //down
-                serverList.remove(request.getServerId());
-                serverNodeCache.remove(request.getServerId());
+                long remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(),
+                        request.getRemotePort());
+                serverList.remove(remoteServerId);
+                serverNodeCache.remove(remoteServerId);
                 serverNode.stopSerivce();
                 return;
             }

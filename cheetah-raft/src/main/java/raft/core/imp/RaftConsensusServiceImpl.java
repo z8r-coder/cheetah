@@ -56,6 +56,10 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 " ,so update more!");
                 raftCore.updateMore(request.getTerm());
             }
+
+            //update server list
+            raftCore.setServerList(request.getServerList());
+
             if (raftNode.getLeaderId() == 0) {
                 raftNode.setLeaderId(request.getLeaderId());
                 logger.info("new leaderId:" + raftNode.getLeaderId());
@@ -71,6 +75,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 response.setServerId(raftServer.getServerId());
                 return response;
             }
+
             if (request.getPrevLogIndex() > raftNode.getRaftLog().getLastLogIndex()) {
                 logger.info("Refuse,request's log index:" + request.getPrevLogIndex() +
                 ",local server's log index:" + raftNode.getRaftLog().getLastLogIndex());
