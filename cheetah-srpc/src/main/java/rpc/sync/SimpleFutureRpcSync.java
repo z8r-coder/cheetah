@@ -1,5 +1,6 @@
 package rpc.sync;
 
+import constants.ErrorCodeEnum;
 import rpc.RpcObject;
 import rpc.exception.RpcException;
 
@@ -16,7 +17,7 @@ public class SimpleFutureRpcSync implements RpcSync {
                 Thread.currentThread().sleep(5);
                 timeAll += 5;
                 if (timeAll > time) {
-                    throw new RpcException("request time out");
+                    throw new RpcException(ErrorCodeEnum.RPC00010);
                 }
             } catch (InterruptedException e) {
                 throw new RpcException(e);

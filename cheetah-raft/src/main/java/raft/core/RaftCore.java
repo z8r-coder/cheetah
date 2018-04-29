@@ -1,11 +1,13 @@
 package raft.core;
 
+import constants.ErrorCodeEnum;
 import mock.RaftMock;
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.constants.RaftOptions;
 import raft.core.server.RaftServer;
 import raft.core.server.ServerNode;
+import raft.model.BaseRequest;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
 import raft.protocol.request.AddRequest;
@@ -18,8 +20,10 @@ import raft.protocol.response.SetKVResponse;
 import raft.protocol.response.VotedResponse;
 import raft.utils.RaftUtils;
 import rpc.async.RpcCallback;
+import rpc.exception.RpcException;
 import utils.ParseUtils;
 
+import java.net.ConnectException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
@@ -315,23 +319,22 @@ public class RaftCore {
      */
     public void appendEntries (ServerNode serverNode) {
         lock.lock();
+        RaftServer localRaftServer = raftNode.getRaftServer();
+        RaftServer remoteRaftServer = serverNode.getRaftServer();
+
+        int numCount = serverNode.getEntries().size();
+        AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
+                raftNode.getLeaderId(),serverNode.getPrevLogIndex(),
+                raftNode.getRaftLog().getLogEntryTerm(serverNode.getPrevLogIndex()),
+                //truncateSuffix
+                Math.min(serverNode.getPrevLogIndex(),
+                        serverNode.getCommitIndex()) + numCount, serverNode.getEntries(),
+                serverList);
+
+        request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
+                remoteRaftServer.getHost(), remoteRaftServer.getPort(),
+                raftNode.getRaftServer().getServerId());
         try {
-            RaftServer localRaftServer = raftNode.getRaftServer();
-            RaftServer remoteRaftServer = serverNode.getRaftServer();
-
-            int numCount = serverNode.getEntries().size();
-            AddRequest request = new AddRequest(raftNode.getCurrentTerm(),
-                    raftNode.getLeaderId(),serverNode.getPrevLogIndex(),
-                    raftNode.getRaftLog().getLogEntryTerm(serverNode.getPrevLogIndex()),
-                    //truncateSuffix
-                    Math.min(serverNode.getPrevLogIndex(),
-                            serverNode.getCommitIndex()) + numCount, serverNode.getEntries(),
-                    serverList);
-
-            request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
-                    remoteRaftServer.getHost(), remoteRaftServer.getPort(),
-                    raftNode.getRaftServer().getServerId());
-
             //sync rpc call
             if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
                     serverNode.getSyncProxy().STOP) {
@@ -340,7 +343,6 @@ public class RaftCore {
             AddResponse response = serverNode.getRaftConsensusService().appendEntries(request);
 
             if (response == null) {
-                // TODO: 2018/4/28 here maybe not down, but some wrong with it ,we need the better strategy to sure if the server down
                 logger.warn("append entries rpc fail, host=" + request.getRemoteHost() +
                 " port=" + request.getRemotePort() + " may down, remove it!");
                 //down
@@ -373,7 +375,9 @@ public class RaftCore {
                 }
             }
         } catch (Exception ex) {
-            logger.info("appendEntries occurs ex!", ex);
+            logger.error("appendEntries occurs ex!", ex);
+            //server down
+            serverDownAndRemove(ex, request, serverNode, "appendEntries");
         } finally {
             lock.unlock();
         }
@@ -384,18 +388,18 @@ public class RaftCore {
      * @param serverNode
      */
     private void requestVoteFor(ServerNode serverNode) {
+        logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
+                " begin request vote for!");
+        RaftServer remoteRaftServer = serverNode.getRaftServer();
+        RaftServer localRaftServer = raftNode.getRaftServer();
+        VotedRequest request = new VotedRequest(raftNode.getCurrentTerm(),
+                raftNode.getRaftServer().getServerId(),
+                raftNode.getRaftLog().getLastLogIndex(),
+                raftNode.getRaftLog().getLastLogTerm());
+        request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
+                remoteRaftServer.getHost(), remoteRaftServer.getPort(),
+                localRaftServer.getServerId());
         try {
-            logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
-                    " begin request vote for!");
-            RaftServer remoteRaftServer = serverNode.getRaftServer();
-            RaftServer localRaftServer = raftNode.getRaftServer();
-            VotedRequest request = new VotedRequest(raftNode.getCurrentTerm(),
-                    raftNode.getRaftServer().getServerId(),
-                    raftNode.getRaftLog().getLastLogIndex(),
-                    raftNode.getRaftLog().getLastLogTerm());
-            request.setAddress(localRaftServer.getHost(), localRaftServer.getPort(),
-                    remoteRaftServer.getHost(), remoteRaftServer.getPort(),
-                    localRaftServer.getServerId());
             RaftVoteAsyncCallBack voteAsyncCallBack = (RaftVoteAsyncCallBack) serverNode.getRpcCallback();
             voteAsyncCallBack.setRequest(request);
 
@@ -407,6 +411,26 @@ public class RaftCore {
             serverNode.getRaftAsyncConsensusService().leaderElection(request);
         } catch (Exception ex) {
             logger.error("request vote for occurs ex:", ex);
+            //server down
+            serverDownAndRemove(ex, request, serverNode, "requestVoteFor");
+        }
+    }
+
+    /**
+     * server down handler
+     */
+    private void serverDownAndRemove (Exception ex, BaseRequest request,
+                                      ServerNode serverNode, String message) {
+        if ((ex instanceof RpcException &&
+                ((RpcException) ex).getErrorCode().equals(ErrorCodeEnum.RPC00010.getErrorCode()))
+                || ex instanceof ConnectException) {
+            logger.warn(message + " rpc fail, host=" + request.getRemoteHost() +
+                    " port=" + request.getRemotePort() + " may down, remove it!");
+            long remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(),
+                    request.getRemotePort());
+            serverList.remove(remoteServerId);
+            serverNodeCache.remove(remoteServerId);
+            serverNode.stopSerivce();
         }
     }
 
