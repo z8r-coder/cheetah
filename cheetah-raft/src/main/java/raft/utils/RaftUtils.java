@@ -1,6 +1,9 @@
 package raft.utils;
 
+import models.CheetahAddress;
 import org.apache.log4j.Logger;
+import utils.Configuration;
+import utils.ParseUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,6 +13,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author ruanxin
@@ -118,6 +123,23 @@ public class RaftUtils {
             return hello;
         }
     }
+
+    /**
+     * 解析数据
+     * @return
+     */
+    public static Map<Long, String> getInitCacheServerList (Configuration configuration) {
+        Map<Long, String> cacheServerList = new ConcurrentHashMap<>();
+        String raftInitServers = configuration.getRaftInitServer();
+        List<CheetahAddress> addresses = ParseUtils.parseCommandAddress(raftInitServers);
+        for (CheetahAddress cheetahAddress : addresses) {
+            long serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
+            String server = ParseUtils.generateServerIp(cheetahAddress.getHost(), cheetahAddress.getPort());
+            cacheServerList.put(serverId, server);
+        }
+        return cacheServerList;
+    }
+
     public static <T> T test(Class<T> clazz) {
         try {
             Method method = clazz.getMethod("test");

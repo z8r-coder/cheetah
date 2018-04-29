@@ -1,5 +1,6 @@
 package raft.core.client;
 
+import constants.ErrorCodeEnum;
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.core.RaftClientService;
@@ -13,7 +14,9 @@ import raft.protocol.response.GetLeaderResponse;
 import raft.protocol.response.GetServerListResponse;
 import raft.protocol.response.GetValueResponse;
 import raft.protocol.response.SetKVResponse;
+import raft.utils.RaftUtils;
 import rpc.client.SimpleClientRemoteProxy;
+import rpc.exception.RpcException;
 import rpc.wrapper.RpcConnectorWrapper;
 import rpc.wrapper.connector.RpcServerSyncConnector;
 import utils.Configuration;
@@ -35,17 +38,17 @@ public class RaftClientServiceImpl implements RaftClientService {
     private final static Logger logger = Logger.getLogger(RaftClientServiceImpl.class);
 
     private String localHost;
-
     private Configuration configuration;
-
     private Map<Long, RpcConnectorWrapper> connectorCache;
 
     private CheetahAddress leaderAddress;
+    private Map<Long, String> initServers;
 
     public RaftClientServiceImpl () {
         localHost = NetUtils.getLocalHost();
         configuration = new Configuration();
         connectorCache = new HashMap<>();
+        initServers = RaftUtils.getInitCacheServerList(configuration);
     }
 
     @Override
@@ -120,8 +123,18 @@ public class RaftClientServiceImpl implements RaftClientService {
                     request.getRemotePort());
             connectorCache.put(remoteServerId, connector);
         }
+        try {
+            connector.startService();
+        } catch (Exception ex) {
+            //connect error retry
+            if (ex instanceof RpcException &&
+                    ((RpcException) ex).getErrorCode().equals(ErrorCodeEnum.RPC00020.getErrorCode())) {
+                logger.error("client connect remote host=" + request.getRemoteHost() +
+                " ,port=" + request.getRemotePort());
+                connectorCache.remove(remoteServerId);
+            }
+        }
 
-        connector.startService();
         SimpleClientRemoteProxy proxy = connector.getProxy();
         return proxy.registerRemote(RaftConsensusService.class);
     }

@@ -9,6 +9,7 @@ import raft.core.server.RaftServer;
 import raft.demo.statemachine.ExampleStateMachine;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
+import raft.utils.RaftUtils;
 import rpc.wrapper.RpcAcceptorWrapper;
 import utils.Configuration;
 import utils.ParseUtils;
@@ -39,7 +40,7 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
         //state machine
         StateMachine stateMachine = new CheetahStateMachine();
         RaftNode raftNode = new RaftNode(raftLog, raftServer, stateMachine);
-        RaftCore raftCore = new RaftCore(raftOptions, raftNode, getCacheServerList());
+        RaftCore raftCore = new RaftCore(raftOptions, raftNode, RaftUtils.getInitCacheServerList(configuration));
 
         RaftConsensusServiceImpl raftConsensusService = new RaftConsensusServiceImpl(raftNode, raftCore);
         RaftAsyncConsensusServiceImpl raftAsyncConsensusService = new RaftAsyncConsensusServiceImpl(raftNode, raftCore);
@@ -48,19 +49,4 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
         remoteExecutor.registerRemote(RaftAsyncConsensusService.class, raftAsyncConsensusService);
     }
 
-    /**
-     * 解析数据
-     * @return
-     */
-    private Map<Long, String> getCacheServerList () {
-        Map<Long, String> cacheServerList = new ConcurrentHashMap<>();
-        String raftInitServers = configuration.getRaftInitServer();
-        List<CheetahAddress> addresses = ParseUtils.parseCommandAddress(raftInitServers);
-        for (CheetahAddress cheetahAddress : addresses) {
-            long serverId = ParseUtils.generateServerId(cheetahAddress.getHost(), cheetahAddress.getPort());
-            String server = ParseUtils.generateServerIp(cheetahAddress.getHost(), cheetahAddress.getPort());
-            cacheServerList.put(serverId, server);
-        }
-        return cacheServerList;
-    }
 }
