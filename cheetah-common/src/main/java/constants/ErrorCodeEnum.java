@@ -5,9 +5,9 @@ package constants;
  * @Date: Created in 23:01 2017/10/14 0014
  */
 public enum ErrorCodeEnum {
-    RPC00000("RPC00000", "发送成功"),
-    RPC00010("RPC00010", "发送超时"),
-    RPC00020("RPC00020", "Acceptor close")
+    RPC00000("RPC00000", "successful"),
+    RPC00010("RPC00010", "request time out"),
+    RPC00020("RPC00020", "acceptor close, connect to host error")
     ;
 
     /**

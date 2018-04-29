@@ -388,10 +388,11 @@ public class RaftCore {
      * @param serverNode
      */
     private void requestVoteFor(ServerNode serverNode) {
-        logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
-                " begin request vote for!");
         RaftServer remoteRaftServer = serverNode.getRaftServer();
         RaftServer localRaftServer = raftNode.getRaftServer();
+        logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
+                " begin request vote for! remote host=" + remoteRaftServer.getHost() +
+        " ,remote port=" + remoteRaftServer.getPort());
         VotedRequest request = new VotedRequest(raftNode.getCurrentTerm(),
                 raftNode.getRaftServer().getServerId(),
                 raftNode.getRaftLog().getLastLogIndex(),
@@ -421,9 +422,8 @@ public class RaftCore {
      */
     private void serverDownAndRemove (Exception ex, BaseRequest request,
                                       ServerNode serverNode, String message) {
-        if ((ex instanceof RpcException &&
-                ((RpcException) ex).getErrorCode().equals(ErrorCodeEnum.RPC00010.getErrorCode()))
-                || ex instanceof ConnectException) {
+        if (ex instanceof RpcException &&
+                ((RpcException) ex).getErrorCode().equals(ErrorCodeEnum.RPC00020.getErrorCode())) {
             logger.warn(message + " rpc fail, host=" + request.getRemoteHost() +
                     " port=" + request.getRemotePort() + " may down, remove it!");
             long remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(),

@@ -1,5 +1,6 @@
 package rpc.nio;
 
+import constants.ErrorCodeEnum;
 import org.apache.log4j.Logger;
 import rpc.exception.RpcException;
 import rpc.net.AbstractRpcConnector;
@@ -68,7 +69,7 @@ public class RpcNioConnector extends AbstractRpcConnector {
             this.fireStartNetListeners();
         } catch(IOException e){
             logger.error("connect to host "+this.getHost()+" port "+this.getPort()+" failed", e);
-            throw new RpcException("connect to host error");
+            throw new RpcException(ErrorCodeEnum.RPC00020);
         }
     }
 
