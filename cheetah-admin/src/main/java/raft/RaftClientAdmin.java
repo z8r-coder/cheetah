@@ -4,6 +4,7 @@ import raft.core.RaftClientService;
 import raft.core.client.RaftClientServiceImpl;
 import raft.protocol.response.GetLeaderResponse;
 import raft.protocol.response.GetServerListResponse;
+import utils.Configuration;
 
 import java.util.Map;
 import java.util.Scanner;
@@ -76,7 +77,9 @@ public class RaftClientAdmin {
 
     }
     public static void main(String[] args) {
-        RaftClientService raftClientService = new RaftClientServiceImpl();
+        Configuration configuration = new Configuration();
+        RaftClientService raftClientService = new RaftClientServiceImpl(configuration.getRaftClusterHost(),
+                Integer.parseInt(configuration.getRaftClusterPort()));
         RaftClientAdmin raftClientAdmin = new RaftClientAdmin(raftClientService);
         raftClientAdmin.scanInputAndParse();
     }

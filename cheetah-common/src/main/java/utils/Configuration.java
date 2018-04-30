@@ -81,11 +81,11 @@ public class Configuration {
         if (!StringUtils.isBlank(raftInitServer)) {
             this.raftInitServer = raftInitServer;
         }
-        String raftClusterHost = properties.getProperty("raft.cluster.host");
+        String raftClusterHost = properties.getProperty("raft.client.cluster.host");
         if (!StringUtils.isBlank(raftClusterHost)) {
             this.raftClusterHost = raftClusterHost;
         }
-        String raftClusterPort = properties.getProperty("raft.cluster.port");
+        String raftClusterPort = properties.getProperty("raft.client.cluster.port");
         if (!StringUtils.isBlank(raftClusterPort)) {
             this.raftClusterPort = raftClusterPort;
         }

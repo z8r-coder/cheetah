@@ -4,6 +4,7 @@ import raft.core.ParserGateWayService;
 import raft.core.RaftClientService;
 import raft.core.client.RaftClientServiceImpl;
 import raft.core.imp.ParserGateWayServiceImpl;
+import utils.Configuration;
 
 import java.util.Scanner;
 
@@ -15,7 +16,9 @@ import java.util.Scanner;
 public class CommandParserDemo {
 
     public static void main(String[] args) {
-        RaftClientService raftClientService = new RaftClientServiceImpl();
+        Configuration configuration = new Configuration();
+        RaftClientService raftClientService = new RaftClientServiceImpl(configuration.getRaftClusterHost(),
+                Integer.parseInt(configuration.getRaftClusterPort()));
         ParserGateWayService parserGateWayService = new ParserGateWayServiceImpl(raftClientService);
         Scanner scanner = new Scanner(System.in);
         System.out.print(">");
