@@ -10,14 +10,8 @@ import raft.core.server.ServerNode;
 import raft.model.BaseRequest;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
-import raft.protocol.request.AddRequest;
-import raft.protocol.request.GetValueRequest;
-import raft.protocol.request.SetKVRequest;
-import raft.protocol.request.VotedRequest;
-import raft.protocol.response.AddResponse;
-import raft.protocol.response.GetValueResponse;
-import raft.protocol.response.SetKVResponse;
-import raft.protocol.response.VotedResponse;
+import raft.protocol.request.*;
+import raft.protocol.response.*;
 import rpc.async.RpcCallback;
 import rpc.exception.RpcException;
 import utils.ParseUtils;
@@ -80,6 +74,24 @@ public class RaftCore {
         resetElectionTimer();
     }
 
+    /**
+     * new node add to cluster
+     */
+    public RegisterServerResponse newNodeRegister(RegisterServerRequest request) {
+        long newServerId = ParseUtils.generateServerId(request.getNewHost(), request.getNewPort());
+        serverList.put(newServerId, request.getNewHost() + ":" + request.getNewPort());
+        RaftVoteAsyncCallBack asyncCallBack = new RaftVoteAsyncCallBack();
+        RaftServer raftServer = new RaftServer(request.getNewHost(), request.getNewPort());
+        ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
+        serverNodeCache.put(newServerId, serverNode);
+        RegisterServerResponse registerServerResponse = new RegisterServerResponse(raftNode.getRaftServer().getServerId(),
+                serverList, serverNodeCache);
+        return registerServerResponse;
+    }
+
+    /**
+     * become leader
+     */
     public void becomeLeader() {
         RaftServer raftServer = raftNode.getRaftServer();
         raftServer.setServerState(RaftServer.NodeState.LEADER);
@@ -104,7 +116,6 @@ public class RaftCore {
             if (serverId == raftNode.getRaftServer().getServerId()) {
                 continue;
             }
-            // TODO: 2018/4/10 当有新机器加入时 可能为空
             final ServerNode serverNode = serverNodeCache.get(serverId);
             serverNode.setEntries(new ArrayList<RaftLog.LogEntry>());
             serverNode.setCommitIndex(raftNode.getRaftLog().getCommitIndex());
@@ -213,6 +224,14 @@ public class RaftCore {
     public GetValueResponse getRedirectLeader (GetValueRequest request) {
         ServerNode serverNode = getServerNodeById(raftNode.getLeaderId());
         return serverNode.getRaftConsensusService().getValue(request);
+    }
+
+    /**
+     * register server redirect leader
+     */
+    public RegisterServerResponse registerRedirectLeader (RegisterServerRequest request) {
+        ServerNode serverNode = getServerNodeById(raftNode.getLeaderId());
+        return serverNode.getRaftConsensusService().registerServer(request);
     }
 
     /**

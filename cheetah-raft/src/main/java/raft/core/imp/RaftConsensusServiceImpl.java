@@ -182,6 +182,28 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         }
         return response;
     }
+    @Override
+    public RegisterServerResponse registerServer(RegisterServerRequest request) {
+        logger.info("local serverId=" + raftNode.getRaftServer().getServerId());
+
+        RegisterServerResponse response;
+        if (raftNode.getLeaderId() <= 0) {
+            //have not election leader
+            logger.info("there is no leader, local serverId=" + raftNode.getRaftServer().getServerId());
+            response = new RegisterServerResponse(raftNode.getRaftServer().getServerId());
+            response.setServerList(raftCore.getServerList());
+        } else if (raftNode.getRaftServer().getServerState() !=
+                RaftServer.NodeState.LEADER) {
+            //redirect to leader
+            logger.info("redirect to leader=" + raftNode.getLeaderId());
+            response = raftCore.registerRedirectLeader(request);
+        } else {
+            logger.info("new server node serverId= " + raftNode.getRaftServer().getServerId() +
+                    " register!");
+            response = raftCore.newNodeRegister(request);
+        }
+        return response;
+    }
 
     @Override
     public SetKVResponse setKV(SetKVRequest request) {

@@ -34,4 +34,9 @@ public interface RaftConsensusService {
      * set key value
      */
     public SetKVResponse setKV(SetKVRequest request);
+
+    /**
+     * register server
+     */
+    public RegisterServerResponse registerServer(RegisterServerRequest request);
 }
