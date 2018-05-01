@@ -1,5 +1,6 @@
 package raft.protocol.request;
 
+import raft.core.server.ServerNode;
 import raft.model.BaseRequest;
 import raft.protocol.RaftLog;
 
@@ -124,4 +125,5 @@ public class AddRequest extends BaseRequest implements Serializable {
     public void setServerList(Map<Long, String> serverList) {
         this.serverList = serverList;
     }
+
 }
