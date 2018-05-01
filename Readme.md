@@ -14,16 +14,16 @@
 	2.执行./script/raft/raft_start_cluster.sh (如果是macos)
 
 ## cheetah-rpc
-		rpc provider
-		1.需要继承RpcAcceptorWrapper
-		2.并通过实现 register()方法来注册业务类
-		3.startService()启动服务
+	rpc provider
+	1.需要继承RpcAcceptorWrapper
+	2.并通过实现 register()方法来注册业务类
+	3.startService()启动服务
 		
-		rpc consumer
-		1.需要继承RpcConnectorWrapper
-		2.并通过实现getClientRemoteExecutor来获取同步或是异步的remoteExecutor
-		3.通过startService启动服务
-		4.getProxy()返回代理，注册反射生成对象
+	rpc consumer
+	1.需要继承RpcConnectorWrapper
+	2.并通过实现getClientRemoteExecutor来获取同步或是异步的remoteExecutor
+	3.通过startService启动服务
+	4.getProxy()返回代理，注册反射生成对象
 		
 	
    cheetah-rpc详细设计
@@ -34,18 +34,20 @@
 
 并通过脚本进行启动
 
-	    #!/usr/bin/env bash  
-	    java -cp ../../cheetah-demo/target/dependency/*:cheetah-demo-1.0-SNAPSHOT.jar 	
-	    raft.RaftServerMutilProcessStartDemo "127.0.0.1:6060" (此处host:127.0.0.1,port:6060)
-	    
+	#!/usr/bin/env bash  
+	java -cp ../../cheetah-demo/target/dependency/*:cheetah-demo-1.0-SNAPSHOT.jar 	
+	raft.RaftServerMutilProcessStartDemo "127.0.0.1:6060" (此处host:127.0.0.1,port:6060)
+
 cheetah-raft详细设计
 
 ## cheetah-kv
-- 主要通过委托java内置的ConcurrentHashMap实现带定时器的kv数据
-
-        MapProxy mapProxy = new MapProxy();
+	主要通过委托java内置的ConcurrentHashMap实现带定时器的kv数据
+	
+	MapProxy mapProxy = new MapProxy();
 		
 cheetah-kv详细设计
+
+
 
 
 
