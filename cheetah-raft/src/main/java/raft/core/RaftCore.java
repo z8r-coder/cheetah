@@ -54,15 +54,12 @@ public class RaftCore {
     }
     public void init() {
         for (Map.Entry<Long, String> entry : serverList.entrySet()) {
-            if (!serverNodeCache.containsKey(entry.getKey()) &&
-                    entry.getKey() != raftNode.getRaftServer().getServerId()) {
-                RaftVoteAsyncCallBack  asyncCallBack = new RaftVoteAsyncCallBack();
-                String serverInfo = entry.getValue();
-                CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverInfo);
-                RaftServer raftServer = new RaftServer(cheetahAddress.getHost(), cheetahAddress.getPort());
-                ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
-                serverNodeCache.put(entry.getKey(), serverNode);
-            }
+            RaftVoteAsyncCallBack  asyncCallBack = new RaftVoteAsyncCallBack();
+            String serverInfo = entry.getValue();
+            CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverInfo);
+            RaftServer raftServer = new RaftServer(cheetahAddress.getHost(), cheetahAddress.getPort());
+            ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
+            serverNodeCache.put(entry.getKey(), serverNode);
         }
 
         executorService = new ThreadPoolExecutor(raftOptions.getRaftConsensusThreadNum(),
