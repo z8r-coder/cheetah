@@ -2,13 +2,11 @@ package raft.core.imp;
 
 import raft.core.ParserGateWayService;
 import raft.core.RaftClientService;
-import raft.core.client.RaftClientServiceImpl;
 import raft.protocol.response.CommandParseResponse;
 import raft.protocol.response.GetLeaderResponse;
 import raft.protocol.response.GetServerListResponse;
 
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * @author ruanxin

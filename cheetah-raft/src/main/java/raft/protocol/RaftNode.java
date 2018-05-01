@@ -1,6 +1,5 @@
 package raft.protocol;
 
-import org.apache.log4j.Logger;
 import raft.core.StateMachine;
 import raft.core.server.RaftServer;
 

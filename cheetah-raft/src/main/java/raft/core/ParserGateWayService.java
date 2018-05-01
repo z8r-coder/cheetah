@@ -1,8 +1,5 @@
 package raft.core;
 
-import raft.protocol.request.CommandParseRequest;
-import raft.protocol.response.CommandParseResponse;
-
 /**
  * @author ruanxin
  * @create 2018-04-23

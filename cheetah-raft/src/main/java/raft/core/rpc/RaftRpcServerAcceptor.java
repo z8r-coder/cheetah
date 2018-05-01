@@ -1,22 +1,15 @@
 package raft.core.rpc;
 
-import models.CheetahAddress;
 import raft.constants.RaftOptions;
 import raft.core.*;
 import raft.core.imp.RaftAsyncConsensusServiceImpl;
 import raft.core.imp.RaftConsensusServiceImpl;
 import raft.core.server.RaftServer;
-import raft.demo.statemachine.ExampleStateMachine;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
 import raft.utils.RaftUtils;
 import rpc.wrapper.RpcAcceptorWrapper;
 import utils.Configuration;
-import utils.ParseUtils;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author ruanxin

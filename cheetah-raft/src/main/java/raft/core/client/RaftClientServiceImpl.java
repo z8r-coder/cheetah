@@ -1,6 +1,5 @@
 package raft.core.client;
 
-import constants.ErrorCodeEnum;
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.core.RaftClientService;
@@ -14,20 +13,11 @@ import raft.protocol.response.GetLeaderResponse;
 import raft.protocol.response.GetServerListResponse;
 import raft.protocol.response.GetValueResponse;
 import raft.protocol.response.SetKVResponse;
-import raft.utils.RaftUtils;
 import rpc.client.SimpleClientRemoteProxy;
-import rpc.exception.RpcException;
 import rpc.wrapper.RpcConnectorWrapper;
 import rpc.wrapper.connector.RpcServerSyncConnector;
-import utils.Configuration;
 import utils.NetUtils;
-import utils.ParseUtils;
 import utils.StringUtils;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author ruanxin

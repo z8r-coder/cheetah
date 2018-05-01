@@ -1,9 +1,6 @@
 package raft.core;
 
 import hash.MapProxy;
-import raft.core.RaftClientService;
-import raft.core.StateMachine;
-import raft.core.client.RaftClientServiceImpl;
 import utils.TimeUnitMap;
 
 /**

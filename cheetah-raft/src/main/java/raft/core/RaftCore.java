@@ -18,12 +18,10 @@ import raft.protocol.response.AddResponse;
 import raft.protocol.response.GetValueResponse;
 import raft.protocol.response.SetKVResponse;
 import raft.protocol.response.VotedResponse;
-import raft.utils.RaftUtils;
 import rpc.async.RpcCallback;
 import rpc.exception.RpcException;
 import utils.ParseUtils;
 
-import java.net.ConnectException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
