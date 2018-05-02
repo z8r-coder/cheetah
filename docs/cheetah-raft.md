@@ -31,6 +31,7 @@ ServerNodeA->>ServerNodeB(leader): redirect
 ServerNodeB(leader)-->>ServerNodeA:return
 ServerNodeA-->>Client:return
 ```
+
 #### raft集群整体交互
 
 
