@@ -31,7 +31,7 @@ public abstract class AbstractRpcConnector extends RpcNetBase implements Service
     public AbstractRpcConnector(AbstractRpcWriter rpcWriter) {
         super();
         this.writer = rpcWriter;
-        rpcContext = new ConcurrentHashMap<String, Object>();
+        rpcContext = new ConcurrentHashMap<>();
     }
     protected ConcurrentLinkedQueue<RpcObject> sendQueueCache = new ConcurrentLinkedQueue<RpcObject>();
 

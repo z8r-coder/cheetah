@@ -83,7 +83,6 @@ public class SimpleClientRemoteProxy implements InvocationHandler, Service {
 
         call.getAttachment().put("Application", application);
 
-        // TODO: 2018/2/9  广播暂时不允许有返回值（主要做心跳）
         if (remoteExecutor.getRpcConnector() == null &&
                 remoteExecutor.getRpcConnectors() != null &&
                 remoteExecutor.getRpcConnectors().size() > 0 &&
