@@ -1,6 +1,8 @@
 package hash;
 
 import org.apache.log4j.Logger;
+import service.ExpDataClearService;
+import task.TaskCenter;
 import utils.DateUtil;
 
 import java.util.Collection;
@@ -18,17 +20,22 @@ public class MapProxy {
     private Logger logger = Logger.getLogger(MapProxy.class);
 
     private CheetahMap delegateMap;
+    private TaskCenter taskCenter = TaskCenter.getInstance();;
+    private ExpDataClearService expDataClearService = new ExpDataClearService(this);
 
     public MapProxy () {
         this.delegateMap = new CheetahMap();
+        taskCenter.startExpDataClearTask(expDataClearService);
     }
 
     public MapProxy (int initCap) {
         this.delegateMap = new CheetahMap(initCap);
+        taskCenter.startExpDataClearTask(expDataClearService);
     }
 
     public MapProxy (CheetahMap delegateMap) {
         this.delegateMap = delegateMap;
+        taskCenter.startExpDataClearTask(expDataClearService);
     }
 
     /**

@@ -19,11 +19,25 @@ public class TaskCenter {
 
     private ExpDataClearService expDataClearService;
     private AtomicInteger taskNum = new AtomicInteger(0);
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-    public TaskCenter (ExpDataClearService expDataClearService) {
+    private static TaskCenter taskCenter = null;
+
+    private TaskCenter () {
+
+    }
+
+    public static TaskCenter getInstance() {
+        synchronized (TaskCenter.class) {
+            if (taskCenter == null) {
+                taskCenter = new TaskCenter();
+            }
+            return taskCenter;
+        }
+    }
+
+    public void startExpDataClearTask(ExpDataClearService expDataClearService) {
         this.expDataClearService = expDataClearService;
-
         //exp data clear task
         executorService.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -32,7 +46,7 @@ public class TaskCenter {
                 expDataClearTask();
                 taskNum.decrementAndGet();
             }
-        }, 5, 5, TimeUnit.MINUTES);
+        }, 5, 5, TimeUnit.SECONDS);
     }
 
     private void expDataClearTask () {
