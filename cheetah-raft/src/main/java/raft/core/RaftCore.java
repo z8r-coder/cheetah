@@ -113,7 +113,13 @@ public class RaftCore {
             if (serverId == raftNode.getRaftServer().getServerId()) {
                 continue;
             }
-            final ServerNode serverNode = serverNodeCache.get(serverId);
+            final ServerNode serverNode;
+            if (serverNodeCache.get(serverId) == null) {
+                //new serverNode sync
+                serverNode = initNewServerNode(serverId);
+            } else {
+                serverNode = serverNodeCache.get(serverId);
+            }
             serverNode.setEntries(new ArrayList<RaftLog.LogEntry>());
             serverNode.setCommitIndex(raftNode.getRaftLog().getCommitIndex());
             serverNode.setPrevLogIndex(raftNode.getRaftLog().getLastLogIndex());
@@ -124,6 +130,19 @@ public class RaftCore {
             });
         }
         resetHeartBeatTimer();
+    }
+
+    /**
+     * init new serverNode
+     */
+    private ServerNode initNewServerNode (long serverId) {
+        RaftVoteAsyncCallBack asyncCallBack = new RaftVoteAsyncCallBack();
+        String serverInfo = serverList.get(serverId);
+        CheetahAddress cheetahAddress = ParseUtils.parseAddress(serverInfo);
+        RaftServer raftServer = new RaftServer(cheetahAddress.getHost(), cheetahAddress.getPort());
+        ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
+        serverNodeCache.put(serverId, serverNode);
+        return serverNode;
     }
 
     private void resetHeartBeatTimer() {
@@ -195,8 +214,13 @@ public class RaftCore {
             if (serverId == raftServer.getServerId()) {
                 continue;
             }
-
-            final ServerNode serverNode = serverNodeCache.get(serverId);
+            final ServerNode serverNode;
+            if (serverNodeCache.get(serverId) == null) {
+                //new server node need sync
+                serverNode = initNewServerNode(serverId);
+            } else {
+                serverNode = serverNodeCache.get(serverId);
+            }
             executorService.submit(new Runnable() {
                 public void run() {
                     //async req
@@ -294,7 +318,14 @@ public class RaftCore {
                 if (serverId == raftNode.getRaftServer().getServerId()) {
                     continue;
                 }
-                final ServerNode serverNode = serverNodeCache.get(serverId);
+
+                final ServerNode serverNode;
+                if (serverNodeCache.get(serverId) == null) {
+                    //new server node need sync
+                    serverNode = initNewServerNode(serverId);
+                } else {
+                    serverNode = serverNodeCache.get(serverId);
+                }
                 serverNode.setPrevLogIndex(prevLogIndex);
                 serverNode.setCommitIndex(commitIndex);
                 serverNode.setEntries(entries);
