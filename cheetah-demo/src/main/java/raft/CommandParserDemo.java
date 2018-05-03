@@ -16,6 +16,11 @@ import java.util.Scanner;
 public class CommandParserDemo {
 
     public static void main(String[] args) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Configuration configuration = new Configuration();
         RaftClientService raftClientService = new RaftClientServiceImpl(configuration.getRaftClusterHost(),
                 Integer.parseInt(configuration.getRaftClusterPort()));
