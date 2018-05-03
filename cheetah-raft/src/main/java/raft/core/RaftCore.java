@@ -586,4 +586,12 @@ public class RaftCore {
     public void setServerList(Map<Long, String> serverList) {
         this.serverList = serverList;
     }
+
+    public void setServerNodeCache(Map<Long, ServerNode> serverNodeCache) {
+        this.serverNodeCache = serverNodeCache;
+    }
+
+    public Map<Long, ServerNode> getServerNodeCache() {
+        return serverNodeCache;
+    }
 }

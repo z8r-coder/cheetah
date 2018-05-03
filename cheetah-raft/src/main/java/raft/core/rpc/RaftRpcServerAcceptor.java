@@ -18,6 +18,8 @@ import utils.Configuration;
  */
 public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
     private Configuration configuration;
+    private RaftNode raftNode;
+    private RaftCore raftCore;
 
     public RaftRpcServerAcceptor(String host, int port) {
         super(host, port);
@@ -32,8 +34,8 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
         RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), configuration.getRaftRootPath(), "raft_meta");
         //state machine
         StateMachine stateMachine = new CheetahStateMachine();
-        RaftNode raftNode = new RaftNode(raftLog, raftServer, stateMachine);
-        RaftCore raftCore = new RaftCore(raftOptions, raftNode, RaftUtils.getInitCacheServerList(configuration));
+        raftNode = new RaftNode(raftLog, raftServer, stateMachine);
+        raftCore = new RaftCore(raftOptions, raftNode, RaftUtils.getInitCacheServerList(configuration));
 
         RaftConsensusServiceImpl raftConsensusService = new RaftConsensusServiceImpl(raftNode, raftCore);
         RaftAsyncConsensusServiceImpl raftAsyncConsensusService = new RaftAsyncConsensusServiceImpl(raftNode, raftCore);
@@ -42,4 +44,19 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
         remoteExecutor.registerRemote(RaftAsyncConsensusService.class, raftAsyncConsensusService);
     }
 
+    public RaftNode getRaftNode() {
+        return raftNode;
+    }
+
+    public void setRaftNode(RaftNode raftNode) {
+        this.raftNode = raftNode;
+    }
+
+    public RaftCore getRaftCore() {
+        return raftCore;
+    }
+
+    public void setRaftCore(RaftCore raftCore) {
+        this.raftCore = raftCore;
+    }
 }
