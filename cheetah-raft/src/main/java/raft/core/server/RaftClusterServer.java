@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class RaftClusterServer {
 
-    public Map<Long, RaftRpcServerAcceptor> cacheRaftServer = new HashMap<>();
+    public Map<Long, CheetahServer> cacheRaftServer = new HashMap<>();
 
     private final static RaftClusterServer raftClusterServer = new RaftClusterServer();
 
@@ -35,23 +35,25 @@ public class RaftClusterServer {
         for (CheetahAddress cheetahAddress : addresses) {
             RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(cheetahAddress.getHost(),
                     cheetahAddress.getPort());
-            acceptor.startService();
+            CheetahServer cheetahServer = new CheetahServer(acceptor);
+            //init cluster
+            cheetahServer.clusterInit();
             cacheRaftServer.put(ParseUtils.generateServerId(cheetahAddress.getHost(),
-                    cheetahAddress.getPort()), acceptor);
+                    cheetahAddress.getPort()), cheetahServer);
         }
     }
 
     public void stopServerNode() {
-        for (Map.Entry<Long, RaftRpcServerAcceptor> entry : cacheRaftServer.entrySet()) {
-            RaftRpcServerAcceptor acceptor = entry.getValue();
-            if (acceptor != null) {
-                acceptor.stopService();
+        for (Map.Entry<Long, CheetahServer> entry : cacheRaftServer.entrySet()) {
+            CheetahServer cheetahServer = entry.getValue();
+            if (cheetahServer != null) {
+                cheetahServer.stop();
             }
         }
     }
 
     public void stopOneServerNode (String serverId) {
-        RaftRpcServerAcceptor acceptor = cacheRaftServer.get(serverId);
-        acceptor.stopService();
+        CheetahServer cheetahServer = cacheRaftServer.get(serverId);
+        cheetahServer.stop();
     }
 }

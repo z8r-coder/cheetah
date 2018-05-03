@@ -33,6 +33,16 @@ public class CheetahServer {
         configuration = new Configuration();
     }
 
+    /**
+     * 配置文件中初始化节点，不提供相互注册
+     */
+    public void clusterInit() {
+        acceptor.startService();
+    }
+
+    /**
+     * 单个节点启动，需要注册本节点
+     */
     public void start() {
         acceptor.startService();
         //register the new node
@@ -41,6 +51,13 @@ public class CheetahServer {
         RegisterServerResponse response = raftConsensusService.registerServer(request);
         acceptor.getRaftCore().setServerList(response.getServerList());
         acceptor.getRaftCore().setServerNodeCache(response.getServerNodeCache());
+
+        logger.info("cheetah server host=" + acceptor.getHost() + " port=" + acceptor.getPort() +
+        " has started!");
+    }
+
+    public void stop() {
+        acceptor.stopService();
     }
 
     public RaftConsensusService getRaftConsensusService () {
