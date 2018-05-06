@@ -49,8 +49,12 @@ public class CheetahServer {
         RaftConsensusService raftConsensusService = getRaftConsensusService();
         RegisterServerRequest request = new RegisterServerRequest(acceptor.getHost(), acceptor.getPort());
         RegisterServerResponse response = raftConsensusService.registerServer(request);
+
+        //sync info
         acceptor.getRaftCore().setServerList(response.getServerList());
         acceptor.getRaftCore().setServerNodeCache(response.getServerNodeCache());
+        acceptor.getRaftNode().setLeaderId(response.getLeaderId());
+        acceptor.getRaftNode().setCurrentTerm(response.getCurrentTerm());
 
         logger.info("cheetah server host=" + acceptor.getHost() + " port=" + acceptor.getPort() +
         " has started!");

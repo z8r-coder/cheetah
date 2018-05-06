@@ -82,7 +82,7 @@ public class RaftCore {
         ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
         serverNodeCache.put(newServerId, serverNode);
         RegisterServerResponse registerServerResponse = new RegisterServerResponse(raftNode.getRaftServer().getServerId(),
-                serverList, serverNodeCache);
+                serverList, serverNodeCache, raftNode.getLeaderId(), raftNode.getCurrentTerm());
         return registerServerResponse;
     }
 

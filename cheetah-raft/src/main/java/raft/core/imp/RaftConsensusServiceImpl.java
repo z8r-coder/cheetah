@@ -78,7 +78,8 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
             if (request.getPrevLogIndex() > raftNode.getRaftLog().getLastLogIndex()) {
                 logger.info("Refuse,request's log index:" + request.getPrevLogIndex() +
-                ",local server's log index:" + raftNode.getRaftLog().getLastLogIndex());
+                ",local server's log index:" + raftNode.getRaftLog().getLastLogIndex() +
+                " this server need sync log!");
                 return response;
             }
             if (request.getPrevLogTerm() != raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogTerm())) {
