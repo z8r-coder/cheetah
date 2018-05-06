@@ -410,11 +410,7 @@ public class RaftCore {
                     //success
                     serverNode.setMatchIndex(response.getLastLogIndex());
                     serverNode.setNextIndex(serverNode.getMatchIndex() + 1);
-                    if (serverList.get(request.getServerId()) != null) {
-                        applyLogOnStateMachine();
-                    } else {
-                        //add new node
-                    }
+                    applyLogOnStateMachine();
                 } else {
                     serverNode.setNextIndex(response.getLastLogIndex() + 1);
                 }

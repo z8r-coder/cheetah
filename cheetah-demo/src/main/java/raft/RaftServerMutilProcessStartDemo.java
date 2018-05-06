@@ -1,5 +1,6 @@
 package raft;
 
+import mock.RaftMock;
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.core.rpc.RaftRpcServerAcceptor;
@@ -21,7 +22,8 @@ public class RaftServerMutilProcessStartDemo {
         }
         String address = args[0];
         CheetahAddress cheetahAddress = ParseUtils.parseAddress(address);
-        RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(cheetahAddress.getHost(), cheetahAddress.getPort());
+        RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(RaftMock.rootPathMapping.get(cheetahAddress.getPort()),
+                cheetahAddress.getHost(), cheetahAddress.getPort());
         CheetahServer cheetahServer = new CheetahServer(acceptor);
         cheetahServer.clusterInit();
 

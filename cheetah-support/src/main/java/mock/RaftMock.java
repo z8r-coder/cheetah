@@ -1,7 +1,10 @@
 package mock;
 
 import constants.Globle;
+import utils.Configuration;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +14,16 @@ import java.util.concurrent.TimeUnit;
  * @desc raft mock class
  */
 public class RaftMock {
+
+    public static Map<Integer, String> rootPathMapping = new HashMap<>();
+    private static Configuration configuration = new Configuration();
+
+    static {
+        rootPathMapping.put(6060, configuration.getRaftTestRootPathA());
+        rootPathMapping.put(7070, configuration.getRaftTestRootPathB());
+        rootPathMapping.put(8080, configuration.getRaftTestRootPathC());
+        rootPathMapping.put(9090, configuration.getRaftTestRootPathD());
+    }
 
     /**
      * 获取选举超时时间

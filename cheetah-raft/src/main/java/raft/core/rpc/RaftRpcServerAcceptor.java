@@ -20,9 +20,11 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
     private Configuration configuration;
     private RaftNode raftNode;
     private RaftCore raftCore;
+    private String raftRootPath;
 
-    public RaftRpcServerAcceptor(String host, int port) {
+    public RaftRpcServerAcceptor(String raftRootPath, String host, int port) {
         super(host, port);
+        this.raftRootPath = raftRootPath;
         this.configuration = new Configuration();
     }
 
@@ -31,7 +33,7 @@ public class RaftRpcServerAcceptor extends RpcAcceptorWrapper {
         RaftOptions raftOptions = new RaftOptions();
         RaftServer raftServer = new RaftServer(getHost(), getPort());
 
-        RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), configuration.getRaftRootPath(), "raft_meta");
+        RaftLog raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), raftRootPath, "raft_meta");
         //state machine
         StateMachine stateMachine = new CheetahStateMachine();
         raftNode = new RaftNode(raftLog, raftServer, stateMachine);

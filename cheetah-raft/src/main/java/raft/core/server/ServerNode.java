@@ -1,6 +1,7 @@
 package raft.core.server;
 
 import constants.Globle;
+import mock.RaftMock;
 import org.apache.log4j.Logger;
 import raft.core.RaftAsyncConsensusService;
 import raft.core.RaftConsensusService;
@@ -80,7 +81,8 @@ public class ServerNode {
     }
 
     public static void main(String[] args) {
-        RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(Globle.localHost, Globle.localPortTest1);
+        RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(RaftMock.rootPathMapping.get(Globle.localPortTest1),
+                Globle.localHost, Globle.localPortTest1);
         acceptor.startService();
 
         AbstractRpcConnector connector = new RpcNioConnector(null);

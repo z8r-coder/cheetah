@@ -1,5 +1,6 @@
 package raft.core.server;
 
+import mock.RaftMock;
 import models.CheetahAddress;
 import raft.core.rpc.RaftRpcServerAcceptor;
 import utils.Configuration;
@@ -33,7 +34,8 @@ public class RaftClusterServer {
         String servers = configuration.getRaftInitServer();
         List<CheetahAddress> addresses = ParseUtils.parseCommandAddress(servers);
         for (CheetahAddress cheetahAddress : addresses) {
-            RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(cheetahAddress.getHost(),
+            RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(RaftMock.rootPathMapping.get(cheetahAddress.getPort()),
+                    cheetahAddress.getHost(),
                     cheetahAddress.getPort());
             CheetahServer cheetahServer = new CheetahServer(acceptor);
             //init cluster
