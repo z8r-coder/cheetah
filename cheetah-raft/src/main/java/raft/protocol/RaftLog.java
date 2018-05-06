@@ -225,6 +225,7 @@ public class RaftLog {
             //cache
             cacheSegment(segment);
         } catch (Exception ex) {
+//            ex.printStackTrace();
             throw new RuntimeException("load segment occurs ex!", ex);
         }
 
@@ -375,6 +376,8 @@ public class RaftLog {
                 SegmentInfo segmentInfo = globleMetaData.segmentInfoMap.get(newSegment.getStartIndex());
                 segmentInfo.dataNum++;
 
+                //cache
+                cacheSegment(newSegment);
             } catch (IOException ex) {
                 throw new RuntimeException("append raft log entry occurs ex:" + ex);
             }
@@ -542,7 +545,8 @@ public class RaftLog {
                 data = new byte[dataLength];
                 randomAccessFile.read(data);
             } catch (IOException e) {
-                throw new RuntimeException("read from file error!");
+                e.printStackTrace();
+//                throw new RuntimeException("read from file error!");
             }
         }
 
@@ -703,6 +707,7 @@ public class RaftLog {
     }
 
     public static void main(String[] args) {
+        //读文件指针和写文件指针是不一样的两个指针
 //        File file = new File("/Users/ruanxin/IdeaProjects/cheetah" + File.separator + "raft_log");
 //        if (!file.exists()) {
 //            file.mkdir();
@@ -716,30 +721,25 @@ public class RaftLog {
 //            System.out.println(key);
 //        }
 //        System.out.println(String.format("%s-%s.rl",100,120));
-//        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "4.txt", "rw");
-//        String test = "test";
-////        RandomAccessFile randomAccessFile1 = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
-//        try {
-//            System.out.println(test.getBytes().length);
-//            byte[] data = new byte[test.getBytes().length * 2];
-//            randomAccessFile.read(data);
-//            System.out.println(randomAccessFile.getFilePointer());
-//            String res = new String(data);
-//            System.out.println(res);
-//            System.out.println();
-//            randomAccessFile.write(test.getBytes());
-//            randomAccessFile.writeLong(1l);
-//            randomAccessFile.writeInt(4);
-//            randomAccessFile.writeInt(2);
-//            System.out.println(randomAccessFile.getFilePointer());
-//            System.out.println(randomAccessFile.length());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            RaftUtils.closeFile(randomAccessFile);
+        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "4.txt", "rw");
+        String test = "test";
+//        RandomAccessFile randomAccessFile1 = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "1.txt", "rw");
+        try {
+            randomAccessFile.write(test.getBytes());
+            byte[] testByte = new byte[test.getBytes().length];
+            randomAccessFile.read(testByte);
+            String tt = new String(testByte);
+            System.out.println(tt);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            RaftUtils.closeFile(randomAccessFile);
+        }
+//        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "5.txt", "rw");
+//
+//        new File("/Users/ruanxin/IdeaProjects/cheetah/raft/5.txt").renameTo(new File("/Users/ruanxin/IdeaProjects/cheetah/raft/6.txt"));
+//        for (int i = 0; i < 0;i++) {
+//            System.out.println(i);
 //        }
-        RandomAccessFile randomAccessFile = RaftUtils.openFile("/Users/ruanxin/IdeaProjects/cheetah/raft", "5.txt", "rw");
-
-        new File("/Users/ruanxin/IdeaProjects/cheetah/raft/5.txt").renameTo(new File("/Users/ruanxin/IdeaProjects/cheetah/raft/6.txt"));
     }
 }

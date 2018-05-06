@@ -20,7 +20,7 @@ public class RaftLogTest {
     private static final String LOGPATH = "/Users/ruanxin/IdeaProjects/cheetah/raft";
 
     public RaftLogTest () {
-        raftLog = new RaftLog(64, LOGPATH, "raft_meta");
+        raftLog = new RaftLog(raftOptions.getMaxLogSizePerFile(), LOGPATH, "raft_meta");
         raftLogDataRoute = new RaftLogDataRoute(raftLog);
     }
 
@@ -77,8 +77,8 @@ public class RaftLogTest {
 //        raftLogTest.appendEntries();
 //        raftLogTest.getGlobleMetaInfo();
 //        raftLogTest.getGlobleSegmentInfo();
-//        raftLogTest.getSegmentInfo(2);
-        raftLogTest.getEntry(4);
+        raftLogTest.getSegmentInfo(0);
+//        raftLogTest.getEntry(4);
 //        raftLogTest.getEntries(3);
     }
 }
