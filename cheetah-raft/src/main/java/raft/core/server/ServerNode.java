@@ -16,7 +16,6 @@ import rpc.net.AbstractRpcConnector;
 import rpc.nio.RpcNioConnector;
 import rpc.utils.RpcUtils;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**

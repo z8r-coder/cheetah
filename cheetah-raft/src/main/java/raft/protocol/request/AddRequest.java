@@ -1,6 +1,5 @@
 package raft.protocol.request;
 
-import raft.core.server.ServerNode;
 import raft.model.BaseRequest;
 import raft.protocol.RaftLog;
 
