@@ -155,7 +155,7 @@ public class RaftLog {
             //load log entry meta info
             List<String> fileNameList = RaftUtils.getSortedFilesInDir(logEntryDir,logEntryDir);
 
-            TreeMap<Long, SegmentInfo> segmentInfoMap = new TreeMap<Long, SegmentInfo>();
+            TreeMap<Long, SegmentInfo> segmentInfoMap = new TreeMap<>();
 
             for (int i = 0; i < fileNameList.size(); i++) {
                 String fileName = fileNameList.get(i);
@@ -424,7 +424,7 @@ public class RaftLog {
         public GlobleMetaData (long startIndex,long lastIndex) {
             this.lastIndex = lastIndex;
             this.startIndex = startIndex;
-            segmentInfoMap = new TreeMap<Long, SegmentInfo>();
+            segmentInfoMap = new TreeMap<>();
         }
 
         public GlobleMetaData (String lastSegmentLogName,

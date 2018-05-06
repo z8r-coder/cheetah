@@ -22,14 +22,14 @@ public class CommandParserDemo {
             e.printStackTrace();
         }
         Configuration configuration = new Configuration();
-        RaftClientService raftClientService = new RaftClientServiceImpl(configuration.getRaftClusterHost(),
-                Integer.parseInt(configuration.getRaftClusterPort()));
-        ParserGateWayService parserGateWayService = new ParserGateWayServiceImpl(raftClientService);
-        Scanner scanner = new Scanner(System.in);
-        System.out.print(">");
-        while (true) {
-            String line = scanner.nextLine().trim();
-            if (line.length() == 0) {
+                RaftClientService raftClientService = new RaftClientServiceImpl(configuration.getRaftClusterHost(),
+                        Integer.parseInt(configuration.getRaftClusterPort()));
+                ParserGateWayService parserGateWayService = new ParserGateWayServiceImpl(raftClientService);
+                Scanner scanner = new Scanner(System.in);
+                System.out.print(">");
+                while (true) {
+                    String line = scanner.nextLine().trim();
+                    if (line.length() == 0) {
                 System.out.print(">");
                 continue;
             }
