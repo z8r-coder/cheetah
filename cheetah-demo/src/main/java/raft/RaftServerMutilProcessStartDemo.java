@@ -3,6 +3,7 @@ package raft;
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.core.rpc.RaftRpcServerAcceptor;
+import raft.core.server.CheetahServer;
 import utils.ParseUtils;
 
 /**
@@ -21,7 +22,8 @@ public class RaftServerMutilProcessStartDemo {
         String address = args[0];
         CheetahAddress cheetahAddress = ParseUtils.parseAddress(address);
         RaftRpcServerAcceptor acceptor = new RaftRpcServerAcceptor(cheetahAddress.getHost(), cheetahAddress.getPort());
-        acceptor.startService();
+        CheetahServer cheetahServer = new CheetahServer(acceptor);
+        cheetahServer.clusterInit();
 
         logger.info(cheetahAddress.getHost() + ":" + cheetahAddress.getPort() +
         " have started!");
