@@ -483,6 +483,10 @@ public class RaftCore {
      * for leader applu log on state machine
      */
     public void applyLogOnStateMachine () {
+        if (!raftNode.getRaftLog().existLogEntry()) {
+            //don't exist log entry
+            return;
+        }
         int serverNodeNum = serverList.size();
         long[] matchIndexes = new long[serverNodeNum];
         int i = 0;

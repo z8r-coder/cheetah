@@ -55,7 +55,7 @@ public class RaftLog {
     //meta's file full name
     private String metaFileFullName;
     //meta data map
-    private TreeMap<Long, SegmentMetaData> logMetaDataMap = new TreeMap<Long, SegmentMetaData>();
+    private TreeMap<Long, SegmentMetaData> logMetaDataMap = new TreeMap<>();
     //segment cache LRU
     private LRUCache<Long, Segment> segmentCache = new LRUCache<>(16, 0.75f, true, 16);
 
@@ -110,6 +110,17 @@ public class RaftLog {
             RandomAccessFile randomAccessFile = RaftUtils.openFile(metaDataDir, metaFileName, "rw");
             readGlobleMetaData(randomAccessFile);
         }
+    }
+
+    /**
+     * 是否存在log entry
+     * @return
+     */
+    public boolean existLogEntry () {
+        if (logMetaDataMap.size() == 0) {
+            return false;
+        }
+        return true;
     }
 
     public void loadLastSegment(String lastSegmentName) {
