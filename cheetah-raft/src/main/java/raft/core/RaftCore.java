@@ -413,6 +413,8 @@ public class RaftCore {
                     applyLogOnStateMachine();
                 } else {
                     serverNode.setNextIndex(response.getLastLogIndex() + 1);
+                    //sync log data
+
                 }
             }
         } catch (Exception ex) {

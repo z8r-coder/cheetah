@@ -39,4 +39,10 @@ public interface RaftConsensusService {
      * register server
      */
     public RegisterServerResponse registerServer(RegisterServerRequest request);
+
+    /**
+     * sync log entry
+     */
+    public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request);
+
 }

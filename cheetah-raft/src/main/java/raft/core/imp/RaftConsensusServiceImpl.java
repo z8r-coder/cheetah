@@ -77,9 +77,11 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
 
             if (request.getPrevLogIndex() > raftNode.getRaftLog().getLastLogIndex()) {
+                //this node need sync data
                 logger.info("Refuse,request's log index:" + request.getPrevLogIndex() +
                 ",local server's log index:" + raftNode.getRaftLog().getLastLogIndex() +
                 " this server need sync log!");
+                response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
                 return response;
             }
             if (request.getPrevLogTerm() != raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogTerm())) {
@@ -132,6 +134,13 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             raftNode.getLock().unlock();
         }
     }
+
+    @Override
+    public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request) {
+        SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId());
+        return null;
+    }
+
 
     @Override
     public GetLeaderResponse getLeader(GetLeaderRequest request) {
