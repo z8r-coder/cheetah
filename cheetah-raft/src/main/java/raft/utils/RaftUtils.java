@@ -2,6 +2,8 @@ package raft.utils;
 
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
+import raft.protocol.RaftLog;
+import raft.protocol.RaftNode;
 import utils.Configuration;
 import utils.ParseUtils;
 
@@ -138,6 +140,19 @@ public class RaftUtils {
             cacheServerList.put(serverId, server);
         }
         return cacheServerList;
+    }
+
+    public static void applyStateMachine(RaftNode raftNode) {
+        if (raftNode.getRaftLog().getLastApplied() < raftNode.getRaftLog().getCommitIndex()) {
+            for (long index = raftNode.getRaftLog().getLastApplied() + 1;
+                 index <= raftNode.getRaftLog().getCommitIndex(); index++) {
+                RaftLog.LogEntry logEntry = raftNode.getRaftLog().getEntry(index);
+                if (logEntry != null) {
+                    raftNode.getStateMachine().submit(logEntry.getData());
+                }
+                raftNode.getRaftLog().setLastApplied(index);
+            }
+        }
     }
 
     public static <T> T test(Class<T> clazz) {

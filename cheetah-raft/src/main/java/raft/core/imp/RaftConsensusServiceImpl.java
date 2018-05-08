@@ -9,6 +9,7 @@ import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
 import raft.protocol.request.*;
 import raft.protocol.response.*;
+import raft.utils.RaftUtils;
 import utils.ParseUtils;
 
 import java.util.ArrayList;
@@ -247,15 +248,6 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 request.getPrevLogIndex() + request.getLogEntries().size());
         raftNode.getRaftLog().setCommitIndex(newCommitIndex);
         //apply on state machine
-        if (raftNode.getRaftLog().getLastApplied() < raftNode.getRaftLog().getCommitIndex()) {
-            for (long index = raftNode.getRaftLog().getLastApplied() + 1;
-                    index <= raftNode.getRaftLog().getCommitIndex(); index++) {
-                RaftLog.LogEntry logEntry = raftNode.getRaftLog().getEntry(index);
-                if (logEntry != null) {
-                    raftNode.getStateMachine().submit(logEntry.getData());
-                }
-                raftNode.getRaftLog().setLastApplied(index);
-            }
-        }
+        RaftUtils.applyStateMachine(raftNode);
     }
 }

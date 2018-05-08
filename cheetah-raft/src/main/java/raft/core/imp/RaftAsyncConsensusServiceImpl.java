@@ -5,10 +5,12 @@ import raft.core.RaftAsyncConsensusService;
 import raft.core.RaftCore;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
+import raft.protocol.request.AddRequest;
 import raft.protocol.request.SyncLogEntryRequest;
 import raft.protocol.request.VotedRequest;
 import raft.protocol.response.SyncLogEntryResponse;
 import raft.protocol.response.VotedResponse;
+import raft.utils.RaftUtils;
 
 import java.util.List;
 
@@ -70,7 +72,20 @@ public class RaftAsyncConsensusServiceImpl implements RaftAsyncConsensusService 
             response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
             return response;
         }
+        raftNode.getRaftLog().append(request.getLogEntries());
+        response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+        response.setSuccess(true);
+        applyLogOnStateMachine(request);
+        return response;
+    }
 
-        return null;
+    //apply on state machine, sync data
+    private void applyLogOnStateMachine(SyncLogEntryRequest request) {
+        logger.info("sync log entry begin to apply log on state machine, local server=" + raftNode.getRaftServer().getServerId());
+        long newCommitIndex = Math.min(request.getLeaderCommit(),
+                raftNode.getRaftLog().getCommitIndex());
+        raftNode.getRaftLog().setCommitIndex(newCommitIndex);
+        //apply on state machine
+        RaftUtils.applyStateMachine(raftNode);
     }
 }

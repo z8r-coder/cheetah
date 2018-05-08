@@ -13,9 +13,11 @@ import java.util.List;
  */
 public class SyncLogEntryRequest extends BaseRequest implements Serializable {
     private long serverId;
+    private long leaderCommit;
     private List<RaftLog.LogEntry> logEntries;
 
-    public SyncLogEntryRequest (long serverId, List<RaftLog.LogEntry> logEntries) {
+    public SyncLogEntryRequest (long serverId, List<RaftLog.LogEntry> logEntries,
+                                long leaderCommit) {
         this.serverId = serverId;
         this.logEntries = logEntries;
     }
@@ -34,5 +36,13 @@ public class SyncLogEntryRequest extends BaseRequest implements Serializable {
 
     public void setLogEntries(List<RaftLog.LogEntry> logEntries) {
         this.logEntries = logEntries;
+    }
+
+    public long getLeaderCommit() {
+        return leaderCommit;
+    }
+
+    public void setLeaderCommit(long leaderCommit) {
+        this.leaderCommit = leaderCommit;
     }
 }
