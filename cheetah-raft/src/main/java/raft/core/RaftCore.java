@@ -478,14 +478,31 @@ public class RaftCore {
                                       ServerNode serverNode, String message) {
         if (ex instanceof RpcException &&
                 ((RpcException) ex).getErrorCode().equals(ErrorCodeEnum.RPC00020.getErrorCode())) {
-            logger.warn(message + " rpc fail, host=" + request.getRemoteHost() +
-                    " port=" + request.getRemotePort() + " may down, remove it!");
-            long remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(),
-                    request.getRemotePort());
-            serverList.remove(remoteServerId);
-            serverNodeCache.remove(remoteServerId);
+            removeAndStopServer(message, request, serverNode);
+        } else if (ex instanceof RpcException &&
+                ((RpcException) ex).getErrorCode().equals(ErrorCodeEnum.RPC00010.getErrorCode())) {
+            //发送超时，尝试连接来判定是否down机
             serverNode.stopSerivce();
+            try {
+                serverNode.startService();
+            } catch (Exception e) {
+                if (e instanceof RpcException &&
+                        ((RpcException) ex).getErrorCode().equals(ErrorCodeEnum.RPC00020.getErrorCode())) {
+                    removeAndStopServer(message, request, serverNode);
+                }
+            }
         }
+    }
+
+    private void removeAndStopServer (String message, BaseRequest request,
+                                      ServerNode serverNode) {
+        logger.warn(message + " rpc fail, host=" + request.getRemoteHost() +
+                " port=" + request.getRemotePort() + " may down, remove it!");
+        long remoteServerId = ParseUtils.generateServerId(request.getRemoteHost(),
+                request.getRemotePort());
+        serverList.remove(remoteServerId);
+        serverNodeCache.remove(remoteServerId);
+        serverNode.stopSerivce();
     }
 
     /**

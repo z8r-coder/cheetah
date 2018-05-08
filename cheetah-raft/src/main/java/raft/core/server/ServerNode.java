@@ -69,6 +69,16 @@ public class ServerNode {
         }
     }
 
+    public void startService() {
+        if (syncProxy != null && syncProxy.getRemoteProxyStatus() ==
+                SimpleClientRemoteProxy.STOP) {
+            syncProxy.startService();
+        }
+        if (asyncProxy != null && asyncProxy.getRemoteProxyStatus() ==
+                SimpleClientRemoteProxy.STOP) {
+            asyncProxy.startService();
+        }
+    }
     public void stopSerivce() {
         if (syncProxy != null && syncProxy.getRemoteProxyStatus() ==
                 SimpleClientRemoteProxy.STARTED) {
