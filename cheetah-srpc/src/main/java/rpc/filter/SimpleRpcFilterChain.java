@@ -1,6 +1,7 @@
 package rpc.filter;
 
 
+import constants.ErrorCodeEnum;
 import rpc.RemoteCall;
 import rpc.RpcObject;
 import rpc.RpcSender;
@@ -32,7 +33,8 @@ public class SimpleRpcFilterChain implements RpcFilterChain {
         int index = getAndIncrFilterIndex();
         int size = filters.size();
         if (index > size - 1) {
-            throw new RpcException("rpc filter call error!");
+            throw new RpcException(ErrorCodeEnum.RPC00007,
+                    ErrorCodeEnum.RPC00007.getErrorDesc());
         }
         RpcFilter filter = filters.get(index);
         filter.doFilter(rpc, call, sender, this);

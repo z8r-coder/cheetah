@@ -45,7 +45,8 @@ public abstract class AbstractRpcConnector extends RpcNetBase implements Service
                 throw new RpcException(e);
             }
             if (timeOut > 0 && cost > timeOut) {
-                throw new RpcException(ErrorCodeEnum.RPC00010);
+                throw new RpcException(ErrorCodeEnum.RPC00010,
+                        ErrorCodeEnum.RPC00010.getErrorDesc());
             }
         }
         this.notifySend();

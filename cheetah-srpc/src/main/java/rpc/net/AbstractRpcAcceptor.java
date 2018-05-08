@@ -18,7 +18,8 @@ public abstract class AbstractRpcAcceptor extends RpcNetBase implements Service 
     }
 
     public void stopService() {
-        this.fireCloseNetListeners(new RpcException(ErrorCodeEnum.RPC00020));
+        this.fireCloseNetListeners(new RpcException(ErrorCodeEnum.RPC00020,
+                ErrorCodeEnum.RPC00020.getErrorDesc()));
         super.stopService();
     }
 }

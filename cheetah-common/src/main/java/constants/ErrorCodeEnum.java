@@ -6,7 +6,17 @@ package constants;
  */
 public enum ErrorCodeEnum {
     RPC00000("RPC00000", "successful"),
+    RPC00001("RPC00001", "rpc data too long"),
+    RPC00002("RPC00002", "method not exist method"),
+    RPC00003("RPC00003", "invoke IllegalAccess request access error"),
+    RPC00004("RPC00004", "invoke IllegalArgument request param wrong"),
+    RPC00005("RPC00005", "rpc invoke target error"),
+    RPC00006("RPC00006", "broadcast refuse to invoke one method which have return value!"),
+    RPC00007("RPC00007", "rpc filter call error!"),
+    RPC00008("RPC00008", "rpc response == null"),
+    RPC00009("RPC00009", "not supported enum for simple serializer "),
     RPC00010("RPC00010", "request time out"),
+    RPC00011("RPC00011", "not supported java type for simple serializer "),
     RPC00020("RPC00020", "acceptor close, connect to host error")
     ;
 

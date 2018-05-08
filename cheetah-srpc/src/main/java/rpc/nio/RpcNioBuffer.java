@@ -1,5 +1,6 @@
 package rpc.nio;
 
+import constants.ErrorCodeEnum;
 import rpc.RpcObject;
 import rpc.constants.Constants;
 import rpc.constants.RpcType;
@@ -151,7 +152,8 @@ public class RpcNioBuffer {
         rpcObject.setLength(this.readInt());
         if (rpcObject.getLength() > 0) {
             if (rpcObject.getLength() > RpcUtils.MEM_1M) {
-                throw new RpcException("rpc data is too long " + rpcObject.getLength());
+                throw new RpcException(ErrorCodeEnum.RPC00001,
+                        ErrorCodeEnum.RPC00001.getErrorDesc() + " length=" + rpcObject.getLength());
             }
             rpcObject.setData(this.readBytes(rpcObject.getLength()));
         }

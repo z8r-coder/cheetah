@@ -429,7 +429,7 @@ public class RaftCore {
                 }
             }
         } catch (Exception ex) {
-            logger.error("appendEntries occurs ex!", ex);
+            logger.error("appendEntries occurs ex:" + ex.getMessage(), ex);
             //server down
             serverDownAndRemove(ex, request, serverNode, "appendEntries");
         } finally {

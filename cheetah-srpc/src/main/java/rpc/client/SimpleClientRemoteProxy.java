@@ -1,5 +1,6 @@
 package rpc.client;
 
+import constants.ErrorCodeEnum;
 import rpc.RemoteCall;
 import rpc.RemoteExecutor;
 import rpc.RpcContext;
@@ -87,7 +88,8 @@ public class SimpleClientRemoteProxy implements InvocationHandler, Service {
                 remoteExecutor.getRpcConnectors() != null &&
                 remoteExecutor.getRpcConnectors().size() > 0 &&
                 method.getReturnType() != void.class) {
-            throw new RpcException("broadcast refuse to invoke one method which have return value!");
+            throw new RpcException(ErrorCodeEnum.RPC00006,
+                    ErrorCodeEnum.RPC00006.getErrorDesc());
         }
 
         //广播

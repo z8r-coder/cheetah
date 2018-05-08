@@ -1,5 +1,6 @@
 package rpc.client;
 
+import constants.ErrorCodeEnum;
 import org.apache.log4j.Logger;
 import rpc.RemoteCall;
 import rpc.RpcObject;
@@ -53,7 +54,8 @@ public class SyncClientRemoteExecutor extends AbstractClientRemoteExecutor {
         rpcCache.remove(makeRpcCallCacheKey(request.getThreadId(), request.getIndex()));
         RpcObject response = sync.getResponse();
         if (response == null) {
-            throw new RpcException("rpc response == null");
+            throw new RpcException(ErrorCodeEnum.RPC00008,
+                    ErrorCodeEnum.RPC00008.getErrorDesc());
         }
 
         if (response.getType() != RpcType.FAIL && response.getLength() > 0) {

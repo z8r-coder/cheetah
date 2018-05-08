@@ -28,12 +28,15 @@ public class RpcException extends RuntimeException {
         super(t);
     }
 
-    public RpcException(String errorCode, String errorDesc) {
+    public RpcException(String errorCode, String errorDesc, String message) {
+        super(message);
         this.errorCode = errorCode;
         this.errorDesc = errorDesc;
+
     }
 
-    public RpcException(ErrorCodeEnum errorCodeEnum) {
+    public RpcException(ErrorCodeEnum errorCodeEnum, String message) {
+        super(message);
         this.errorDesc = errorCodeEnum.getErrorDesc();
         this.errorCode = errorCodeEnum.getErrorCode();
     }

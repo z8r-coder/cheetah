@@ -1,5 +1,6 @@
 package rpc.utils;
 
+import constants.ErrorCodeEnum;
 import rpc.exception.RpcException;
 
 import java.lang.reflect.*;
@@ -61,7 +62,8 @@ public class XAliasUtils {
             return;
         }
         if(clazz.isEnum()){
-            throw new RpcException("not supported enum for simple serializer "+clazz);
+            throw new RpcException(ErrorCodeEnum.RPC00009,
+                    ErrorCodeEnum.RPC00009.getErrorDesc() + clazz);
         }
         if(clazz.isArray()){
             addAlias(clazz.getComponentType());
@@ -107,7 +109,8 @@ public class XAliasUtils {
         }
 
         if(clazz.getCanonicalName().startsWith("java.")||clazz.getCanonicalName().startsWith("javax.")){
-            throw new RpcException("not supported java type for simple serializer "+clazz);
+            throw new RpcException(ErrorCodeEnum.RPC00011,
+                    ErrorCodeEnum.RPC00011.getErrorDesc() + clazz);
         }
 
         XNamespace xname = (XNamespace)clazz.getAnnotation(XNamespace.class);

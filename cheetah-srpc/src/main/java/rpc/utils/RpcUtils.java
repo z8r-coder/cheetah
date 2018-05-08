@@ -1,5 +1,6 @@
 package rpc.utils;
 
+import constants.ErrorCodeEnum;
 import org.apache.log4j.Logger;
 import rpc.RemoteCall;
 import rpc.RpcObject;
@@ -88,7 +89,8 @@ public class RpcUtils {
 			dos.write(RpcUtils.intToBytes(rpc.getLength()));
 			if (rpc.getLength() > 0) {
 				if (rpc.getLength() > MEM_512KB) {
-					throw new RpcException("rpc data too long "+ rpc.getLength());
+					throw new RpcException(ErrorCodeEnum.RPC00001,
+							ErrorCodeEnum.RPC00001.getErrorDesc() + " length=" + rpc.getLength());
 				}
 				dos.write(rpc.getData());
 			}
@@ -123,7 +125,8 @@ public class RpcUtils {
 			dos.writeInt(rpc.getLength());
 			if (rpc.getLength() > 0) {
 				if (rpc.getLength() > MEM_512KB) {
-					throw new RpcException("rpc data too long "+ rpc.getLength());
+					throw new RpcException(ErrorCodeEnum.RPC00001,
+							ErrorCodeEnum.RPC00001.getErrorDesc() + " length=" + rpc.getLength());
 				}
 				dos.write(rpc.getData());
 			}
@@ -136,7 +139,8 @@ public class RpcUtils {
 	private static void dataTooLongEx(RpcObject rpcObject, InputStream dis) throws IOException {
 		if (rpcObject.getLength() > 0) {
 			if (rpcObject.getLength() > MEM_512KB) {
-				throw new RpcException("rpc data too long "	+ rpcObject.getLength());
+				throw new RpcException(ErrorCodeEnum.RPC00001,
+						ErrorCodeEnum.RPC00001.getErrorDesc() + " length=" + rpcObject.getLength());
 			}
 			byte[] buf = new byte[rpcObject.getLength()];
 			dis.read(buf);
@@ -213,7 +217,8 @@ public class RpcUtils {
 		if (method == null) {
 			method = RpcUtils.findMethod(clazz, methodName, args);
 			if (method == null) {
-				throw new RpcException("method not exist method:" + methodName);
+				throw new RpcException(ErrorCodeEnum.RPC00002,
+						ErrorCodeEnum.RPC00002.getErrorDesc() + ":" + methodName);
 			}
 			methodCache.put(key, method);
 		}
@@ -232,16 +237,19 @@ public class RpcUtils {
 		try {
 			return method.invoke(obj, args);
 		} catch (IllegalAccessException e) {
-			throw new RpcException("invoke IllegalAccess request access error");
+			throw new RpcException(ErrorCodeEnum.RPC00003,
+					ErrorCodeEnum.RPC00003.getErrorDesc());
 		} catch (IllegalArgumentException e) {
-			throw new RpcException("invoke IllegalArgument request param wrong");
+			throw new RpcException(ErrorCodeEnum.RPC00004,
+					ErrorCodeEnum.RPC00004.getErrorDesc());
 		} catch (InvocationTargetException e) {
 			if(e.getCause()!=null){
 				exceptionHandler.handleException(null, null, e.getCause());
 			}else{
 				exceptionHandler.handleException(null, null, e);
 			}
-			throw new RpcException("rpc invoke target error");
+			throw new RpcException(ErrorCodeEnum.RPC00005,
+					ErrorCodeEnum.RPC00005.getErrorDesc());
 		}
 	}
 
@@ -249,7 +257,7 @@ public class RpcUtils {
 		if(rpcExceptionHandler!=null){
 			rpcExceptionHandler.handleException(rpc,call,e);
 		}else{
-			logger.error("exceptionHandler null exception message:"+e.getMessage());
+			logger.error("exceptionHandler null exception message:" + e.getMessage());
 		}
 	}
 	

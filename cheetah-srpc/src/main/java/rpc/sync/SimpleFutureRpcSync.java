@@ -17,7 +17,8 @@ public class SimpleFutureRpcSync implements RpcSync {
                 Thread.currentThread().sleep(5);
                 timeAll += 5;
                 if (timeAll > time) {
-                    throw new RpcException(ErrorCodeEnum.RPC00010);
+                    throw new RpcException(ErrorCodeEnum.RPC00010,
+                            ErrorCodeEnum.RPC00010.getErrorDesc());
                 }
             } catch (InterruptedException e) {
                 throw new RpcException(e);
