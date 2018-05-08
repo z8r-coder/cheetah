@@ -136,13 +136,6 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     }
 
     @Override
-    public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request) {
-        SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId());
-        return null;
-    }
-
-
-    @Override
     public GetLeaderResponse getLeader(GetLeaderRequest request) {
         logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
         " ,remote host=" + request.getRemoteHost());

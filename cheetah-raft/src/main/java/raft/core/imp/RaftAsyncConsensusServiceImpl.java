@@ -3,9 +3,14 @@ package raft.core.imp;
 import org.apache.log4j.Logger;
 import raft.core.RaftAsyncConsensusService;
 import raft.core.RaftCore;
+import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
+import raft.protocol.request.SyncLogEntryRequest;
 import raft.protocol.request.VotedRequest;
+import raft.protocol.response.SyncLogEntryResponse;
 import raft.protocol.response.VotedResponse;
+
+import java.util.List;
 
 /**
  * @author ruanxin
@@ -51,5 +56,21 @@ public class RaftAsyncConsensusServiceImpl implements RaftAsyncConsensusService 
         } finally {
             raftNode.getLock().unlock();
         }
+    }
+
+    @Override
+    public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request) {
+        logger.info("sync log entries info begin from serverId=" + request.getServerId());
+        SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId(),
+                false);
+        List<RaftLog.LogEntry> entries = request.getLogEntries();
+        RaftLog.LogEntry firstNeedSyncEntry = entries.get(0);
+        if (firstNeedSyncEntry.getIndex() != raftNode.getRaftLog().getLastLogIndex() + 1) {
+            logger.warn("syncLogEntry sync entry can't match!");
+            response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+            return response;
+        }
+
+        return null;
     }
 }

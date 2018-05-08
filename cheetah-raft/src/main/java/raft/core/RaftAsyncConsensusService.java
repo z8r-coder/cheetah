@@ -1,6 +1,8 @@
 package raft.core;
 
+import raft.protocol.request.SyncLogEntryRequest;
 import raft.protocol.request.VotedRequest;
+import raft.protocol.response.SyncLogEntryResponse;
 import raft.protocol.response.VotedResponse;
 
 /**
@@ -15,4 +17,9 @@ public interface RaftAsyncConsensusService {
      * @return
      */
     public VotedResponse leaderElection (VotedRequest request);
+
+    /**
+     * sync log entry
+     */
+    public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request);
 }
