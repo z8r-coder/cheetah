@@ -87,7 +87,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
             if (request.getPrevLogTerm() != raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogTerm())) {
                 logger.warn("LogEntry term is wrong, leader prevLogIndex=" + request.getPrevLogIndex() +
-                ",prevLogTerm=" + request.getPrevLogTerm() + "but local server prevLogIndex=" + request.getPrevLogIndex() +
+                ",prevLogTerm=" + request.getPrevLogTerm() + " ,but local server prevLogIndex=" + request.getPrevLogIndex() +
                 ",prevLogTerm=" + raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogIndex()));
                 //找到最初不一致的地方，然后覆盖掉
                 response.setLastLogIndex(request.getPrevLogIndex() - 1);

@@ -478,7 +478,7 @@ public class RaftCore {
     }
 
     /**
-     * for leader applu log on state machine
+     * for leader apply log on state machine
      */
     public void applyLogOnStateMachine () {
         if (!raftNode.getRaftLog().existLogEntry()) {
