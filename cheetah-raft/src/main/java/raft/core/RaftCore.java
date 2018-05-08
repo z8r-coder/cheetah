@@ -210,6 +210,13 @@ public class RaftCore {
             lock.unlock();
         }
 
+        if (serverList.size() == 1 && serverList.get(raftServer.getServerId()) != null) {
+            //only one node, become leader
+            logger.warn("there is only one node, so I will become leader!");
+            becomeLeader();
+            return;
+        }
+
         for (Long serverId : serverList.keySet()) {
             if (serverId == raftServer.getServerId()) {
                 continue;
@@ -413,8 +420,12 @@ public class RaftCore {
                     applyLogOnStateMachine();
                 } else {
                     serverNode.setNextIndex(response.getLastLogIndex() + 1);
-                    //sync log data
-
+                    //sync log data, async rpc call
+                    if (serverNode.getAsyncProxy().getRemoteProxyStatus() ==
+                            serverNode.getAsyncProxy().STOP) {
+                        serverNode.getAsyncProxy().startService();
+                    }
+                    serverNode.getRaftAsyncConsensusService();
                 }
             }
         } catch (Exception ex) {
@@ -515,6 +526,22 @@ public class RaftCore {
         raftNode.getRaftLog().setLastApplied(newCommitIndex);
         logger.debug("commitIndex=" + raftNode.getRaftLog().getCommitIndex() +
         "lastApplied=" + raftNode.getRaftLog().getLastApplied());
+    }
+
+    /**
+     * async rpc call, raft async call back impl
+     */
+    public class RaftSyncLogEntryCallBack implements RpcCallback<SyncLogEntryResponse> {
+
+        @Override
+        public void success(SyncLogEntryResponse resp) {
+
+        }
+
+        @Override
+        public void fail(Throwable t) {
+
+        }
     }
 
     /**
