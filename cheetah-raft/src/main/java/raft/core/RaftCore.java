@@ -420,12 +420,21 @@ public class RaftCore {
                     applyLogOnStateMachine();
                 } else {
                     serverNode.setNextIndex(response.getLastLogIndex() + 1);
-                    //sync log data, async rpc call
-                    if (serverNode.getAsyncProxy().getRemoteProxyStatus() ==
-                            serverNode.getAsyncProxy().STOP) {
-                        serverNode.getAsyncProxy().startService();
+
+                    if (response.getLastLogIndex() < raftNode.getRaftLog().getLastLogIndex()) {
+                        //sync log data, async rpc call
+                        if (serverNode.getAsyncProxy().getRemoteProxyStatus() ==
+                                serverNode.getAsyncProxy().STOP) {
+                            serverNode.getAsyncProxy().startService();
+                        }
+                        List<RaftLog.LogEntry> entries = new ArrayList<>();
+                        for (long i = response.getLastLogIndex() + 1; i <= raftNode.getRaftLog().getLastLogIndex();i++) {
+                            entries.add(raftNode.getRaftLog().getEntry(i));
+                        }
+                        SyncLogEntryRequest syncLogEntryRequest = new SyncLogEntryRequest(raftNode.getRaftServer().getServerId(),
+                                entries, raftNode.getRaftLog().getCommitIndex());
+                        serverNode.getRaftAsyncConsensusService().syncLogEntry(syncLogEntryRequest);
                     }
-                    serverNode.getRaftAsyncConsensusService();
                 }
             }
         } catch (Exception ex) {

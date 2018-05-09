@@ -20,6 +20,7 @@ public class SyncLogEntryRequest extends BaseRequest implements Serializable {
                                 long leaderCommit) {
         this.serverId = serverId;
         this.logEntries = logEntries;
+        this.leaderCommit = leaderCommit;
     }
 
     public long getServerId() {
