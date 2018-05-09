@@ -83,6 +83,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 ",local server's log index:" + raftNode.getRaftLog().getLastLogIndex() +
                 " this server need sync log!");
                 response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+                raftCore.resetElectionTimer();
                 return response;
             }
             if (request.getPrevLogTerm() != raftNode.getRaftLog().getLogEntryTerm(request.getPrevLogTerm())) {
@@ -240,7 +241,40 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         return cheetahAddress;
     }
 
-    //apply on state machine
+    @Override
+    public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request) {
+        logger.info("sync log entries info begin from serverId=" + request.getServerId());
+        SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId(),
+                false);
+        List<RaftLog.LogEntry> entries = request.getLogEntries();
+        RaftLog.LogEntry firstNeedSyncEntry = entries.get(0);
+        if (firstNeedSyncEntry.getIndex() != raftNode.getRaftLog().getLastLogIndex() + 1) {
+            logger.warn("syncLogEntry sync entry can't match!");
+            response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+            return response;
+        }
+        raftNode.getRaftLog().append(request.getLogEntries());
+        response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+        response.setSuccess(true);
+        syncLogApplyLogOnStateMachine(request);
+        return response;
+    }
+
+    /**
+     * sync log entry (apply on satate machine)
+     */
+    private void syncLogApplyLogOnStateMachine (SyncLogEntryRequest request) {
+        logger.info("sync log entry begin to apply log on state machine, local server=" + raftNode.getRaftServer().getServerId());
+        long newCommitIndex = Math.min(request.getLeaderCommit(),
+                raftNode.getRaftLog().getCommitIndex());
+        raftNode.getRaftLog().setCommitIndex(newCommitIndex);
+        //apply on state machine
+        RaftUtils.applyStateMachine(raftNode);
+    }
+
+    /**
+     * append log entry (apply on state machine)
+     */
     private void applyLogOnStateMachine(AddRequest request) {
         logger.info("begin to apply log on state machine, local server=" + raftNode.getRaftServer().getServerId());
         //can't longer than leader

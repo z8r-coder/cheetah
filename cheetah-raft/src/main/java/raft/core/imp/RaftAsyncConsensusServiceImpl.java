@@ -59,33 +59,4 @@ public class RaftAsyncConsensusServiceImpl implements RaftAsyncConsensusService 
             raftNode.getLock().unlock();
         }
     }
-
-    @Override
-    public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request) {
-        logger.info("sync log entries info begin from serverId=" + request.getServerId());
-        SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId(),
-                false);
-        List<RaftLog.LogEntry> entries = request.getLogEntries();
-        RaftLog.LogEntry firstNeedSyncEntry = entries.get(0);
-        if (firstNeedSyncEntry.getIndex() != raftNode.getRaftLog().getLastLogIndex() + 1) {
-            logger.warn("syncLogEntry sync entry can't match!");
-            response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
-            return response;
-        }
-        raftNode.getRaftLog().append(request.getLogEntries());
-        response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
-        response.setSuccess(true);
-        applyLogOnStateMachine(request);
-        return response;
-    }
-
-    //apply on state machine, sync data
-    private void applyLogOnStateMachine(SyncLogEntryRequest request) {
-        logger.info("sync log entry begin to apply log on state machine, local server=" + raftNode.getRaftServer().getServerId());
-        long newCommitIndex = Math.min(request.getLeaderCommit(),
-                raftNode.getRaftLog().getCommitIndex());
-        raftNode.getRaftLog().setCommitIndex(newCommitIndex);
-        //apply on state machine
-        RaftUtils.applyStateMachine(raftNode);
-    }
 }

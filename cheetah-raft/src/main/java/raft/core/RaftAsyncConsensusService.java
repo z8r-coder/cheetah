@@ -17,9 +17,4 @@ public interface RaftAsyncConsensusService {
      * @return
      */
     public VotedResponse leaderElection (VotedRequest request);
-
-    /**
-     * sync log entry
-     */
-    public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request);
 }

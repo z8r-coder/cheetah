@@ -422,18 +422,31 @@ public class RaftCore {
                     serverNode.setNextIndex(response.getLastLogIndex() + 1);
 
                     if (response.getLastLogIndex() < raftNode.getRaftLog().getLastLogIndex()) {
-                        //sync log data, async rpc call
-                        if (serverNode.getAsyncProxy().getRemoteProxyStatus() ==
-                                serverNode.getAsyncProxy().STOP) {
-                            serverNode.getAsyncProxy().startService();
-                        }
+                        logger.info("local serverId=" + raftNode.getRaftServer().getServerId() +
+                                "from serverId=" + response.getServerId() +
+                        " ,lastPrevIndex=" + response.getLastLogIndex() + " need sync log entry!");
                         List<RaftLog.LogEntry> entries = new ArrayList<>();
                         for (long i = response.getLastLogIndex() + 1; i <= raftNode.getRaftLog().getLastLogIndex();i++) {
                             entries.add(raftNode.getRaftLog().getEntry(i));
                         }
                         SyncLogEntryRequest syncLogEntryRequest = new SyncLogEntryRequest(raftNode.getRaftServer().getServerId(),
-                                entries, raftNode.getRaftLog().getCommitIndex());
-                        serverNode.getRaftAsyncConsensusService().syncLogEntry(syncLogEntryRequest);
+                                entries, request.getLeaderCommit());
+                        //sync log data, sync rpc call
+                        if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
+                                serverNode.getSyncProxy().STOP) {
+                            serverNode.getSyncProxy().startService();
+                        }
+                        SyncLogEntryResponse syncLogEntryResponse = serverNode.getRaftConsensusService().syncLogEntry(syncLogEntryRequest);
+                        if (syncLogEntryResponse.isSuccess()) {
+                            //sync log entry success
+                            logger.info("from serverId=" + syncLogEntryResponse.getServerId() +
+                            " sync log entry successful!");
+                            serverNode.setMatchIndex(syncLogEntryResponse.getLastLogIndex());
+                            serverNode.setNextIndex(serverNode.getMatchIndex() + 1);
+                            applyLogOnStateMachine();
+                        } else {
+                            serverNode.setNextIndex(syncLogEntryResponse.getLastLogIndex() + 1);
+                        }
                     }
                 }
             }
@@ -552,22 +565,6 @@ public class RaftCore {
         raftNode.getRaftLog().setLastApplied(newCommitIndex);
         logger.debug("commitIndex=" + raftNode.getRaftLog().getCommitIndex() +
         "lastApplied=" + raftNode.getRaftLog().getLastApplied());
-    }
-
-    /**
-     * async rpc call, raft async call back impl
-     */
-    public class RaftSyncLogEntryCallBack implements RpcCallback<SyncLogEntryResponse> {
-
-        @Override
-        public void success(SyncLogEntryResponse resp) {
-
-        }
-
-        @Override
-        public void fail(Throwable t) {
-
-        }
     }
 
     /**
