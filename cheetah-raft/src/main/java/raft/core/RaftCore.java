@@ -76,14 +76,22 @@ public class RaftCore {
      */
     public RegisterServerResponse newNodeRegister(RegisterServerRequest request) {
         long newServerId = ParseUtils.generateServerId(request.getNewHost(), request.getNewPort());
-        serverList.put(newServerId, request.getNewHost() + ":" + request.getNewPort());
-        RaftVoteAsyncCallBack asyncCallBack = new RaftVoteAsyncCallBack();
-        RaftServer raftServer = new RaftServer(request.getNewHost(), request.getNewPort());
-        ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
-        serverNodeCache.put(newServerId, serverNode);
-        RegisterServerResponse registerServerResponse = new RegisterServerResponse(raftNode.getRaftServer().getServerId(),
-                serverList, serverNodeCache, raftNode.getLeaderId(), raftNode.getCurrentTerm());
-        return registerServerResponse;
+        try {
+            serverList.put(newServerId, request.getNewHost() + ":" + request.getNewPort());
+            RaftVoteAsyncCallBack asyncCallBack = new RaftVoteAsyncCallBack();
+            RaftServer raftServer = new RaftServer(request.getNewHost(), request.getNewPort());
+            ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
+            serverNodeCache.put(newServerId, serverNode);
+            RegisterServerResponse registerServerResponse = new RegisterServerResponse(raftNode.getRaftServer().getServerId(),
+                    serverList, raftNode.getLeaderId(), raftNode.getCurrentTerm(), true);
+            logger.info("new node serverId=" + newServerId + " register successful!");
+            return registerServerResponse;
+        } catch (Exception ex) {
+            logger.error("new node serverId=" + newServerId + "register occurs ex:", ex);
+            RegisterServerResponse registerServerResponse = new RegisterServerResponse(raftNode.getRaftServer().getServerId());
+            registerServerResponse.setSuccessful(false);
+            return registerServerResponse;
+        }
     }
 
     /**

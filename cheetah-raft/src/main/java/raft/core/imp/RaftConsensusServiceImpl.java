@@ -174,7 +174,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             response.setValue(null);
         } else if (raftNode.getRaftServer().getServerState() != RaftServer.NodeState.LEADER) {
             //redirect to leader
-            logger.info("redirect to leader=" + raftNode.getLeaderId());
+            logger.info("getValue redirect to leader=" + raftNode.getLeaderId());
             response = raftCore.getRedirectLeader(request);
         } else {
             byte[] result = raftCore.getValue(request.getKey());
@@ -200,10 +200,11 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         } else if (raftNode.getRaftServer().getServerState() !=
                 RaftServer.NodeState.LEADER) {
             //redirect to leader
-            logger.info("redirect to leader=" + raftNode.getLeaderId());
+            logger.info("registerServer redirect to leader=" + raftNode.getLeaderId());
             response = raftCore.registerRedirectLeader(request);
         } else {
-            logger.info("new server node serverId= " + raftNode.getRaftServer().getServerId() +
+            logger.info("new server node serverId=" +
+                    ParseUtils.generateServerId(request.getNewHost(), request.getNewPort()) +
                     " register!");
             response = raftCore.newNodeRegister(request);
         }
@@ -222,7 +223,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             response.setRespMessage("set fail!there is no leader!");
         } else if (raftNode.getRaftServer().getServerState() != RaftServer.NodeState.LEADER) {
             //redirect to leader
-            logger.info("redirect to leader=" + raftNode.getLeaderId());
+            logger.info("setKV redirect to leader=" + raftNode.getLeaderId());
             response = raftCore.setRedirectLeader(request);
         } else {
             boolean result = raftCore.logReplication(request.getSetCommand().getBytes());
@@ -257,6 +258,8 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
         response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
         response.setSuccess(true);
         syncLogApplyLogOnStateMachine(request);
+        logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
+                " syncLogEntry successful!");
         return response;
     }
 

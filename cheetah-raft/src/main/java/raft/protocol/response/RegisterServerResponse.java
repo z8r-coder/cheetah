@@ -12,22 +12,21 @@ import java.util.Map;
 public class RegisterServerResponse extends RaftResponse {
 
     private Map<Long, String> serverList;
-    private Map<Long, ServerNode> serverNodeCache;
     private long leaderId;
     private int currentTerm;
+    private boolean successful;
 
     public RegisterServerResponse (long serverId) {
         super(serverId);
     }
 
     public RegisterServerResponse(long serverId, Map<Long, String> serverList,
-                                  Map<Long, ServerNode> serverNodeCache, long leaderId,
-                                  int currentTerm) {
+                                  long leaderId, int currentTerm, boolean successful) {
         super(serverId);
         this.serverList = serverList;
-        this.serverNodeCache = serverNodeCache;
         this.leaderId = leaderId;
         this.currentTerm = currentTerm;
+        this.successful = successful;
     }
 
     public Map<Long, String> getServerList() {
@@ -36,14 +35,6 @@ public class RegisterServerResponse extends RaftResponse {
 
     public void setServerList(Map<Long, String> serverList) {
         this.serverList = serverList;
-    }
-
-    public Map<Long, ServerNode> getServerNodeCache() {
-        return serverNodeCache;
-    }
-
-    public void setServerNodeCache(Map<Long, ServerNode> serverNodeCache) {
-        this.serverNodeCache = serverNodeCache;
     }
 
     public long getLeaderId() {
@@ -60,5 +51,13 @@ public class RegisterServerResponse extends RaftResponse {
 
     public void setCurrentTerm(int currentTerm) {
         this.currentTerm = currentTerm;
+    }
+
+    public boolean isSuccessful() {
+        return successful;
+    }
+
+    public void setSuccessful(boolean successful) {
+        this.successful = successful;
     }
 }

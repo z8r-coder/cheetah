@@ -44,20 +44,36 @@ public class CheetahServer {
      * 单个节点启动，需要注册本节点
      */
     public void start() {
-        acceptor.startService();
-        //register the new node
-        RaftConsensusService raftConsensusService = getRaftConsensusService();
-        RegisterServerRequest request = new RegisterServerRequest(acceptor.getHost(), acceptor.getPort());
-        RegisterServerResponse response = raftConsensusService.registerServer(request);
+        try {
+            acceptor.startService();
+            //register the new node
+            RaftConsensusService raftConsensusService = getRaftConsensusService();
+            RegisterServerRequest request = new RegisterServerRequest(acceptor.getHost(), acceptor.getPort());
+            RegisterServerResponse response = raftConsensusService.registerServer(request);
 
-        //sync info
-        acceptor.getRaftCore().setServerList(response.getServerList());
-        acceptor.getRaftCore().setServerNodeCache(response.getServerNodeCache());
-        acceptor.getRaftNode().setLeaderId(response.getLeaderId());
-        acceptor.getRaftNode().setCurrentTerm(response.getCurrentTerm());
+            //sync info
+            if (response == null) {
+                logger.info("register response == null!");
+            }
 
-        logger.info("cheetah server host=" + acceptor.getHost() + " port=" + acceptor.getPort() +
-        " has started!");
+            if (!response.isSuccessful()) {
+                //register failed
+                logger.error("register failed ,and the server stop service!");
+                acceptor.stopService();
+            }
+
+            acceptor.getRaftCore().setServerList(response.getServerList());
+            acceptor.getRaftNode().setLeaderId(response.getLeaderId());
+            acceptor.getRaftNode().setCurrentTerm(response.getCurrentTerm());
+
+            logger.info("cheetah server host=" + acceptor.getHost() + " port=" + acceptor.getPort() +
+                    " has started! raft cluster leaderId=" + acceptor.getRaftNode().getLeaderId() +
+                    " ,currentTerm=" + acceptor.getRaftNode().getCurrentTerm() +
+                    " ,serverList size=" + acceptor.getRaftCore().getServerList().size());
+        } catch (Exception e) {
+            logger.info("new node start occur ex:", e);
+        }
+
     }
 
     public void stop() {
