@@ -29,7 +29,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     private Logger logger = Logger.getLogger(RaftConsensusServiceImpl.class);
 
     private ReentrantLock syncLock = new ReentrantLock(true);
-    //true:正在同步 , false:还未同步
+    //true:正在同步 , false:未同步或同步完毕
     private AtomicBoolean sync;
     private RaftNode raftNode;
     private RaftCore raftCore;
@@ -267,6 +267,7 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 response.setSyncStatus(RaftCore.SYNC_ING);
                 return response;
             }
+            //数据需要同步
             sync.set(true);
         } finally {
             syncLock.unlock();
@@ -278,6 +279,8 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             if (firstNeedSyncEntry.getIndex() != raftNode.getRaftLog().getLastLogIndex() + 1) {
                 logger.warn("syncLogEntry sync entry can't match!");
                 response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+                response.setSyncStatus(RaftCore.SYNC_FAIL);
+                sync.set(false);
                 return response;
             }
             raftNode.getRaftLog().append(request.getLogEntries());
@@ -292,7 +295,10 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             logger.error("serverId=" + raftNode.getRaftServer().getServerId() +
             " sync log entry failed!", e);
             response.setSyncStatus(RaftCore.SYNC_FAIL);
+            sync.set(false);
             return response;
+        } finally {
+            sync.set(false);
         }
 
     }

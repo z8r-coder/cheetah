@@ -453,15 +453,22 @@ public class RaftCore {
                             serverNode.getSyncProxy().startService();
                         }
                         SyncLogEntryResponse syncLogEntryResponse = serverNode.getRaftConsensusService().syncLogEntry(syncLogEntryRequest);
-                        if (syncLogEntryResponse.isSuccess()) {
+                        if (syncLogEntryResponse.getSyncStatus() ==
+                                RaftCore.SYNC_SUCC) {
                             //sync log entry success
                             logger.info("from serverId=" + syncLogEntryResponse.getServerId() +
                             " sync log entry successful!");
                             serverNode.setMatchIndex(syncLogEntryResponse.getLastLogIndex());
                             serverNode.setNextIndex(serverNode.getMatchIndex() + 1);
                             applyLogOnStateMachine();
-                        } else {
+                        } else if (syncLogEntryResponse.getSyncStatus() ==
+                                RaftCore.SYNC_FAIL){
+                            logger.info("from serverId=" + syncLogEntryResponse.getServerId() +
+                            " sync log entry fail!");
                             serverNode.setNextIndex(syncLogEntryResponse.getLastLogIndex() + 1);
+                        } else {
+                            logger.info("from serverId=" + syncLogEntryResponse.getServerId() +
+                            " sync log entry ing!");
                         }
                     }
                 }
