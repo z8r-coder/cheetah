@@ -30,6 +30,6 @@ public class NewRaftServerNodeStartDemo {
                 cheetahAddress.getHost(), cheetahAddress.getPort());
         CheetahServer cheetahServer = new CheetahServer(acceptor);
         cheetahServer.start();
-        
+
     }
 }
