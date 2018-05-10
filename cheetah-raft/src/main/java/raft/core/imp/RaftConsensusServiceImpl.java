@@ -16,6 +16,8 @@ import utils.ParseUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author ruanxin
@@ -26,10 +28,14 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
     private Logger logger = Logger.getLogger(RaftConsensusServiceImpl.class);
 
+    private ReentrantLock syncLock = new ReentrantLock(true);
+    //true:正在同步 , false:还未同步
+    private AtomicBoolean sync;
     private RaftNode raftNode;
     private RaftCore raftCore;
 
     public RaftConsensusServiceImpl (RaftNode raftNode, RaftCore raftCore) {
+        this.sync = new AtomicBoolean(false);
         this.raftNode = raftNode;
         this.raftCore = raftCore;
     }
@@ -250,27 +256,33 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
     @Override
     public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request) {
-        logger.info("sync log entries info begin from serverId=" + request.getServerId());
-        SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId(),
-                false);
-        List<RaftLog.LogEntry> entries = request.getLogEntries();
-        RaftLog.LogEntry firstNeedSyncEntry = entries.get(0);
-        if (firstNeedSyncEntry.getIndex() != raftNode.getRaftLog().getLastLogIndex() + 1) {
-            logger.warn("syncLogEntry sync entry can't match!");
+        syncLock.lock();
+            if (sync.get()) {
+
+            }
+            logger.info("sync log entries info begin from serverId=" + request.getServerId());
+            SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId(),
+                    false);
+            List<RaftLog.LogEntry> entries = request.getLogEntries();
+            RaftLog.LogEntry firstNeedSyncEntry = entries.get(0);
+            if (firstNeedSyncEntry.getIndex() != raftNode.getRaftLog().getLastLogIndex() + 1) {
+                logger.warn("syncLogEntry sync entry can't match!");
+                response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+                return response;
+            }
+            raftNode.getRaftLog().append(request.getLogEntries());
             response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
+            response.setSuccess(true);
+            syncLogApplyLogOnStateMachine(request);
+            logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
+                    " syncLogEntry successful!");
             return response;
-        }
-        raftNode.getRaftLog().append(request.getLogEntries());
-        response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
-        response.setSuccess(true);
-        syncLogApplyLogOnStateMachine(request);
-        logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
-                " syncLogEntry successful!");
-        return response;
+
+
     }
 
     /**
-     * sync log entry (apply on satate machine)
+     * sync log entry (apply on state machine)
      */
     private void syncLogApplyLogOnStateMachine (SyncLogEntryRequest request) {
         logger.info("sync log entry begin to apply log on state machine, local server=" + raftNode.getRaftServer().getServerId());
