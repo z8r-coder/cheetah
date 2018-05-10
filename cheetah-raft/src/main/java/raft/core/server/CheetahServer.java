@@ -57,6 +57,8 @@ public class CheetahServer {
                 //register failed
                 logger.error("register failed ,and the server stop service!");
                 acceptor.stopService();
+                acceptor.getStateMachine().stop();
+                return;
             }
 
             acceptor.getRaftCore().setServerList(response.getServerList());

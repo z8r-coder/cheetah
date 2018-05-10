@@ -136,6 +136,10 @@ public class MapProxy {
         return delegateMap.size();
     }
 
+    public void stop() {
+        taskCenter.stop();
+    }
+
     /**
      * value size
      * @return

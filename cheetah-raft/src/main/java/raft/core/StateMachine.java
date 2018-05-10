@@ -12,5 +12,13 @@ public interface StateMachine {
      */
     public void submit(byte[] data);
 
+    /**
+     * get data
+     */
     public byte[] get(String key);
+
+    /**
+     * stop thread pool
+     */
+    public void stop();
 }

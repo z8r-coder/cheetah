@@ -43,5 +43,10 @@ public class CheetahStateMachine implements StateMachine {
         return mapProxy.get(key);
     }
 
+    @Override
+    public void stop() {
+        mapProxy.stop();
+    }
+
 
 }

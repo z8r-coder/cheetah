@@ -59,6 +59,10 @@ public class TaskCenter {
         }
     }
 
+    public void stop () {
+        executorService.shutdown();
+    }
+
     public AtomicInteger getTaskNum() {
         return taskNum;
     }
