@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import raft.core.RaftConsensusService;
 import raft.core.RaftCore;
 import raft.core.server.RaftServer;
+import raft.core.server.ServerNode;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
 import raft.protocol.request.*;
@@ -14,6 +15,7 @@ import utils.ParseUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ruanxin
@@ -106,6 +108,10 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
                 applyLogOnStateMachine(request);
                 //reset election
                 raftCore.resetElectionTimer();
+                Map<Long, String> localServerList = raftCore.getServerList();
+                Map<Long, ServerNode> localServerNode = raftCore.getServerNodeCache();
+                RaftUtils.syncServerNodeAndServerList(localServerNode, localServerList,
+                        raftServer.getServerId());
                 return response;
             }
 

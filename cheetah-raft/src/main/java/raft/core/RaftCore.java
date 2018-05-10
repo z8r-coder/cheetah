@@ -12,6 +12,7 @@ import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
 import raft.protocol.request.*;
 import raft.protocol.response.*;
+import raft.utils.RaftUtils;
 import rpc.async.RpcCallback;
 import rpc.exception.RpcException;
 import utils.ParseUtils;
@@ -458,6 +459,9 @@ public class RaftCore {
                     }
                 }
             }
+            //sync serverNode and serverList
+            RaftUtils.syncServerNodeAndServerList(serverNodeCache, serverList,
+                    raftNode.getRaftServer().getServerId());
         } catch (Exception ex) {
             logger.error("appendEntries occurs ex:" + ex.getMessage(), ex);
             //server down

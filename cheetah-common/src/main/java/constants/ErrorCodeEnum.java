@@ -17,7 +17,7 @@ public enum ErrorCodeEnum {
     RPC00009("RPC00009", "not supported enum for simple serializer "),
     RPC00010("RPC00010", "request time out"),
     RPC00011("RPC00011", "not supported java type for simple serializer "),
-    RPC00020("RPC00020", "acceptor close, connect to host error")
+    RPC00020("RPC00020", "acceptor close, connect to host error"),
     ;
 
     /**

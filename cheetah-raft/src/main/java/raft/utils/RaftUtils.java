@@ -2,6 +2,7 @@ package raft.utils;
 
 import models.CheetahAddress;
 import org.apache.log4j.Logger;
+import raft.core.server.ServerNode;
 import raft.protocol.RaftLog;
 import raft.protocol.RaftNode;
 import utils.Configuration;
@@ -142,6 +143,10 @@ public class RaftUtils {
         return cacheServerList;
     }
 
+    /**
+     * apply state machine
+     * @param raftNode
+     */
     public static void applyStateMachine(RaftNode raftNode) {
         if (raftNode.getRaftLog().getLastApplied() < raftNode.getRaftLog().getCommitIndex()) {
             for (long index = raftNode.getRaftLog().getLastApplied() + 1;
@@ -151,6 +156,25 @@ public class RaftUtils {
                     raftNode.getStateMachine().submit(logEntry.getData());
                 }
                 raftNode.getRaftLog().setLastApplied(index);
+            }
+        }
+    }
+
+    /**
+     * sync server node and server list
+     */
+    public static void syncServerNodeAndServerList(Map<Long, ServerNode> serverNode,
+                                                   Map<Long, String> serverList,
+                                                   long serverId) {
+        logger.info("serverId=" + serverId + " need to sync server list and " +
+                "server node cache!");
+        if (serverList.size() < serverNode.size()) {
+            //server node cache need sync, remove
+            for (Map.Entry<Long, ServerNode> entry : serverNode.entrySet()) {
+                if (serverList.get(entry.getKey()) == null) {
+                    //remove the server node
+                    serverNode.remove(entry.getKey());
+                }
             }
         }
     }
