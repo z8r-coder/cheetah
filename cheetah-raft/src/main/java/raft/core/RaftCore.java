@@ -46,11 +46,11 @@ public class RaftCore {
     private ScheduledFuture heartBeatScheduledFuture;
 
     //同步进行中
-    private final static int SYNC_ING = 0;
+    public final static int SYNC_ING = 0;
     //同步失败
-    private final static int SYNC_FAIL = 1;
+    public final static int SYNC_FAIL = 1;
     //同步成功
-    private final static int SYNC_SUCC = 2;
+    public final static int SYNC_SUCC = 2;
 
     public RaftCore (RaftOptions raftOptions,RaftNode raftNode,
                      Map<Long, String> serverList) {

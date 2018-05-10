@@ -256,13 +256,23 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
     @Override
     public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request) {
+        SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId(),
+                RaftCore.SYNC_FAIL);
         syncLock.lock();
+        try {
             if (sync.get()) {
-
+                //数据正在同步
+                logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
+                " log entry sync now!");
+                response.setSyncStatus(RaftCore.SYNC_ING);
+                return response;
             }
+            sync.set(true);
+        } finally {
+            syncLock.unlock();
+        }
+        try {
             logger.info("sync log entries info begin from serverId=" + request.getServerId());
-            SyncLogEntryResponse response = new SyncLogEntryResponse(raftNode.getRaftServer().getServerId(),
-                    false);
             List<RaftLog.LogEntry> entries = request.getLogEntries();
             RaftLog.LogEntry firstNeedSyncEntry = entries.get(0);
             if (firstNeedSyncEntry.getIndex() != raftNode.getRaftLog().getLastLogIndex() + 1) {
@@ -272,12 +282,18 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
             }
             raftNode.getRaftLog().append(request.getLogEntries());
             response.setLastLogIndex(raftNode.getRaftLog().getLastLogIndex());
-            response.setSuccess(true);
+            response.setSyncStatus(RaftCore.SYNC_SUCC);
             syncLogApplyLogOnStateMachine(request);
             logger.info("serverId=" + raftNode.getRaftServer().getServerId() +
                     " syncLogEntry successful!");
+            sync.set(false);
             return response;
-
+        } catch (Exception e) {
+            logger.error("serverId=" + raftNode.getRaftServer().getServerId() +
+            " sync log entry failed!", e);
+            response.setSyncStatus(RaftCore.SYNC_FAIL);
+            return response;
+        }
 
     }
 

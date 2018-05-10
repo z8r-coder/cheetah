@@ -6,12 +6,12 @@ package raft.protocol.response;
  * @desc
  */
 public class SyncLogEntryResponse extends RaftResponse {
-    private boolean success;
+    private int syncStatus;
     private long lastLogIndex;
 
-    public SyncLogEntryResponse(long serverId, boolean success) {
+    public SyncLogEntryResponse(long serverId, int syncStatus) {
         super(serverId);
-        this.success = success;
+        this.syncStatus = syncStatus;
     }
 
     public long getLastLogIndex() {
@@ -22,11 +22,11 @@ public class SyncLogEntryResponse extends RaftResponse {
         this.lastLogIndex = lastLogIndex;
     }
 
-    public boolean isSuccess() {
-        return success;
+    public int getSyncStatus() {
+        return syncStatus;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    public void setSyncStatus(int syncStatus) {
+        this.syncStatus = syncStatus;
     }
 }
