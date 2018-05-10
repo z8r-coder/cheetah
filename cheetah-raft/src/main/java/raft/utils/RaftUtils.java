@@ -166,10 +166,10 @@ public class RaftUtils {
     public static void syncServerNodeAndServerList(Map<Long, ServerNode> serverNode,
                                                    Map<Long, String> serverList,
                                                    long serverId) {
-        logger.info("serverId=" + serverId + " need to sync server list and " +
-                "server node cache!");
         if (serverList.size() < serverNode.size()) {
             //server node cache need sync, remove
+            logger.info("serverId=" + serverId + " need to sync server list and " +
+                    "server node cache!");
             for (Map.Entry<Long, ServerNode> entry : serverNode.entrySet()) {
                 if (serverList.get(entry.getKey()) == null) {
                     //remove the server node

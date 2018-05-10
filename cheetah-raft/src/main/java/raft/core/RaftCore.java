@@ -89,7 +89,7 @@ public class RaftCore {
         try {
             long localLastLogIndex = raftNode.getRaftLog().getLastLogIndex();
             long remoteLastLogIndex = request.getLastLogIndex();
-            long needSyncLogEntryNum = localLastLogIndex - remoteLastLogIndex;
+            long needSyncLogEntryNum = localLastLogIndex - remoteLastLogIndex + 1;
             long raftSyncLogMax = Long.parseLong(configuration.getRaftSyncLogMax());
             if (needSyncLogEntryNum > raftSyncLogMax) {
                 logger.warn("serverId=" + newServerId + " need sync log entry num=" +
