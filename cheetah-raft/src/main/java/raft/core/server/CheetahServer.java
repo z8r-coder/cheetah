@@ -51,11 +51,6 @@ public class CheetahServer {
             RegisterServerRequest request = new RegisterServerRequest(acceptor.getHost(), acceptor.getPort());
             RegisterServerResponse response = raftConsensusService.registerServer(request);
 
-            //sync info
-            if (response == null) {
-                logger.info("register response == null!");
-            }
-
             if (!response.isSuccessful()) {
                 //register failed
                 logger.error("register failed ,and the server stop service!");
