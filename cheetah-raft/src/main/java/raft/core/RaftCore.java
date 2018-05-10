@@ -15,6 +15,7 @@ import raft.protocol.response.*;
 import raft.utils.RaftUtils;
 import rpc.async.RpcCallback;
 import rpc.exception.RpcException;
+import utils.Configuration;
 import utils.ParseUtils;
 
 import java.util.*;
@@ -33,6 +34,7 @@ public class RaftCore {
 
     private Lock lock = new ReentrantLock();
     private Condition commitIndexCondition = lock.newCondition();
+    private Configuration configuration = new Configuration();
 
     private RaftNode raftNode;
     private int asyncVoteNum;
@@ -85,6 +87,18 @@ public class RaftCore {
     public RegisterServerResponse newNodeRegister(RegisterServerRequest request) {
         long newServerId = ParseUtils.generateServerId(request.getNewHost(), request.getNewPort());
         try {
+            long localLastLogIndex = raftNode.getRaftLog().getLastLogIndex();
+            long remoteLastLogIndex = request.getLastLogIndex();
+            long needSyncLogEntryNum = localLastLogIndex - remoteLastLogIndex;
+            long raftSyncLogMax = Long.parseLong(configuration.getRaftSyncLogMax());
+            if (needSyncLogEntryNum > raftSyncLogMax) {
+                logger.warn("serverId=" + newServerId + " need sync log entry num=" +
+                needSyncLogEntryNum + "haven more than " + raftSyncLogMax +
+                "please update manually");
+                RegisterServerResponse registerServerResponse = new RegisterServerResponse(raftNode.getRaftServer().getServerId());
+                registerServerResponse.setSuccessful(false);
+                return registerServerResponse;
+            }
             serverList.put(newServerId, request.getNewHost() + ":" + request.getNewPort());
             RaftVoteAsyncCallBack asyncCallBack = new RaftVoteAsyncCallBack();
             RaftServer raftServer = new RaftServer(request.getNewHost(), request.getNewPort());

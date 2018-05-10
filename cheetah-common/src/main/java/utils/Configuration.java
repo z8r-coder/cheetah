@@ -23,6 +23,7 @@ public class Configuration {
     private String raftInitServer;
     private String raftClusterHost;
     private String raftClusterPort;
+    private String raftSyncLogMax;
 
     //    -------------------   test ----------------
     private String raftTestLogPathA;
@@ -105,6 +106,10 @@ public class Configuration {
         String raftClusterPort = properties.getProperty("raft.client.cluster.port");
         if (!StringUtils.isBlank(raftClusterPort)) {
             this.raftClusterPort = raftClusterPort;
+        }
+        String raftSyncLogMax = properties.getProperty("raft.sync.log.max");
+        if (!StringUtils.isBlank(raftSyncLogMax)) {
+            this.raftSyncLogMax = raftSyncLogMax;
         }
 
         //--------------------   test data -------------------------
@@ -330,6 +335,14 @@ public class Configuration {
         this.raftTestRootPathD = raftTestRootPathD;
     }
 
+    public String getRaftSyncLogMax() {
+        return raftSyncLogMax;
+    }
+
+    public void setRaftSyncLogMax(String raftSyncLogMax) {
+        this.raftSyncLogMax = raftSyncLogMax;
+    }
+
     public static void main(String[] args) {
         Configuration config = new Configuration();
         config.loadPropertiesFromSrc();
@@ -351,5 +364,7 @@ public class Configuration {
         System.out.println(config.getRaftTestRootPathB());
         System.out.println(config.getRaftTestRootPathC());
         System.out.println(config.getRaftTestRootPathD());
+
+        System.out.println(config.getRaftSyncLogMax());
     }
 }
