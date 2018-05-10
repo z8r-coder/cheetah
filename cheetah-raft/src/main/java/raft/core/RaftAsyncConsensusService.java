@@ -1,8 +1,6 @@
 package raft.core;
 
-import raft.protocol.request.SyncLogEntryRequest;
 import raft.protocol.request.VotedRequest;
-import raft.protocol.response.SyncLogEntryResponse;
 import raft.protocol.response.VotedResponse;
 
 /**

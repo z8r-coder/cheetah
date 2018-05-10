@@ -5,11 +5,7 @@ import models.CheetahAddress;
 import org.apache.log4j.Logger;
 import raft.core.rpc.RaftRpcServerAcceptor;
 import raft.core.server.CheetahServer;
-import utils.Configuration;
 import utils.ParseUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author ruanxin

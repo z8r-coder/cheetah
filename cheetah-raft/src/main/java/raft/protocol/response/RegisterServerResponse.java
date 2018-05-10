@@ -1,7 +1,5 @@
 package raft.protocol.response;
 
-import raft.core.server.ServerNode;
-
 import java.util.Map;
 
 /**
