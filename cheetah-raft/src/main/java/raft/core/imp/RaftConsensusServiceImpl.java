@@ -307,6 +307,11 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
     public TestGetValueResponse getLocalData(TestGetValueRequest request) {
         String key = request.getKey();
         byte[] data = raftNode.getStateMachine().get(key);
+        if (data == null) {
+            TestGetValueResponse response = new TestGetValueResponse(raftNode.getRaftServer().getServerId(),
+                    null);
+            return response;
+        }
         String value = new String(data);
         TestGetValueResponse response = new TestGetValueResponse(raftNode.getRaftServer().getServerId(),
                 value);
