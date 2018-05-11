@@ -303,6 +303,17 @@ public class RaftConsensusServiceImpl implements RaftConsensusService {
 
     }
 
+    @Override
+    public TestGetValueResponse getLocalData(TestGetValueRequest request) {
+        String key = request.getKey();
+        byte[] data = raftNode.getStateMachine().get(key);
+        String value = new String(data);
+        TestGetValueResponse response = new TestGetValueResponse(raftNode.getRaftServer().getServerId(),
+                value);
+        return response;
+    }
+
+
     /**
      * sync log entry (apply on state machine)
      */

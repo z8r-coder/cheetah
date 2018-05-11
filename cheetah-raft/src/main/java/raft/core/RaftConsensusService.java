@@ -45,4 +45,7 @@ public interface RaftConsensusService {
      */
     public SyncLogEntryResponse syncLogEntry(SyncLogEntryRequest request);
 
+    //----------------------     test interface ------------------------
+    public TestGetValueResponse getLocalData(TestGetValueRequest request);
+
 }

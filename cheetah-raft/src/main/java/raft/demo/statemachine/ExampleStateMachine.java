@@ -23,4 +23,9 @@ public class ExampleStateMachine implements StateMachine {
     public void stop() {
 
     }
+
+    @Override
+    public int size() {
+        return 0;
+    }
 }

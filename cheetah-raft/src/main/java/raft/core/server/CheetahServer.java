@@ -64,6 +64,7 @@ public class CheetahServer {
             acceptor.getRaftCore().setServerList(response.getServerList());
             acceptor.getRaftNode().setLeaderId(response.getLeaderId());
             acceptor.getRaftNode().setCurrentTerm(response.getCurrentTerm());
+            //sync memory data
             acceptor.getRaftNode().getRaftLog().setCommitIndex(response.getServerStartIndex());
             acceptor.getRaftNode().getRaftLog().setLastApplied(response.getServerStartApplied());
             acceptor.getRaftNode().getRaftLog().setServerStartCommitIndex(response.getServerStartIndex());

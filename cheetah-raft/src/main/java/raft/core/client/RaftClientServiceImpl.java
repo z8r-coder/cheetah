@@ -5,14 +5,8 @@ import org.apache.log4j.Logger;
 import raft.core.RaftClientService;
 import raft.core.RaftConsensusService;
 import raft.model.BaseRequest;
-import raft.protocol.request.GetLeaderRequest;
-import raft.protocol.request.GetServerListRequest;
-import raft.protocol.request.GetValueRequest;
-import raft.protocol.request.SetKVRequest;
-import raft.protocol.response.GetLeaderResponse;
-import raft.protocol.response.GetServerListResponse;
-import raft.protocol.response.GetValueResponse;
-import raft.protocol.response.SetKVResponse;
+import raft.protocol.request.*;
+import raft.protocol.response.*;
 import rpc.client.SimpleClientRemoteProxy;
 import rpc.wrapper.RpcConnectorWrapper;
 import rpc.wrapper.connector.RpcServerSyncConnector;
@@ -109,6 +103,15 @@ public class RaftClientServiceImpl implements RaftClientService {
         }
         leaderAddress = response.getLeaderAddress();
         return response.getRespMessage();
+    }
+
+    @Override
+    public String testGetLocalValue(String key) {
+        TestGetValueRequest request = new TestGetValueRequest(key);
+        RaftConsensusService raftConsensusService = setAddressAndGetRaftConsensusService(request);
+
+        TestGetValueResponse response = raftConsensusService.getLocalData(request);
+        return response.getValue();
     }
 
     /**

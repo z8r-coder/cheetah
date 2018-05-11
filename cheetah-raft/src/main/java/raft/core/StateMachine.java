@@ -21,4 +21,9 @@ public interface StateMachine {
      * stop thread pool
      */
     public void stop();
+
+    /**
+     * data size
+     */
+    public int size();
 }

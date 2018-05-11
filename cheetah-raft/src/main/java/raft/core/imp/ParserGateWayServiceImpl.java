@@ -71,6 +71,12 @@ public class ParserGateWayServiceImpl implements ParserGateWayService {
                 return WRONG;
             }
             result = EXIT;
+        } else if (commandArr[0].equals("test")) {
+            if (commandArr.length != 2) {
+                return WRONG;
+            }
+            String res = raftClientService.testGetLocalValue(commandArr[1]);
+            return res;
         }
         return result;
     }

@@ -32,4 +32,9 @@ public interface RaftClientService {
      * set kv
      */
     public String set(String command);
+
+    /**
+     * test get local value by key
+     */
+    public String testGetLocalValue(String key);
 }

@@ -18,7 +18,7 @@ public class RaftNode {
     private long votedFor = 0;
     //日志条目
     private RaftLog raftLog;
-    //用于附加乳RPC时的重定向
+    //用于附加日志RPC时的重定向
     private long leaderId;
 
     private StateMachine stateMachine;
