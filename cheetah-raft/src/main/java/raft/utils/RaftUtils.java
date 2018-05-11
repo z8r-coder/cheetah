@@ -50,37 +50,6 @@ public class RaftUtils {
     }
 
     /**
-     * 暂时不用
-     * @param clazz
-     * @param <T>
-     * @return
-     */
-    public static <T> T readRaftFrom(Class<T> clazz) {
-        try {
-            Method method = clazz.getMethod("readFrom");
-            T result = (T) method.invoke(clazz);
-            return result;
-        } catch (Exception e) {
-            logger.error("readRaftFrom occurs problem!", e);
-            return null;
-        }
-    }
-
-    /**
-     * 暂时不用
-     * @param clazz
-     * @param <T>
-     */
-    public static <T> void writeRaftTo(Class<T> clazz) {
-        try {
-            Method method = clazz.getMethod("writeTo");
-            method.invoke(clazz);
-        } catch (Exception e) {
-            logger.error("writeRaftTo occurs problem!", e);
-        }
-    }
-
-    /**
      * get file count in directory
      * @param dirName
      * @param rootDirName
@@ -117,14 +86,6 @@ public class RaftUtils {
         }
         Collections.sort(fileList);
         return fileList;
-    }
-    public static class Test{
-        String hello = "hell world";
-
-        public String test() {
-            System.out.println(hello);
-            return hello;
-        }
     }
 
     /**
