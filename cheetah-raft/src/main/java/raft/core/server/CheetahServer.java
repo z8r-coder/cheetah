@@ -64,6 +64,10 @@ public class CheetahServer {
             acceptor.getRaftCore().setServerList(response.getServerList());
             acceptor.getRaftNode().setLeaderId(response.getLeaderId());
             acceptor.getRaftNode().setCurrentTerm(response.getCurrentTerm());
+            acceptor.getRaftNode().getRaftLog().setCommitIndex(response.getServerStartIndex());
+            acceptor.getRaftNode().getRaftLog().setLastApplied(response.getServerStartApplied());
+            acceptor.getRaftNode().getRaftLog().setServerStartCommitIndex(response.getServerStartIndex());
+            acceptor.getRaftNode().getRaftLog().setServerStartApplied(response.getServerStartApplied());
 
             logger.info("cheetah server host=" + acceptor.getHost() + " port=" + acceptor.getPort() +
                     " has started! raft cluster leaderId=" + acceptor.getRaftNode().getLeaderId() +

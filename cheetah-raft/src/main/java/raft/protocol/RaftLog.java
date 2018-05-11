@@ -61,6 +61,10 @@ public class RaftLog {
 
     private GlobleMetaData globleMetaData;
 
+    //机器启动时的提交索引,用于数据同步
+    private long serverStartCommitIndex;
+    private long serverStartApplied;
+
     public RaftLog(int maxFileLogSize, String logEntryDir, String metaFileName) {
         this.logDataRoute = new RaftLogDataRoute(this);
         this.maxFileLogSize = maxFileLogSize;
@@ -70,6 +74,8 @@ public class RaftLog {
         this.metaFileName = metaFileName + ".meta";
 
         initDirAndFileAndReadMetaData();
+        serverStartApplied = lastApplied;
+        serverStartCommitIndex = commitIndex;
     }
 
     /**
@@ -130,7 +136,6 @@ public class RaftLog {
         LogEntry logEntry = segment.getEntry(lastLogIndex);
         lastLogTerm = logEntry.getTerm();
         commitIndex = lastLogIndex;
-
     }
 
     private void readGlobleMetaData(RandomAccessFile randomAccessFile) {
@@ -704,6 +709,22 @@ public class RaftLog {
 
     public void setGlobleMetaData(GlobleMetaData globleMetaData) {
         this.globleMetaData = globleMetaData;
+    }
+
+    public long getServerStartCommitIndex() {
+        return serverStartCommitIndex;
+    }
+
+    public void setServerStartCommitIndex(long serverStartCommitIndex) {
+        this.serverStartCommitIndex = serverStartCommitIndex;
+    }
+
+    public long getServerStartApplied() {
+        return serverStartApplied;
+    }
+
+    public void setServerStartApplied(long serverStartApplied) {
+        this.serverStartApplied = serverStartApplied;
     }
 
     public static void main(String[] args) {

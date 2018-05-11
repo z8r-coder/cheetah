@@ -105,7 +105,8 @@ public class RaftCore {
             ServerNode serverNode = new ServerNode(raftServer, asyncCallBack);
             serverNodeCache.put(newServerId, serverNode);
             RegisterServerResponse registerServerResponse = new RegisterServerResponse(raftNode.getRaftServer().getServerId(),
-                    serverList, raftNode.getLeaderId(), raftNode.getCurrentTerm(), true);
+                    serverList, raftNode.getLeaderId(), raftNode.getCurrentTerm(), true,
+                    raftNode.getRaftLog().getServerStartCommitIndex(), raftNode.getRaftLog().getServerStartApplied());
             logger.info("new node serverId=" + newServerId + " register successful!");
             return registerServerResponse;
         } catch (Exception ex) {
