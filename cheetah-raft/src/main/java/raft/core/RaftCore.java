@@ -139,7 +139,8 @@ public class RaftCore {
      * begin heart beat
      */
     private void startNewHeartBeat() {
-        logger.info("begin start heart beat. leaderId:" + raftNode.getLeaderId());
+        logger.info("begin start heart beat. leaderId:" + raftNode.getLeaderId() +
+        " current term=" + raftNode.getCurrentTerm());
         for (Long serverId : serverList.keySet()) {
             if (serverId == raftNode.getRaftServer().getServerId()) {
                 continue;
@@ -234,7 +235,9 @@ public class RaftCore {
             }
             int currentTerm = raftNode.getCurrentTerm() + 1;
             raftNode.setCurrentTerm(currentTerm);
-            logger.info("Running for election in term " + currentTerm);
+            String fmtServerList = formatServerList(serverList);
+            logger.info("Running for election in term " + currentTerm + "。" +
+            "serverList size=" + serverList.size() + "。the list=" + fmtServerList);
             raftNode.getRaftServer().setServerState(RaftServer.NodeState.CANDIDATE);
             raftNode.setVotedFor(serverId);
         } finally {
@@ -300,6 +303,9 @@ public class RaftCore {
      */
     private ServerNode getServerNodeById(long serverId) {
         ServerNode serverNode = serverNodeCache.get(serverId);
+        if (serverNode == null) {
+            serverNode = initNewServerNode(serverId);
+        }
         //sync rpc call
         if (serverNode.getSyncProxy().getRemoteProxyStatus() ==
                 serverNode.getSyncProxy().STOP) {
@@ -450,6 +456,12 @@ public class RaftCore {
                     serverNode.setNextIndex(serverNode.getMatchIndex() + 1);
                     applyLogOnStateMachine();
                 } else {
+                    //false
+                    if (response.getTerm() > raftNode.getCurrentTerm()) {
+                        //如果集群中有存在比自己任期号大机器，则立马变为FOLLOWER病更新任期号
+                        updateMore(response.getTerm());
+                        return;
+                    }
                     serverNode.setNextIndex(response.getLastLogIndex() + 1);
 
                     if (response.getLastLogIndex() < raftNode.getRaftLog().getLastLogIndex()) {
@@ -532,6 +544,20 @@ public class RaftCore {
             //server down
             serverDownAndRemove(ex, request, serverNode, "requestVoteFor");
         }
+    }
+
+    /**
+     * generate server list
+     * @param serverList
+     * @return
+     */
+    private String formatServerList (Map<Long, String> serverList) {
+        StringBuilder sb = new StringBuilder();
+        for (String value : serverList.values()) {
+            sb.append(value + ",");
+        }
+        sb.substring(0, sb.length() - 1);
+        return sb.toString();
     }
 
     /**
