@@ -5,7 +5,6 @@ import raft.core.ParserGateWayService;
 import raft.core.RaftClientService;
 import raft.core.client.RaftClientServiceImpl;
 import raft.core.imp.ParserGateWayServiceImpl;
-import utils.Configuration;
 import utils.ParseUtils;
 
 import java.util.Scanner;
